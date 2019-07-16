@@ -1,0 +1,19 @@
+﻿  ConfigurationType : DynamicLibrary
+  Configuration     : DebugDLL
+  PlatformToolset   : v141
+  TargetPath        : E:\project\go\src\github.com\Myriad-Dreamin\go-ves\go-uiputils\vc\secp256k1-vc141-nuget\builds\msvc\vs2017\secp256k1\..\..\..\..\bin\Win32\Debug\v141\dynamic\secp256k1.dll
+  Option-gmp          : 
+  Option-assembly     : 
+  Option-endomorphism : true
+  Option-config       : 
+  Option-field64      : 
+  Option-scalar64     : 
+  Option-ecdh         : true
+  Option-recovery     : true
+  Option-schnorr      : 
+  lax_der_parsing.c
+  lax_der_privatekey_parsing.c
+  secp256k1.c
+e:\project\go\src\github.com\myriad-dreamin\go-ves\go-uiputils\vc\secp256k1-vc141-nuget\src\secp256k1.c(273): warning C4018: “>=”: 有符号/无符号不匹配
+    正在创建库 E:\project\go\src\github.com\Myriad-Dreamin\go-ves\go-uiputils\vc\secp256k1-vc141-nuget\builds\msvc\vs2017\secp256k1\..\..\..\..\bin\Win32\Debug\v141\dynamic\secp256k1.lib 和对象 E:\project\go\src\github.com\Myriad-Dreamin\go-ves\go-uiputils\vc\secp256k1-vc141-nuget\builds\msvc\vs2017\secp256k1\..\..\..\..\bin\Win32\Debug\v141\dynamic\secp256k1.exp
+  secp256k1.vcxproj -> E:\project\go\src\github.com\Myriad-Dreamin\go-ves\go-uiputils\vc\secp256k1-vc141-nuget\builds\msvc\vs2017\secp256k1\..\..\..\..\bin\Win32\Debug\v141\dynamic\secp256k1.dll
