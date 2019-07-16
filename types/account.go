@@ -1,12 +1,12 @@
 package types
 
-type chain_id = uint64
-type address = []byte
+type ChainId = uint64
+type Address = []byte
 
 // an implementation of types.Account is uiprpc.Account from "github.com/Myriad-Dreamin/go-ves/grpc"
 type Account interface {
-	GetChainId() chain_id
-	GetAddress() address
+	GetChainId() ChainId
+	GetAddress() Address
 }
 
 type Signature interface {
