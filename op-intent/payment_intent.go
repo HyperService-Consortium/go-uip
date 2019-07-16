@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 
-	types "github.com/Myriad-Dreamin/go-ves/types"
+	types "github.com/Myriad-Dreamin/go-uip/types"
 
 	account "github.com/Myriad-Dreamin/go-uip/types/account"
 	chain_type "github.com/Myriad-Dreamin/go-uip/types/chain_type"

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 
-	types "github.com/Myriad-Dreamin/go-ves/types"
+	types "github.com/Myriad-Dreamin/go-uip/types"
 )
 
 type OpIntentInitializer struct {
