@@ -8,9 +8,9 @@ import (
 
 	types "github.com/Myriad-Dreamin/go-ves/types"
 
+	account "github.com/Myriad-Dreamin/go-uip/types/account"
 	chain_type "github.com/Myriad-Dreamin/go-uip/types/chain_type"
 	unit_type "github.com/Myriad-Dreamin/go-uip/types/unit_type"
-	account "github.com/Myriad-Dreamin/go-ves/types/account"
 )
 
 type hexstring = string
