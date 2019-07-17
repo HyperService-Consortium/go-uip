@@ -3,6 +3,7 @@ package signaturer
 import (
 	"bytes"
 	"encoding/hex"
+	"fmt"
 )
 
 type HexType interface {
@@ -63,6 +64,7 @@ func NewBaseHexTypeFromString(b string) (bh *BaseHexType) {
 }
 
 func (h *BaseHexType) Bytes() []byte {
+	fmt.Println(h)
 	return []byte(*h)
 }
 

@@ -27,6 +27,9 @@ func NewEd25519PrivateKeyFromBytes(b []byte) (ed *Ed25519PrivateKey) {
 	ed = new(Ed25519PrivateKey)
 	ed.BaseHexType = new(BaseHexType)
 	*ed.BaseHexType = b
+	if !ed.IsValid() {
+		return nil
+	}
 	return
 }
 
@@ -39,7 +42,7 @@ func (s *Ed25519PrivateKey) ToPublic() ECCPublicKey {
 }
 
 func (s *Ed25519PrivateKey) Sign(b []byte) ECCSignature {
-	if sig := new(Ed25519Signature); !sig.FromBytes(ed25519.Sign([]byte(*s.BaseHexType), b)) {
+	if sig := newEd25519Sig(); !sig.FromBytes(ed25519.Sign([]byte(*s.BaseHexType), b)) {
 		return nil
 	} else {
 		return sig
@@ -48,6 +51,12 @@ func (s *Ed25519PrivateKey) Sign(b []byte) ECCSignature {
 
 type Ed25519Signature struct {
 	*BaseHexType
+}
+
+func newEd25519Sig() *Ed25519Signature {
+	return &Ed25519Signature{
+		BaseHexType: new(BaseHexType),
+	}
 }
 
 func (s *Ed25519Signature) IsValid() bool {
