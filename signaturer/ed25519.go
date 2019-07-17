@@ -1,4 +1,4 @@
-package signature
+package signaturer
 
 import (
 	ed25519 "golang.org/x/crypto/ed25519"
@@ -19,6 +19,11 @@ func (s *Ed25519PublicKey) IsValid() bool {
 
 type Ed25519PrivateKey struct {
 	*BaseHexType
+}
+
+func NewEd25519PrivateKeyFromBytes(b []byte) (ed *Ed25519PrivateKey) {
+	*ed.BaseHexType = b
+	return
 }
 
 func (s *Ed25519PrivateKey) IsValid() bool {

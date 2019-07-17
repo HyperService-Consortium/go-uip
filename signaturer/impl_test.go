@@ -1,4 +1,4 @@
-package signature
+package signaturer
 
 var _ ECCPublicKey = new(Ed25519PublicKey)
 var _ ECCPrivateKey = new(Ed25519PrivateKey)
