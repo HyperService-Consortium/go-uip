@@ -14,7 +14,7 @@ type Signature interface {
 	GetContent() []byte
 }
 
-type TenSigner interface {
+type Signer interface {
 	GetPublicKey() []byte
 	Sign([]byte) []byte
 }
