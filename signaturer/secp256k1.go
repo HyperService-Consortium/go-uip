@@ -52,8 +52,9 @@ func toECDSA(d []byte, strict bool) (*ecdsa.PrivateKey, error) {
 	return priv, nil
 }
 
-func NewSecp256k1PublicKeyFromBytes(b []byte) (ed *Secp256k1PublicKey) {
-	*ed.BaseHexType = b
+func NewSecp256k1PublicKeyFromBytes(b []byte) (se *Secp256k1PublicKey) {
+	se = new(Secp256k1PublicKey)
+	*se.BaseHexType = b
 	return
 }
 
