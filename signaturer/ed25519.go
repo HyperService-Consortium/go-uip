@@ -10,6 +10,7 @@ type Ed25519PublicKey struct {
 
 func NewEd25519PublicKeyFromBytes(b []byte) (ed *Ed25519PublicKey) {
 	ed = new(Ed25519PublicKey)
+	ed.BaseHexType = new(BaseHexType)
 	*ed.BaseHexType = b
 	return
 }
@@ -24,6 +25,7 @@ type Ed25519PrivateKey struct {
 
 func NewEd25519PrivateKeyFromBytes(b []byte) (ed *Ed25519PrivateKey) {
 	ed = new(Ed25519PrivateKey)
+	ed.BaseHexType = new(BaseHexType)
 	*ed.BaseHexType = b
 	return
 }
