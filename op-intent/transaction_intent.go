@@ -19,6 +19,15 @@ func (tx *TransactionIntent) Bytes() []byte {
 	return b
 }
 
+type MerkleProofProposal struct {
+	// 0 = transaction proof, 1 = data proof
+	DescriptionType uint8
+	// 0 = simpleMerkleTreeUsingSha256, 1 = simpleMerkleTreeUsingSha512, 2 = merklePatriciaTrieUsingKeccak256
+	MerkleProofType   uint16
+	ValueType         uint16
+	SourceDescription []byte
+}
+
 // type TransactionIntentInterface interface {
 // 	GetSrc() []byte
 // 	GetDst() []byte

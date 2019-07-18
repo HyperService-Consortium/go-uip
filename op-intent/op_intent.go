@@ -2,7 +2,6 @@ package opintent
 
 import (
 	"encoding/json"
-	"errors"
 
 	types "github.com/Myriad-Dreamin/go-uip/types"
 )
@@ -14,10 +13,6 @@ func NewOpIntentInitializer() *OpIntentInitializer {
 	return new(OpIntentInitializer)
 }
 
-var (
-	invalidOpType = errors.New("there is at least an unexpected op_type in OpIntents")
-)
-
 type BaseOpIntent struct {
 	Name   string `json:"name"`
 	OpType string `json:"op_type"`
@@ -27,7 +22,9 @@ func (ier *OpIntentInitializer) InitOpIntent(opIntents types.OpIntents) (transac
 	contents, rawDependencies := opIntents.GetContents(), opIntents.GetDependencies()
 	var intent BaseOpIntent
 	var rtx [][]*TransactionIntent
+	var proposals [][]*MerkleProofProposal
 	var tx []*TransactionIntent
+	var proposal []*MerkleProofProposal
 	for _, content := range contents {
 		err = json.Unmarshal(content, &intent)
 		if err != nil {
@@ -35,14 +32,20 @@ func (ier *OpIntentInitializer) InitOpIntent(opIntents types.OpIntents) (transac
 		}
 		switch intent.OpType {
 		case "Payment":
-			if tx, err = ier.InitPaymentOpIntent(intent.Name, content); err != nil {
+			if tx, proposal, err = ier.InitPaymentOpIntent(intent.Name, content); err != nil {
 				return nil, err
 			} else {
 				rtx = append(rtx, tx)
+				proposals = append(proposals, proposal)
 			}
 
 		case "ContractInvocation":
-			return nil, errors.New("todo")
+			if tx, proposal, err = ier.InitContractInvocationOpIntent(intent.Name, content); err != nil {
+				return nil, err
+			} else {
+				rtx = append(rtx, tx)
+				proposals = append(proposals, proposal)
+			}
 			// if tx, err = ier.InitContractInvocationOpIntent(intent.Name, intent.SubIntent); err != nil {
 			// 	return nil, err
 			// } else {
@@ -59,12 +62,5 @@ func (ier *OpIntentInitializer) InitOpIntent(opIntents types.OpIntents) (transac
 	for _, rt := range rtx {
 		transactionIntents = append(transactionIntents, rt...)
 	}
-	return
-}
-
-func (ier *OpIntentInitializer) InitContractInvocationOpIntent(
-	name string,
-	subIntent json.RawMessage,
-) (tx []*TransactionIntent, err error) {
 	return
 }
