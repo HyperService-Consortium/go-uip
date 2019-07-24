@@ -22,6 +22,8 @@ func (ier *OpIntentInitializer) InitOpIntent(opIntents types.OpIntents) (transac
 	contents, rawDependencies := opIntents.GetContents(), opIntents.GetDependencies()
 	var intent BaseOpIntent
 	var rtx [][]*TransactionIntent
+
+	// todo: add merkle proof proposal
 	var proposals [][]*MerkleProofProposal
 	var tx []*TransactionIntent
 	var proposal []*MerkleProofProposal
