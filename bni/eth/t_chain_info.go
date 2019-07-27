@@ -39,12 +39,12 @@ func SearchChainId(domain uint64) (ChainInfoInterface, error) {
 		return nil, errors.New("nil domain is not allowed")
 	case 1: // ethereum chain 1
 		return &ChainInfo{
-			Host:      "127.0.0.1",
+			Host:      "127.0.0.1:8545",
 			ChainType: chainType.Ethereum,
 		}, nil
 	case 2: // ethereum chain 2
 		return &ChainInfo{
-			Host:      "127.0.0.1",
+			Host:      "127.0.0.1:8545",
 			ChainType: chainType.Ethereum,
 		}, nil
 	case 3: // tendermint chain 1

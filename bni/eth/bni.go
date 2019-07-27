@@ -60,9 +60,16 @@ func (bn *BN) Translate(
 	switch intent.TransType {
 	case TransType.Payment:
 		return json.Marshal(map[string]interface{}{
-			"from":  decoratePrefix(hex.EncodeToString(intent.Src)),
-			"to":    decoratePrefix(hex.EncodeToString(intent.Dst)),
-			"value": decoratePrefix(intent.Amt),
+			"jsonrpc": "2.0",
+			"method":  "eth_sendTransaction",
+			"params": []interface{}{
+				map[string]interface{}{
+					"from":  decoratePrefix(hex.EncodeToString(intent.Src)),
+					"to":    decoratePrefix(hex.EncodeToString(intent.Dst)),
+					"value": decoratePrefix(intent.Amt),
+				},
+			},
+			"id": 1,
 		})
 	case TransType.ContractInvoke:
 		var meta types.ContractInvokeMeta
