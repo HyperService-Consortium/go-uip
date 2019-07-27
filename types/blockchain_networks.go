@@ -4,7 +4,10 @@ type chainID = uint64
 
 type Router interface {
 	RouteRaw(uint64, []byte) ([]byte, error)
-	Route(uint64, []byte) ([]byte, error)
+	Route(*TransactionIntent, map[string][]byte) ([]byte, error)
+
+	MustWithSigner() bool
+	RouteWithSigner(Signer) Router
 }
 
 type Translator interface {

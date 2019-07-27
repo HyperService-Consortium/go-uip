@@ -14,6 +14,17 @@ import (
 )
 
 type BN struct {
+	signer types.Signer
+}
+
+func (bn *BN) MustWithSigner() bool {
+	return true
+}
+
+func (bn *BN) RouteWithSigner(signer types.Signer) types.Router {
+	nbn := new(BN)
+	nbn.signer = signer
+	return nbn
 }
 
 func (bn *BN) RouteRaw(destination uint64, payload []byte) ([]byte, error) {
