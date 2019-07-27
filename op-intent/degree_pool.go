@@ -1,7 +1,6 @@
 package opintent
 
 import (
-	"fmt"
 	"sync"
 )
 
@@ -34,7 +33,6 @@ type subDegreePool struct {
 }
 
 func (s *subDegreePool) newVector(n uint16) []uint16 {
-	fmt.Println(s.resrc)
 	var ret = <-s.resrc
 	copy(ret, zeroVector[:n])
 	return ret

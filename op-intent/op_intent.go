@@ -36,11 +36,11 @@ func (ier *OpIntentInitializer) InitOpIntent(opIntents types.OpIntents) (transac
 	var proposals [][]*MerkleProofProposal
 	var tx []*TransactionIntent
 	var proposal []*MerkleProofProposal
-	var nameMap map[uint32]uint32
 	var hacker uint32
 	var bn []byte
 	var rbn = (*reflect.SliceHeader)(unsafe.Pointer(&bn))
 	var sh *reflect.StringHeader
+	var nameMap = make(map[uint32]uint32)
 	for idx, content := range contents {
 		err = json.Unmarshal(content, &intent)
 		if err != nil {
@@ -85,12 +85,13 @@ func (ier *OpIntentInitializer) InitOpIntent(opIntents types.OpIntents) (transac
 	var dep Dependency
 	var res, sres gjson.Result
 	var ok bool
-	var sn = sres.String()
+	var sn string
 	for _, rawDep := range rawDependencies {
 		res = gjson.ParseBytes(rawDep)
 		if sres = res.Get("left"); !sres.Exists() {
 			return nil, errors.New("left property not found in dependency")
 		}
+		sn = sres.String()
 		sh = (*reflect.StringHeader)(unsafe.Pointer(&sn))
 		rbn.Data = sh.Data
 		rbn.Cap = sh.Len
@@ -105,15 +106,17 @@ func (ier *OpIntentInitializer) InitOpIntent(opIntents types.OpIntents) (transac
 		if sres = res.Get("right"); !sres.Exists() {
 			return nil, errors.New("right property not found in dependency")
 		}
-		sh = (*reflect.StringHeader)(unsafe.Pointer(&sres))
+
+		sn = sres.String()
+		sh = (*reflect.StringHeader)(unsafe.Pointer(&sn))
 		rbn.Data = sh.Data
 		rbn.Cap = sh.Len
 		rbn.Len = sh.Len
 		s = md5.Sum(bn)
 		dep.Dst = *(*uint32)(unsafe.Pointer(&s[0]))
 
-		if dep.Dst, ok = nameMap[dep.Src]; !ok {
-			return nil, errors.New("not such name(left)")
+		if dep.Dst, ok = nameMap[dep.Dst]; !ok {
+			return nil, errors.New("not such name(right)")
 		}
 
 		if sres = res.Get("dep"); !sres.Exists() {

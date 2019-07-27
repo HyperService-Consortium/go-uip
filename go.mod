@@ -8,6 +8,7 @@ require (
 	github.com/Myriad-Dreamin/go-py v0.0.0-20190629155946-c47d2c093430
 	github.com/Myriad-Dreamin/go-rlp v1.0.1
 	github.com/Myriad-Dreamin/go-ves v0.6.0
+	github.com/gogo/protobuf v1.2.1
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/gordonklaus/ineffassign v0.0.0-20190601041439-ed7b1b5ee0f8 // indirect
 	github.com/imroc/req v0.2.4 // indirect

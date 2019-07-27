@@ -2,7 +2,6 @@ package opintent
 
 import (
 	"errors"
-	"fmt"
 	"sync/atomic"
 
 	queue "github.com/Myriad-Dreamin/go-uip/queue"
@@ -120,11 +119,9 @@ func (ier *OpIntentInitializer) TopologicalSort(
 		if !succ {
 			return errors.New("get error")
 		}
-		fmt.Println("get", u)
 
 		for idx := hed[u]; idx != 0; idx = nxt[idx] {
 			v = lnk[idx]
-			// fmt.Println(v, deg[v], hed[u], idx)
 			deg[v]--
 			if deg[v] == 0 {
 				succ = succ && Q.Put(v)
