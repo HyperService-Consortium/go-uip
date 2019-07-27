@@ -40,42 +40,42 @@ func (ier *OpIntentInitializer) InitPaymentOpIntent(
 	if len(paymentIntent.Amount) == 0 {
 		return nil, nil, initializeError("amount")
 	}
-	if t, ok := unit_type.Mapping[paymentIntent.UnitString]; !ok {
+	t, ok := unit_type.Mapping[paymentIntent.UnitString]
+	if !ok {
 		return nil, nil, errors.New("unknown unit type")
-	} else {
-		var srcInfo, dstInfo types.Account
-		srcInfo, err = TempSearchAccount(paymentIntent.Src.Name, paymentIntent.Src.ChainId)
-		if err != nil {
-			return
-		}
-		dstInfo, err = TempSearchAccount(paymentIntent.Dst.Name, paymentIntent.Dst.ChainId)
-		if err != nil {
-			return
-		}
-		if tx, proposal, err = ier.genPayment(srcInfo, nil, paymentIntent.Amount, t); err != nil {
-			return
-		}
-		requiringMerkleProof = append(requiringMerkleProof, proposal...)
-		txs = append(txs, tx)
-		if tx, proposal, err = ier.genPayment(nil, dstInfo, paymentIntent.Amount, t); err != nil {
-			return
-		}
-		requiringMerkleProof = append(requiringMerkleProof, proposal...)
-		txs = append(txs, tx)
-		// cinfo, err = SearchChainId(paymentIntent.Src.ChainId)
-		// if err != nil {
-		// 	return nil, err
-		// }
-		// var processor ProcessorInterface
-		// switch cinfo.GetChainType() {
-		// case chain_type.Ethereum:
-		// 	processor = eth_processor.GetProcessor()
-		// default:
-		// 	return nil, errors.New("unsupport chain_type")
-		// }
-		// if !processor.CheckAddress(paymentIntent.Src.)
+	}
+	var srcInfo, dstInfo types.Account
+	srcInfo, err = TempSearchAccount(paymentIntent.Src.Name, paymentIntent.Src.ChainId)
+	if err != nil {
 		return
 	}
+	dstInfo, err = TempSearchAccount(paymentIntent.Dst.Name, paymentIntent.Dst.ChainId)
+	if err != nil {
+		return
+	}
+	if tx, proposal, err = ier.genPayment(srcInfo, nil, paymentIntent.Amount, t); err != nil {
+		return
+	}
+	requiringMerkleProof = append(requiringMerkleProof, proposal...)
+	txs = append(txs, tx)
+	if tx, proposal, err = ier.genPayment(nil, dstInfo, paymentIntent.Amount, t); err != nil {
+		return
+	}
+	requiringMerkleProof = append(requiringMerkleProof, proposal...)
+	txs = append(txs, tx)
+	// cinfo, err = SearchChainId(paymentIntent.Src.ChainId)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// var processor ProcessorInterface
+	// switch cinfo.GetChainType() {
+	// case chain_type.Ethereum:
+	// 	processor = eth_processor.GetProcessor()
+	// default:
+	// 	return nil, errors.New("unsupport chain_type")
+	// }
+	// if !processor.CheckAddress(paymentIntent.Src.)
+	return
 }
 
 // type PaymentMeta struct {
@@ -85,7 +85,7 @@ func (ier *OpIntentInitializer) InitPaymentOpIntent(
 // var pm = []byte(`{"op_type": "transact"}`)
 
 type transactionProofSourceDescription struct {
-	ChainId uint64 `json:"chain_id"`
+	ChainID uint64 `json:"chain_id"`
 }
 
 func (ier *OpIntentInitializer) genPayment(
@@ -106,11 +106,11 @@ func (ier *OpIntentInitializer) genPayment(
 		Dst:       dst.GetAddress(),
 		TransType: trans_type.Payment,
 		Amt:       amt,
-		ChainId:   dst.GetChainId(),
+		ChainID:   dst.GetChainId(),
 	}
 
 	var txp transactionProofSourceDescription
-	txp.ChainId = dst.GetChainId()
+	txp.ChainID = dst.GetChainId()
 	b, err := json.Marshal(&txp)
 	if err != nil {
 		return nil, nil, err

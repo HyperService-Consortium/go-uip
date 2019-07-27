@@ -11,6 +11,8 @@ require (
 	github.com/opennota/check v0.0.0-20180911053232-0c771f5545ff // indirect
 	github.com/securego/gosec v0.0.0-20190709033609-4b59c948083c // indirect
 	github.com/syndtr/goleveldb v1.0.0
+	github.com/tidwall/gjson v1.3.2
+	github.com/yireyun/go-queue v0.0.0-20180809062148-5e6897360dac // indirect
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
 	golang.org/x/tools v0.0.0-20190716021316-fefcef05abb1 // indirect
 	honnef.co/go/tools v0.0.0-2019.2.1 // indirect

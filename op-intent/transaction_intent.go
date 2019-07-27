@@ -8,7 +8,7 @@ type TransactionIntent struct {
 	Dst       []byte    `json:"dst"`
 	Meta      []byte    `json:"meta"`
 	Amt       hexstring `json:"amt"`
-	ChainId   uint64    `json:"chain_id"`
+	ChainID   uint64    `json:"chain_id"`
 }
 
 func (tx *TransactionIntent) Bytes() []byte {
@@ -20,6 +20,7 @@ func (tx *TransactionIntent) Bytes() []byte {
 }
 
 type MerkleProofProposal struct {
+	Tid uint64
 	// 0 = transaction proof, 1 = data proof
 	DescriptionType uint8
 	// 0 = simpleMerkleTreeUsingSha256, 1 = simpleMerkleTreeUsingSha512, 2 = merklePatriciaTrieUsingKeccak256
@@ -31,7 +32,7 @@ type MerkleProofProposal struct {
 // type TransactionIntentInterface interface {
 // 	GetSrc() []byte
 // 	GetDst() []byte
-// 	GetChainId() uint64
+// 	GetChainID() uint64
 // 	GetSrcAccount() types.Account
 // 	GetDstAccount() types.Account
 // 	GetMeta() []byte

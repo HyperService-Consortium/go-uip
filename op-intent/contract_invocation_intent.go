@@ -2,12 +2,15 @@ package opintent
 
 import (
 	"encoding/json"
+	"errors"
 
 	merkleproof_proposal_type "github.com/Myriad-Dreamin/go-uip/const/merkleproof_proposal_type"
 	merkleproof_type "github.com/Myriad-Dreamin/go-uip/const/merkleproof_type"
 	trans_type "github.com/Myriad-Dreamin/go-uip/const/trans_type"
 	value_type "github.com/Myriad-Dreamin/go-uip/const/value_type"
 	types "github.com/Myriad-Dreamin/go-uip/types"
+
+	gjson "github.com/tidwall/gjson"
 )
 
 type BaseContractInvocationOpIntent struct {
@@ -65,7 +68,7 @@ func (ier *OpIntentInitializer) InitContractInvocationOpIntent(
 			Meta:      b,
 			// temporary = 1000
 			Amt:     "0x3e8",
-			ChainId: srcInfo.GetChainId(),
+			ChainID: srcInfo.GetChainId(),
 		}
 		return tx, nil
 	}(); err != nil {
@@ -82,7 +85,7 @@ func (ier *OpIntentInitializer) InitContractInvocationOpIntent(
 func parseContractInvokeProof(intent *BaseContractInvocationOpIntent) (proposal []*MerkleProofProposal, err error) {
 	var b []byte
 	var txp transactionProofSourceDescription
-	txp.ChainId = intent.Src.ChainId
+	txp.ChainID = intent.Src.ChainId
 	b, err = json.Marshal(&txp)
 	if err != nil {
 		return
@@ -100,9 +103,27 @@ func parseContractInvokeProof(intent *BaseContractInvocationOpIntent) (proposal 
 		SourceDescription: b,
 	})
 
-	// todo: params
+	var intDesc value_type.Type
 	for _, param := range intent.Params {
-		_ = param
+		if intDesc = value_type.FromString(param.Type); intDesc == value_type.Unknown {
+			return nil, errors.New("unknown type: " + param.Type)
+		}
+
+		result := gjson.ParseBytes(param.Value)
+		if !result.Get("constant").Exists() {
+			if result.Get("contract").Exists() &&
+				result.Get("pos").Exists() &&
+				result.Get("field").Exists() {
+				proposal = append(proposal, &MerkleProofProposal{
+					DescriptionType:   merkleproof_proposal_type.DataProof,
+					MerkleProofType:   merkleproofType,
+					ValueType:         intDesc,
+					SourceDescription: param.Value,
+				})
+			} else {
+				return nil, errors.New("no enough info of source description")
+			}
+		}
 	}
 	return
 }
