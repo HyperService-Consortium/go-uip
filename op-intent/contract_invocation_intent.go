@@ -20,20 +20,6 @@ import (
 	gjson "github.com/tidwall/gjson"
 )
 
-type BaseContractInvocationOpIntent struct {
-	Src      *RawAccountInfo `json:"invoker"`       // key
-	Dst      []byte          `json:"contract_addr"` // key
-	Code     []byte          `json:"contract_code"` // key
-	FuncName string          `json:"func"`
-	Params   []RawParams     `json:"parameters"`
-}
-
-type contractInvokeMeta struct {
-	Code     []byte      `json:"contract_code"` // key
-	FuncName string      `json:"func"`
-	Params   []RawParams `json:"parameters"`
-}
-
 func appendVal(vals []interface{}, t string, rawval gjson.Result) ([]interface{}, error) {
 	typeRegex := regexp.MustCompile("([a-zA-Z]+)(([0-9]+)(x([0-9]+))?)?")
 	matches := typeRegex.FindAllStringSubmatch(t, -1)
@@ -103,7 +89,7 @@ func appendVal(vals []interface{}, t string, rawval gjson.Result) ([]interface{}
 	return vals, nil
 }
 
-func ContractInvocationDataABI(meta *contractInvokeMeta, provedData map[string][]byte) ([]byte, error) {
+func ContractInvocationDataABI(meta *types.ContractInvokeMeta, provedData map[string][]byte) ([]byte, error) {
 
 	abiencoder := ethabi.NewEncoder()
 	//Encodes(descs []string, vals []interface{})
@@ -149,7 +135,7 @@ func (ier *OpIntentInitializer) InitContractInvocationOpIntent(
 	name string,
 	subIntent json.RawMessage,
 ) (txs []*TransactionIntent, requiringMerkleProof []*MerkleProofProposal, err error) {
-	var invokeIntent BaseContractInvocationOpIntent
+	var invokeIntent types.BaseContractInvocationOpIntent
 	err = json.Unmarshal(subIntent, &invokeIntent)
 	var tx *TransactionIntent
 	if err != nil {
@@ -170,7 +156,7 @@ func (ier *OpIntentInitializer) InitContractInvocationOpIntent(
 		return
 	}
 	if tx, err = func() (*TransactionIntent, error) {
-		var meta contractInvokeMeta
+		var meta types.ContractInvokeMeta
 		meta.Code = invokeIntent.Code
 		meta.FuncName = invokeIntent.FuncName
 		meta.Params = invokeIntent.Params
@@ -200,7 +186,7 @@ func (ier *OpIntentInitializer) InitContractInvocationOpIntent(
 	return
 }
 
-func parseContractInvokeProof(intent *BaseContractInvocationOpIntent) (proposal []*MerkleProofProposal, err error) {
+func parseContractInvokeProof(intent *types.BaseContractInvocationOpIntent) (proposal []*MerkleProofProposal, err error) {
 	var b []byte
 	var txp transactionProofSourceDescription
 	txp.ChainID = intent.Src.ChainId

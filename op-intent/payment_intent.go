@@ -13,18 +13,11 @@ import (
 	value_type "github.com/Myriad-Dreamin/go-uip/const/value_type"
 )
 
-type BasePaymentOpIntent struct {
-	Src        *RawAccountInfo `json:"src"`    // key
-	Dst        *RawAccountInfo `json:"dst"`    // key
-	Amount     hexstring       `json:"amount"` // key
-	UnitString string          `json:"unit"`   // optional
-}
-
 func (ier *OpIntentInitializer) InitPaymentOpIntent(
 	name string,
 	subIntent json.RawMessage,
 ) (txs []*TransactionIntent, requiringMerkleProof []*MerkleProofProposal, err error) {
-	var paymentIntent BasePaymentOpIntent
+	var paymentIntent types.BasePaymentOpIntent
 	err = json.Unmarshal(subIntent, &paymentIntent)
 	var tx *TransactionIntent
 	var proposal []*MerkleProofProposal

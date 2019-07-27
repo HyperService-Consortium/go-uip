@@ -8,12 +8,6 @@ import (
 	queue "github.com/Myriad-Dreamin/go-uip/queue"
 )
 
-// the LeftName intent is before RightName intent
-type Dependency struct {
-	Src uint32
-	Dst uint32
-}
-
 func (ier *OpIntentInitializer) TopologicalSort(
 	transactionIntents [][]*TransactionIntent,
 	dependencies []Dependency,

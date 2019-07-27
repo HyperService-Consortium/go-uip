@@ -1,15 +1,13 @@
 package opintent
 
-import "encoding/json"
+import types "github.com/Myriad-Dreamin/go-uip/types"
 
+type TransactionIntent = types.TransactionIntent
+type MerkleProofProposal = types.MerkleProofProposal
 type hexstring = string
 
-type RawAccountInfo struct {
-	ChainId uint64 `json:"domain"`
-	Name    string `json:"user_name"`
-}
-
-type RawParams struct {
-	Type  string          `json:"Type"`
-	Value json.RawMessage `json:"Value"`
+// the LeftName intent is before RightName intent
+type Dependency struct {
+	Src uint32
+	Dst uint32
 }
