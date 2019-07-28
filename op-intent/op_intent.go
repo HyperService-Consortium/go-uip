@@ -27,15 +27,15 @@ type BaseOpIntent struct {
 	OpType string `json:"op_type"`
 }
 
-func (ier *OpIntentInitializer) InitOpIntent(opIntents types.OpIntents) (transactionIntents []*TransactionIntent, err error) {
+func (ier *OpIntentInitializer) InitOpIntent(
+	opIntents types.OpIntents,
+) (transactionIntents []*TransactionIntent, proposals []*MerkleProofProposal, err error) {
 	contents, rawDependencies := opIntents.GetContents(), opIntents.GetDependencies()
 	var intent BaseOpIntent
 	var rtx [][]*TransactionIntent
 
-	// todo: add merkle proof proposal
-	var proposals [][]*MerkleProofProposal
-	var tx []*TransactionIntent
-	var proposal []*MerkleProofProposal
+	// todo: add merkle proof proposals
+	var rps [][]*MerkleProofProposal
 	var hacker uint32
 	var bn []byte
 	var rbn = (*reflect.SliceHeader)(unsafe.Pointer(&bn))
@@ -44,23 +44,23 @@ func (ier *OpIntentInitializer) InitOpIntent(opIntents types.OpIntents) (transac
 	for idx, content := range contents {
 		err = json.Unmarshal(content, &intent)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		switch intent.OpType {
 		case "Payment":
-			if tx, proposal, err = ier.InitPaymentOpIntent(intent.Name, content); err != nil {
-				return nil, err
+			if transactionIntents, proposals, err = ier.InitPaymentOpIntent(intent.Name, content); err != nil {
+				return nil, nil, err
 			} else {
-				rtx = append(rtx, tx)
-				proposals = append(proposals, proposal)
+				rtx = append(rtx, transactionIntents)
+				rps = append(rps, proposals)
 			}
 
 		case "ContractInvocation":
-			if tx, proposal, err = ier.InitContractInvocationOpIntent(intent.Name, content); err != nil {
-				return nil, err
+			if transactionIntents, proposals, err = ier.InitContractInvocationOpIntent(intent.Name, content); err != nil {
+				return nil, nil, err
 			} else {
-				rtx = append(rtx, tx)
-				proposals = append(proposals, proposal)
+				rtx = append(rtx, transactionIntents)
+				rps = append(rps, proposals)
 			}
 			// if tx, err = ier.InitContractInvocationOpIntent(intent.Name, intent.SubIntent); err != nil {
 			// 	return nil, err
@@ -69,7 +69,7 @@ func (ier *OpIntentInitializer) InitOpIntent(opIntents types.OpIntents) (transac
 			// }
 
 		default:
-			return nil, invalidOpType
+			return nil, nil, invalidOpType
 		}
 
 		sh = (*reflect.StringHeader)(unsafe.Pointer(&intent.Name))
@@ -89,7 +89,7 @@ func (ier *OpIntentInitializer) InitOpIntent(opIntents types.OpIntents) (transac
 	for _, rawDep := range rawDependencies {
 		res = gjson.ParseBytes(rawDep)
 		if sres = res.Get("left"); !sres.Exists() {
-			return nil, errors.New("left property not found in dependency")
+			return nil, nil, errors.New("left property not found in dependency")
 		}
 		sn = sres.String()
 		sh = (*reflect.StringHeader)(unsafe.Pointer(&sn))
@@ -100,11 +100,11 @@ func (ier *OpIntentInitializer) InitOpIntent(opIntents types.OpIntents) (transac
 		dep.Src = *(*uint32)(unsafe.Pointer(&s[0]))
 
 		if dep.Src, ok = nameMap[dep.Src]; !ok {
-			return nil, errors.New("not such name(left)")
+			return nil, nil, errors.New("not such name(left)")
 		}
 
 		if sres = res.Get("right"); !sres.Exists() {
-			return nil, errors.New("right property not found in dependency")
+			return nil, nil, errors.New("right property not found in dependency")
 		}
 
 		sn = sres.String()
@@ -116,11 +116,11 @@ func (ier *OpIntentInitializer) InitOpIntent(opIntents types.OpIntents) (transac
 		dep.Dst = *(*uint32)(unsafe.Pointer(&s[0]))
 
 		if dep.Dst, ok = nameMap[dep.Dst]; !ok {
-			return nil, errors.New("not such name(right)")
+			return nil, nil, errors.New("not such name(right)")
 		}
 
 		if sres = res.Get("dep"); !sres.Exists() {
-			return nil, errors.New("dep property not found in dependency")
+			return nil, nil, errors.New("dep property not found in dependency")
 		}
 		switch sres.String() {
 		case "before":
@@ -128,7 +128,7 @@ func (ier *OpIntentInitializer) InitOpIntent(opIntents types.OpIntents) (transac
 			dep.Src, dep.Dst = dep.Dst, dep.Src
 		default:
 			if dep.Dst, ok = nameMap[dep.Src]; !ok {
-				return nil, errors.New("not such dependency relationship type")
+				return nil, nil, errors.New("not such dependency relationship type")
 			}
 		}
 		deps = append(deps, dep)
@@ -136,10 +136,17 @@ func (ier *OpIntentInitializer) InitOpIntent(opIntents types.OpIntents) (transac
 
 	// WARNING: ier.TopologicalSort assume that the size of total intents is <= 2 * len(rtx)
 	if err = ier.TopologicalSort(rtx, deps); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
+
+	transactionIntents = nil
+	proposals = nil
+
 	for _, rt := range rtx {
 		transactionIntents = append(transactionIntents, rt...)
+	}
+	for _, rp := range rps {
+		proposals = append(proposals, rp...)
 	}
 	return
 }

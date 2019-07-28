@@ -1,6 +1,7 @@
 package opintent
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -16,9 +17,9 @@ func TestSort(t *testing.T) {
 	ier := NewOpIntentInitializer()
 	ier.TopologicalSort(txI, Dep)
 
-	// for _, tx := range txI {
-	// 	fmt.Println(len(tx))
-	// }
+	for _, tx := range txI {
+		fmt.Println(len(tx))
+	}
 }
 
 func TestSort2(t *testing.T) {
@@ -35,7 +36,7 @@ func TestSort2(t *testing.T) {
 	}
 	ier := NewOpIntentInitializer()
 	ier.TopologicalSort(txI, Dep)
-	// for _, tx := range txI {
-	// 	fmt.Println(len(tx))
-	// }
+	for _, tx := range txI {
+		fmt.Println(len(tx))
+	}
 }

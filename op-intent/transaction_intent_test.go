@@ -67,7 +67,7 @@ func TestGenerateTransactionIntentRev(t *testing.T) {
 			"domain":    1,
 			"user_name": "a2",
 		},
-		"amount": "02e0",
+		"amount": "2e0",
 		"unit":   "wei",
 	}
 	var dep = obj{
@@ -83,7 +83,7 @@ func TestGenerateTransactionIntentRev(t *testing.T) {
 		return
 	}
 	opintent["name"] = "Op2"
-	opintent["amount"] = "03e0"
+	opintent["amount"] = "3e0"
 	var c []byte
 	c, err = json.Marshal(opintent)
 	if err != nil {
@@ -109,7 +109,7 @@ func TestGenerateTransactionIntentRev(t *testing.T) {
 
 	var intents []*TransactionIntent
 
-	intents, err = NewOpIntentInitializer().InitOpIntent(opIntents)
+	intents, _, err = NewOpIntentInitializer().InitOpIntent(opIntents)
 
 	if err != nil {
 		t.Error(err)
@@ -118,6 +118,7 @@ func TestGenerateTransactionIntentRev(t *testing.T) {
 
 	for _, intent := range intents {
 		fmt.Println(hex.EncodeToString(intent.Src), hex.EncodeToString(intent.Dst), intent.Amt)
+		fmt.Println()
 	}
 }
 
@@ -135,7 +136,7 @@ func TestGenerateTransactionIntent(t *testing.T) {
 			"domain":    1,
 			"user_name": "a2",
 		},
-		"amount": "02e0",
+		"amount": "2e0",
 		"unit":   "wei",
 	}
 	var dep = obj{
@@ -151,7 +152,7 @@ func TestGenerateTransactionIntent(t *testing.T) {
 		return
 	}
 	opintent["name"] = "Op2"
-	opintent["amount"] = "03e0"
+	opintent["amount"] = "3e0"
 	var c []byte
 	c, err = json.Marshal(opintent)
 	if err != nil {
@@ -177,8 +178,7 @@ func TestGenerateTransactionIntent(t *testing.T) {
 
 	var intents []*TransactionIntent
 
-	intents, err = NewOpIntentInitializer().InitOpIntent(opIntents)
-
+	intents, _, err = NewOpIntentInitializer().InitOpIntent(opIntents)
 	if err != nil {
 		t.Error(err)
 		return

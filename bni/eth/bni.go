@@ -78,7 +78,28 @@ func (bn *BN) Translate(
 			return nil, err
 		}
 		//_ = meta
-		return ContractInvocationDataABI(&meta, kvs)
+
+		data, err := ContractInvocationDataABI(&meta, kvs)
+		if err != nil {
+			return nil, err
+		}
+
+		hexdata := hex.EncodeToString(data)
+		// meta.FuncName
+
+		return json.Marshal(map[string]interface{}{
+			"jsonrpc": "2.0",
+			"method":  "eth_sendTransaction",
+			"params": []interface{}{
+				map[string]interface{}{
+					"from":  decoratePrefix(hex.EncodeToString(intent.Src)),
+					"to":    decoratePrefix(hex.EncodeToString(intent.Dst)),
+					"value": decoratePrefix(intent.Amt),
+					"data":  decoratePrefix(hexdata),
+				},
+			},
+			"id": 1,
+		})
 		//return nil, errors.New("todo")
 	default:
 		return nil, errors.New("cant translate")

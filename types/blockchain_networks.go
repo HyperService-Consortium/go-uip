@@ -1,21 +1,25 @@
 package types
 
 type chainID = uint64
+type provedData = map[string][]byte
+type rawTransaction = []byte
+type information = []byte
+type address = []byte
 
 type Router interface {
-	RouteRaw(uint64, []byte) ([]byte, error)
-	Route(*TransactionIntent, map[string][]byte) ([]byte, error)
+	RouteRaw(chainID, rawTransaction) (information, error)
+	// Route(*TransactionIntent, provedData) (information, error)
 
 	MustWithSigner() bool
 	RouteWithSigner(Signer) Router
 }
 
 type Translator interface {
-	Translate(*TransactionIntent, map[string][]byte) ([]byte, error)
+	Translate(*TransactionIntent, provedData) (rawTransaction, error)
 }
 
 type Checker interface {
-	CheckAddress([]byte) bool
+	CheckAddress(address) bool
 }
 
 type BlockChainInterface interface {
