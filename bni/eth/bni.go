@@ -7,8 +7,10 @@ import (
 	"fmt"
 	"math/big"
 	"net/url"
+	"reflect"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"golang.org/x/crypto/sha3"
 
@@ -118,7 +120,7 @@ func ContractInvocationDataABI(meta *types.ContractInvokeMeta, provedData map[st
 	var descs []string
 	var vals []interface{} = make([]interface{}, 0)
 	var funcsig string = meta.FuncName + "("
-	var err error
+	//var err error
 	for id, param := range meta.Params {
 		t := param.Type
 		if t == "address payable" || t == "contract" {
@@ -130,10 +132,12 @@ func ContractInvocationDataABI(meta *types.ContractInvokeMeta, provedData map[st
 		if !constant.Exists() {
 			constant = gjson.Parse(string(provedData[gjson.Get(string(param.Value), "field").String()]))
 		}
-		vals, err = appendVal(vals, t, constant)
+		val, err := appendVal(t, constant)
 		if err != nil {
 			return nil, err
 		}
+		fmt.Println("SHHHHH", val)
+		vals = append(vals, val)
 		if id == len(meta.Params)-1 {
 			funcsig += ")"
 		} else {
@@ -152,11 +156,34 @@ func ContractInvocationDataABI(meta *types.ContractInvokeMeta, provedData map[st
 	return result, nil
 }
 
-func appendVal(vals []interface{}, t string, rawval gjson.Result) ([]interface{}, error) {
+func appendSliceVal(brcnt int, t string, rawval gjson.Result) (interface{}, error) {
+	var err error
+	var ret interface{}
+	i := strings.LastIndex(t, "[")
+	// grab the last cell and create a type from there
+	sliced := t[i:]
+	// grab the slice size with regexp
+	re := regexp.MustCompile("[0-9]+")
+	intz := re.FindAllString(sliced, -1)
+	var arr []gjson.Result = rawval.Array()
+	if len(intz) == 1 {
+		// is a array
+		siz, err := strconv.Atoi(intz[0])
+		if err != nil {
+			return nil, fmt.Errorf("error parsing variable size: %v", err)
+		}
+		if siz != len(arr) {
+			return nil, fmt.Errorf("array length not match")
+		}
+	} else if len(intz) != 0 {
+		return nil, fmt.Errorf("invalid formatting of array type")
+	}
+	/////////////////////////////////////////////////////////
+	t = t[:i]
 	typeRegex := regexp.MustCompile("([a-zA-Z]+)(([0-9]+)(x([0-9]+))?)?")
 	matches := typeRegex.FindAllStringSubmatch(t, -1)
 	if len(matches) == 0 {
-		return vals, fmt.Errorf("invalid type '%v'", t)
+		return nil, fmt.Errorf("invalid type '%v'", t)
 	}
 	parsedType := matches[0]
 	var varSize int
@@ -164,59 +191,261 @@ func appendVal(vals []interface{}, t string, rawval gjson.Result) ([]interface{}
 		var err error
 		varSize, err = strconv.Atoi(parsedType[2]) //ParseInt(sparsedType[2], 10, 0) //strconv.Atoi()
 		if err != nil {
-			return vals, fmt.Errorf("abi: error parsing variable size: %v", err)
+			return nil, fmt.Errorf("error parsing variable size: %v", err)
 		}
 	} else {
 		if parsedType[0] == "uint" || parsedType[0] == "int" {
 			// this should fail because it means that there's something wrong with
 			// the abi type (the compiler should always format it to the size...always)
-			return vals, fmt.Errorf("unsupported arg type: %s", t)
+			return nil, fmt.Errorf("unsupported arg type: %s", t)
 		}
 	}
 	switch varType := parsedType[1]; varType {
 	case "int":
 		switch varSize {
 		case 8:
-			vals = append(vals, int8(rawval.Int()))
-		case 16:
-			vals = append(vals, int16(rawval.Int()))
-		case 32:
-			vals = append(vals, int32(rawval.Int()))
-		case 64:
-			vals = append(vals, int64(rawval.Int()))
-		case 256:
-			str := rawval.String()
-			val, ok := big.NewInt(0).SetString(str, 10)
-			if !ok {
-				return vals, fmt.Errorf("Invalid int value")
+			ret = make([]int8, len(arr))
+			for id, obj := range arr {
+				elem, err := appendVal(t, obj)
+				ret.([]int8)[id] = elem.(int8)
+				if err != nil {
+					return nil, err
+				}
 			}
-			vals = append(vals, val)
+		case 16:
+			ret = make([]int16, len(arr))
+			for id, obj := range arr {
+				elem, err := appendVal(t, obj)
+				ret.([]int16)[id] = elem.(int16)
+				if err != nil {
+					return nil, err
+				}
+			}
+		case 32:
+			ret = make([]int32, len(arr))
+			for id, obj := range arr {
+				elem, err := appendVal(t, obj)
+				ret.([]int32)[id] = elem.(int32)
+				if err != nil {
+					return nil, err
+				}
+			}
+		case 64:
+			ret = make([]int64, len(arr))
+			for id, obj := range arr {
+				elem, err := appendVal(t, obj)
+				ret.([]int64)[id] = elem.(int64)
+				if err != nil {
+					return nil, err
+				}
+			}
+		case 256:
+			ret = make([]big.Int, len(arr))
+			for id, obj := range arr {
+				elem, err := appendVal(t, obj)
+				ret.([]big.Int)[id] = elem.(big.Int)
+				if err != nil {
+					return nil, err
+				}
+			}
 		}
 	case "uint":
 		switch varSize {
 		case 8:
-			vals = append(vals, uint8(rawval.Int()))
+			ret = make([]uint8, len(arr))
+			for id, obj := range arr {
+				elem, err := appendVal(t, obj)
+				ret.([]uint8)[id] = elem.(uint8)
+				if err != nil {
+					return nil, err
+				}
+			}
 		case 16:
-			vals = append(vals, uint16(rawval.Int()))
+			ret = make([]uint16, len(arr))
+			for id, obj := range arr {
+				elem, err := appendVal(t, obj)
+				ret.([]uint16)[id] = elem.(uint16)
+				if err != nil {
+					return nil, err
+				}
+			}
 		case 32:
-			vals = append(vals, uint32(rawval.Int()))
+			ret = make([]uint32, len(arr))
+			for id, obj := range arr {
+				elem, err := appendVal(t, obj)
+				ret.([]uint32)[id] = elem.(uint32)
+				if err != nil {
+					return nil, err
+				}
+			}
 		case 64:
-			vals = append(vals, uint64(rawval.Int()))
+			ret = make([]uint64, len(arr))
+			for id, obj := range arr {
+				elem, err := appendVal(t, obj)
+				ret.([]uint64)[id] = elem.(uint64)
+				if err != nil {
+					return nil, err
+				}
+			}
+		case 256:
+			ret = make([]big.Int, len(arr))
+			for id, obj := range arr {
+				elem, err := appendVal(t, obj)
+				ret.([]big.Int)[id] = elem.(big.Int)
+				if err != nil {
+					return nil, err
+				}
+			}
+		}
+	case "bool":
+		ret = make([]bool, len(arr))
+		for id, obj := range arr {
+			elem, err := appendVal(t, obj)
+			ret.([]bool)[id] = elem.(bool)
+			if err != nil {
+				return nil, err
+			}
+		}
+	case "address":
+		ret = make([][20]byte, len(arr))
+		for id, obj := range arr {
+			elem, err := appendVal(t, obj)
+			ret.([][20]byte)[id] = elem.([20]byte)
+			if err != nil {
+				return nil, err
+			}
+		}
+	case "string":
+		ret = make([]string, len(arr))
+		for id, obj := range arr {
+			elem, err := appendVal(t, obj)
+			ret.([]string)[id] = elem.(string)
+			if err != nil {
+				return nil, err
+			}
+		}
+	case "bytes":
+		ret = make([][]byte, len(arr))
+		for id, obj := range arr {
+			elem, err := appendVal(t, obj)
+			ret.([][]byte)[id] = elem.([]byte)
+			if err != nil {
+				return nil, err
+			}
+		}
+	default:
+		return nil, fmt.Errorf("unsupported arg type: %s", t)
+	}
+	///////////////////////////////////////////
+	fmt.Println("ARR", ret, reflect.TypeOf(ret).Elem())
+	return ret, err
+}
+
+func appendVal(t string, rawval gjson.Result) (interface{}, error) {
+	// check that array brackets are equal if they exist
+	brcnt := strings.Count(t, "[")
+	if brcnt != strings.Count(t, "]") {
+		return nil, fmt.Errorf("invalid arg type in abi")
+	}
+	var err error
+	var ret interface{}
+
+	// if there are brackets, get ready to go into slice/array mode and
+	// recursively create the type
+	if brcnt != 0 {
+		if brcnt != 1 {
+			return nil, fmt.Errorf("unsupported arg type: %s", t)
+		}
+		return appendSliceVal(brcnt, t, rawval)
+	}
+	typeRegex := regexp.MustCompile("([a-zA-Z]+)(([0-9]+)(x([0-9]+))?)?")
+	matches := typeRegex.FindAllStringSubmatch(t, -1)
+	if len(matches) == 0 {
+		return nil, fmt.Errorf("invalid type '%v'", t)
+	}
+	parsedType := matches[0]
+	var varSize int
+	if len(parsedType[3]) > 0 {
+		var err error
+		varSize, err = strconv.Atoi(parsedType[2]) //ParseInt(sparsedType[2], 10, 0) //strconv.Atoi()
+		if err != nil {
+			return nil, fmt.Errorf("error parsing variable size: %v", err)
+		}
+	} else {
+		if parsedType[0] == "uint" || parsedType[0] == "int" {
+			// this should fail because it means that there's something wrong with
+			// the abi type (the compiler should always format it to the size...always)
+			return nil, fmt.Errorf("unsupported arg type: %s", t)
+		}
+	}
+	switch varType := parsedType[1]; varType {
+	case "int":
+		switch varSize {
+		case 8:
+			ret = int8(rawval.Int())
+		case 16:
+			ret = int16(rawval.Int())
+		case 32:
+			ret = int32(rawval.Int())
+		case 64:
+			ret = int64(rawval.Int())
 		case 256:
 			str := rawval.String()
 			val, ok := big.NewInt(0).SetString(str, 10)
 			if !ok {
-				return vals, fmt.Errorf("Invalid uint value")
+				return nil, fmt.Errorf("Invalid int value")
 			}
-			vals = append(vals, val)
+			ret = val
+		}
+	case "uint":
+		switch varSize {
+		case 8:
+			ret = uint8(rawval.Int())
+		case 16:
+			ret = uint16(rawval.Int())
+		case 32:
+			ret = uint32(rawval.Int())
+		case 64:
+			ret = uint64(rawval.Int())
+		case 256:
+			str := rawval.String()
+			val, ok := big.NewInt(0).SetString(str, 10)
+			if !ok {
+				return nil, fmt.Errorf("Invalid int value")
+			}
+			ret = val
 		}
 	case "bool":
-		vals = append(vals, rawval.Bool())
+		ret = rawval.Bool()
+	case "address":
+		addr := rawval.String()
+		retsli, err := hex.DecodeString(addr[2:])
+		if err != nil {
+			return nil, err
+		}
+		if len(retsli) != 20 {
+			return nil, fmt.Errorf("invalid address value")
+		}
+		var rett [20]byte
+		for i := 0; i < 20; i++ {
+			rett[i] = retsli[i]
+		}
+		ret = rett
 	case "string":
-		vals = append(vals, rawval.String())
+		ret = rawval.String()
+	case "bytes":
+		if varSize != 0 {
+			return nil, fmt.Errorf("unsupported arg type: %s", t)
+		}
+		tmpret := []byte("\"" + rawval.String() + "\"")
+		var retval []byte
+		err = json.Unmarshal(tmpret, &retval)
+		if err != nil {
+			return nil, err
+		}
+		ret = retval
 	default:
-		return vals, fmt.Errorf("unsupported arg type: %s", t)
+		return nil, fmt.Errorf("unsupported arg type: %s", t)
 	}
-	//vals = append(vals, ori["constant"])
-	return vals, nil
+	return ret, nil
 }
