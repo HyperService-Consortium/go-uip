@@ -113,7 +113,7 @@ func (bn *BN) CheckAddress(addr []byte) bool {
 	return len(addr) == 32
 }
 
-func (bn *BN) GetStorageAt(chainID uint64, typeID uint16, contractAddress []byte, pos []byte, desc string) (interface{}, error) {
+func (bn *BN) GetStorageAt(chainID uint64, typeID uint16, contractAddress []byte, pos []byte, desc []byte) (interface{}, error) {
 
 	ci, err := SearchChainId(chainID)
 	if err != nil {
