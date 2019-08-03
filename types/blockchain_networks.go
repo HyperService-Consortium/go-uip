@@ -24,10 +24,19 @@ type Checker interface {
 	CheckAddress(address) bool
 }
 
+type typeID = uint16
+type contract = []byte
+type pos = []byte
+type desc = []byte
+type Storage interface {
+	GetStorageAt(chainID, typeID, contract, pos, desc) (interface{}, error)
+}
+
 type BlockChainInterface interface {
 	Router
 	Translator
 	Checker
+	Storage
 }
 
 type CheckerGetter interface {

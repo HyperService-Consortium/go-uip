@@ -19,6 +19,7 @@ import (
 	ethclient "github.com/Myriad-Dreamin/go-ves/net/eth_client"
 
 	TransType "github.com/Myriad-Dreamin/go-uip/const/trans_type"
+	valuetype "github.com/Myriad-Dreamin/go-uip/const/value_type"
 	opintent "github.com/Myriad-Dreamin/go-uip/op-intent"
 	types "github.com/Myriad-Dreamin/go-uip/types"
 	gjson "github.com/tidwall/gjson"
@@ -110,6 +111,43 @@ func (bn *BN) Translate(
 
 func (bn *BN) CheckAddress(addr []byte) bool {
 	return len(addr) == 32
+}
+
+func (bn *BN) GetStorageAt(chainID uint64, typeID uint16, contractAddress []byte, pos []byte, desc string) (interface{}, error) {
+
+	ci, err := SearchChainId(chainID)
+	if err != nil {
+		return nil, err
+	}
+
+	switch typeID {
+	case valuetype.Bool:
+		s, err := ethclient.NewEthClient(ci.GetHost()).GetStorageAt(contractAddress, pos, "latest")
+		if err != nil {
+			return nil, err
+		}
+
+		b, err := hex.DecodeString(s[2:])
+		if err != nil {
+			return nil, err
+		}
+		bs, err := ethabi.NewDecoder().Decodes([]string{"bool"}, b)
+		return bs[0], nil
+	case valuetype.Uint256:
+		s, err := ethclient.NewEthClient(ci.GetHost()).GetStorageAt(contractAddress, pos, "latest")
+		if err != nil {
+			return nil, err
+		}
+
+		b, err := hex.DecodeString(s[2:])
+		if err != nil {
+			return nil, err
+		}
+		bs, err := ethabi.NewDecoder().Decodes([]string{"uint256"}, b)
+		return bs[0], nil
+	}
+
+	return nil, nil
 }
 
 func ContractInvocationDataABI(meta *types.ContractInvokeMeta, kvGetter types.KVGetter) ([]byte, error) {

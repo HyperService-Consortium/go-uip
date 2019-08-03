@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	TransType "github.com/Myriad-Dreamin/go-uip/const/trans_type"
+	valuetype "github.com/Myriad-Dreamin/go-uip/const/value_type"
 	types "github.com/Myriad-Dreamin/go-uip/types"
 )
 
@@ -33,6 +34,13 @@ func TestContractInvocationDataABI(t *testing.T) {
 	fmt.Println(string(dst))
 }
 
+type getter struct {
+}
+
+func (g *getter) Get([]byte) ([]byte, error) {
+	return []byte("true"), nil
+}
+
 func TestDataTransaction(t *testing.T) {
 	meta := new(types.ContractInvokeMeta)
 	meta.FuncName = "baz"
@@ -42,11 +50,11 @@ func TestDataTransaction(t *testing.T) {
 		t.Error(err)
 	}
 	meta.Params[0] = types.RawParams{Type: "uint32", Value: v0}
-	v1, err := json.Marshal(testdata{Constant: "NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN"})
-	if err != nil {
-		t.Error(err)
-	}
-	meta.Params[1] = types.RawParams{Type: "string", Value: v1}
+	// v1, err := json.Marshal(testdata{Constant: "NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN"})
+	// if err != nil {
+	// 	t.Error(err)
+	// }
+	meta.Params[1] = types.RawParams{Type: "bool", Value: []byte(`{"contract":"1234567812345678123456781234567812345678", "pos":"0x0", "field":"aut"}`)}
 	tx := new(types.TransactionIntent)
 	tx.Src = []byte{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
 	tx.Dst = []byte{2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2}
@@ -57,11 +65,17 @@ func TestDataTransaction(t *testing.T) {
 	tx.Amt = "0"
 	tx.TransType = TransType.ContractInvoke
 	tx.ChainID = 1
-	b, err := new(BN).Translate(tx, nil)
+	b, err := new(BN).Translate(tx, new(getter))
 	if err != nil {
 		t.Error(err)
 	}
 	fmt.Println(string(b))
+}
+
+func TestGetStorageAt(t *testing.T) {
+	b, _ := hex.DecodeString("1234567812345678123456781234567812345678")
+	fmt.Println(new(BN).GetStorageAt(1, valuetype.Bool, b, []byte{1}, "some varible"))
+	fmt.Println(new(BN).GetStorageAt(1, valuetype.Uint256, b, []byte{1}, "some varible"))
 }
 
 /*

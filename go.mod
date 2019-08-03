@@ -7,8 +7,9 @@ require (
 	github.com/Myriad-Dreamin/go-hexutil v1.0.0
 	github.com/Myriad-Dreamin/go-py v0.0.0-20190629155946-c47d2c093430
 	github.com/Myriad-Dreamin/go-rlp v1.0.1
-	github.com/Myriad-Dreamin/go-ves v0.6.0
+	github.com/Myriad-Dreamin/go-ves v0.6.1-0.20190803144541-4a38ab519f56
 	github.com/Myriad-Dreamin/mydrest v1.0.1 // indirect
+	github.com/Myriad-Dreamin/object-pool v0.0.0-20190728174450-25edf2eceb87 // indirect
 	github.com/client9/misspell v0.3.4 // indirect
 	github.com/gogo/protobuf v1.2.1
 	github.com/google/go-querystring v1.0.0 // indirect

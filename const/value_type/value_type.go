@@ -7,32 +7,32 @@ const (
 	Bytes
 	String
 	Uint8
-	Uint16
+	Uint16 // 4
 	Uint32
 	Uint64
 	Uint128
 	Uint256
-	Int8
+	Int8 // 9
 	Int16
 	Int32
 	Int64
 	Int128
-	Int256
+	Int256 // 14
 	SliceUint8
 	SliceUint16
 	SliceUint32
 	SliceUint64
-	SliceUint128
+	SliceUint128 // 19
 	SliceUint256
 	SliceInt8
 	SliceInt16
 	SliceInt32
-	SliceInt64
+	SliceInt64 // 24
 	SliceInt128
 	SliceInt256
 
 	// Slice
-	Bool
+	Bool // 27
 )
 
 func FromString(desc string) Type {

@@ -31,6 +31,10 @@ func (bn *BlockChainInterfaceTest) Translate(*TransactionIntent, KVGetter) ([]by
 	return nil, errors.New("must impl method Translate(tx, kvs) (rtx, err)")
 }
 
+func (bn *BlockChainInterfaceTest) GetStorageAt(chainID, typeID, contract, pos, desc) (interface{}, error) {
+	return nil, errors.New("must impl method GetStorageAt(chainID, typeID, contract, pos, desc) (interface{}, error)")
+}
+
 var _ BlockChainInterface = &BlockChainInterfaceTest{}
 
 type signer struct {
