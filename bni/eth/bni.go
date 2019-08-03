@@ -122,7 +122,7 @@ func (bn *BN) GetStorageAt(chainID uint64, typeID uint16, contractAddress []byte
 
 	switch typeID {
 	case valuetype.Bool:
-		s, err := ethclient.NewEthClient(ci.GetHost()).GetStorageAt(contractAddress, pos, "latest")
+		s, err := ethclient.NewEthClient((&url.URL{Scheme: "http", Host: ci.GetHost(), Path: "/"}).String()).GetStorageAt(contractAddress, pos, "latest")
 		if err != nil {
 			return nil, err
 		}
