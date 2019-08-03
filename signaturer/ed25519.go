@@ -43,11 +43,10 @@ func (s *Ed25519PrivateKey) ToPublic() ECCPublicKey {
 }
 
 func (s *Ed25519PrivateKey) Sign(b []byte) ECCSignature {
-	if sig := newEd25519Sig(); !sig.FromBytes(ed25519.Sign([]byte(*s.BaseHexType), b)) {
-		return nil
-	} else {
-		return sig
-	}
+	sig := newEd25519Sig()
+	v := []byte(*s.BaseHexType)
+	*sig.BaseHexType = ed25519.Sign(v, b)
+	return sig
 }
 
 type Ed25519Signature struct {
