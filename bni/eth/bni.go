@@ -46,9 +46,9 @@ func (bn *BN) RouteRaw(destination uint64, payload []byte) ([]byte, error) {
 	return ethclient.Do((&url.URL{Scheme: "http", Host: ci.GetHost(), Path: "/"}).String(), payload)
 }
 
-func (bn *BN) Route(intent *types.TransactionIntent, kvs map[string][]byte) ([]byte, error) {
+func (bn *BN) Route(intent *types.TransactionIntent, kvGetter types.KVGetter) ([]byte, error) {
 	// todo
-	onChainTransaction, err := bn.Translate(intent, kvs)
+	onChainTransaction, err := bn.Translate(intent, kvGetter)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (bn *BN) Route(intent *types.TransactionIntent, kvs map[string][]byte) ([]b
 
 func (bn *BN) Translate(
 	intent *opintent.TransactionIntent,
-	kvs map[string][]byte,
+	kvGetter types.KVGetter,
 ) ([]byte, error) {
 	switch intent.TransType {
 	case TransType.Payment:
@@ -81,7 +81,7 @@ func (bn *BN) Translate(
 		}
 		//_ = meta
 
-		data, err := ContractInvocationDataABI(&meta, kvs)
+		data, err := ContractInvocationDataABI(&meta, kvGetter)
 		if err != nil {
 			return nil, err
 		}
@@ -112,7 +112,7 @@ func (bn *BN) CheckAddress(addr []byte) bool {
 	return len(addr) == 32
 }
 
-func ContractInvocationDataABI(meta *types.ContractInvokeMeta, provedData map[string][]byte) ([]byte, error) {
+func ContractInvocationDataABI(meta *types.ContractInvokeMeta, kvGetter types.KVGetter) ([]byte, error) {
 
 	abiencoder := ethabi.NewEncoder()
 	//Encodes(descs []string, vals []interface{})
@@ -130,7 +130,15 @@ func ContractInvocationDataABI(meta *types.ContractInvokeMeta, provedData map[st
 		descs = append(descs, t)
 		constant := gjson.Get(string(param.Value), "constant")
 		if !constant.Exists() {
-			constant = gjson.Parse(string(provedData[gjson.Get(string(param.Value), "field").String()]))
+			k := gjson.Get(string(param.Value), "field")
+			if !k.Exists() {
+				return nil, errors.New("field not found")
+			}
+			v, err := kvGetter.Get([]byte(k.String()))
+			if err != nil {
+				return nil, err
+			}
+			constant = gjson.ParseBytes(v)
 		}
 		val, err := appendVal(t, constant)
 		if err != nil {

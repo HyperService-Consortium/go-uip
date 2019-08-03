@@ -1,10 +1,12 @@
 package types
 
 type chainID = uint64
-type provedData = map[string][]byte
 type rawTransaction = []byte
 type information = []byte
 type address = []byte
+type KVGetter interface {
+	Get([]byte) ([]byte, error)
+}
 
 type Router interface {
 	RouteRaw(chainID, rawTransaction) (information, error)
@@ -15,7 +17,7 @@ type Router interface {
 }
 
 type Translator interface {
-	Translate(*TransactionIntent, provedData) (rawTransaction, error)
+	Translate(*TransactionIntent, KVGetter) (rawTransaction, error)
 }
 
 type Checker interface {
