@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math/big"
 
+	signaturetype "github.com/Myriad-Dreamin/go-uip/const/signature_type"
 	secp256k1 "github.com/Myriad-Dreamin/go-uip/signaturer/go-ethereum-secp256k1"
 	ed25519 "golang.org/x/crypto/ed25519"
 )
@@ -88,6 +89,14 @@ type Secp256k1Signature struct {
 
 func (s *Secp256k1Signature) IsValid() bool {
 	return len(*s.BaseHexType) == 65
+}
+
+func (s *Secp256k1Signature) GetContent() []byte {
+	return s.BaseHexType.Bytes()
+}
+
+func (s *Secp256k1Signature) GetSignatureType() uint32 {
+	return signaturetype.Secp256k1
 }
 
 type Secp256k1Signaturer struct {

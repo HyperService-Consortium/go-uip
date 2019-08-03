@@ -1,5 +1,7 @@
 package signaturer
 
+import "github.com/Myriad-Dreamin/go-uip/types"
+
 type TendermintNSBSigner struct {
 	prikey *Ed25519PrivateKey
 	pubKey *Ed25519PublicKey
@@ -15,12 +17,8 @@ func NewTendermintNSBSigner(pri []byte) (ten *TendermintNSBSigner) {
 	return
 }
 
-func (ten *TendermintNSBSigner) Sign(b []byte) []byte {
-	sig := ten.prikey.Sign(b)
-	if sig != nil {
-		return sig.Bytes()
-	}
-	return nil
+func (ten *TendermintNSBSigner) Sign(b []byte) types.Signature {
+	return ten.prikey.Sign(b)
 }
 
 func (ten *TendermintNSBSigner) GetPublicKey() []byte {

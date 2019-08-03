@@ -4,32 +4,21 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
+
+	"github.com/Myriad-Dreamin/go-uip/types"
 )
 
-type HexType interface {
-	Bytes() []byte
-	String() string
-	FromBytes([]byte) bool
-	FromString(string) bool
-	Equal(HexType) bool
-}
-
-type Signature interface {
-	HexType
-	IsValid() bool
-}
-
 type ECCSignature interface {
-	Signature
+	types.Signature
 }
 
 type ECCPublicKey interface {
-	HexType
+	types.HexType
 	IsValid() bool
 }
 
 type ECCPrivateKey interface {
-	HexType
+	types.HexType
 	ToPublic() ECCPublicKey
 	Sign([]byte) ECCSignature
 }
@@ -100,6 +89,6 @@ func (h *BaseHexType) FromString(b string) bool {
 	*h, err = hex.DecodeString(b)
 	return err != nil
 }
-func (h *BaseHexType) Equal(rh HexType) bool {
+func (h *BaseHexType) Equal(rh types.HexType) bool {
 	return bytes.Equal(*h, rh.Bytes())
 }

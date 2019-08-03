@@ -9,9 +9,24 @@ type Account interface {
 type signatureType = uint32
 type signatureContent = []byte
 type signedContent = []byte
-type Signature interface {
+
+type HexType interface {
+	Bytes() []byte
+	String() string
+	FromBytes([]byte) bool
+	FromString(string) bool
+	Equal(HexType) bool
+}
+
+type BaseSignature interface {
 	GetSignatureType() signatureType
 	GetContent() signedContent
+}
+
+type Signature interface {
+	HexType
+	BaseSignature
+	IsValid() bool
 }
 
 type publicKey []byte

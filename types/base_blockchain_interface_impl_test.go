@@ -50,6 +50,26 @@ func (s *signature) GetContent() []byte {
 	return []byte("666")
 }
 
+func (s *signature) Bytes() []byte {
+	return []byte("666")
+}
+func (s *signature) String() string {
+	return "666"
+}
+func (s *signature) FromBytes([]byte) bool {
+	return true
+}
+func (s *signature) FromString(string) bool {
+	return true
+}
+
+func (s *signature) Equal(HexType) bool {
+	return true
+}
+func (s *signature) IsValid() bool {
+	return true
+}
+
 func (s signer) Sign([]byte) Signature {
 	return &signature{}
 }
