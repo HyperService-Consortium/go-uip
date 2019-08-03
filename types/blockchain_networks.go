@@ -27,7 +27,7 @@ type Checker interface {
 type typeID = uint16
 type contract = []byte
 type pos = []byte
-type desc = []byte
+type desc = string
 type Storage interface {
 	GetStorageAt(chainID, typeID, contract, pos, desc) (interface{}, error)
 }
