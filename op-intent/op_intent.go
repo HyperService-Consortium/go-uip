@@ -22,16 +22,11 @@ func NewOpIntentInitializer() *OpIntentInitializer {
 	}
 }
 
-type BaseOpIntent struct {
-	Name   string `json:"name"`
-	OpType string `json:"op_type"`
-}
-
 func (ier *OpIntentInitializer) InitOpIntent(
 	opIntents types.OpIntents,
 ) (transactionIntents []*TransactionIntent, proposals []*MerkleProofProposal, err error) {
 	contents, rawDependencies := opIntents.GetContents(), opIntents.GetDependencies()
-	var intent BaseOpIntent
+	var intent types.BaseOpIntent
 	var rtx [][]*TransactionIntent
 
 	// todo: add merkle proof proposals

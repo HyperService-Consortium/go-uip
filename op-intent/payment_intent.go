@@ -46,12 +46,12 @@ func (ier *OpIntentInitializer) InitPaymentOpIntent(
 	if err != nil {
 		return
 	}
-	if tx, proposal, err = ier.genPayment(srcInfo, nil, paymentIntent.Amount, t); err != nil {
+	if tx, proposal, err = ier.genPayment(srcInfo, nil, paymentIntent.Amount, paymentIntent.Meta, t); err != nil {
 		return
 	}
 	requiringMerkleProof = append(requiringMerkleProof, proposal...)
 	txs = append(txs, tx)
-	if tx, proposal, err = ier.genPayment(nil, dstInfo, paymentIntent.Amount, t); err != nil {
+	if tx, proposal, err = ier.genPayment(nil, dstInfo, paymentIntent.Amount, paymentIntent.Meta, t); err != nil {
 		return
 	}
 	requiringMerkleProof = append(requiringMerkleProof, proposal...)
@@ -82,7 +82,7 @@ type transactionProofSourceDescription struct {
 }
 
 func (ier *OpIntentInitializer) genPayment(
-	src types.Account, dst types.Account, amt string, utid unit_type.Type,
+	src types.Account, dst types.Account, amt string, meta []byte, utid unit_type.Type,
 ) (tx *TransactionIntent, proposal []*MerkleProofProposal, err error) {
 	if src == nil {
 		if src, err = TempGetRelay(dst.GetChainId()); err != nil {
@@ -99,6 +99,7 @@ func (ier *OpIntentInitializer) genPayment(
 		Dst:       dst.GetAddress(),
 		TransType: trans_type.Payment,
 		Amt:       amt,
+		Meta:      meta,
 		ChainID:   dst.GetChainId(),
 	}
 

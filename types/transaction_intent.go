@@ -21,11 +21,17 @@ func (tx *TransactionIntent) Bytes() []byte {
 	return b
 }
 
+type BaseOpIntent struct {
+	Name   string `json:"name"`
+	OpType string `json:"op_type"`
+}
+
 type BasePaymentOpIntent struct {
 	Src        *RawAccountInfo `json:"src"`    // key
 	Dst        *RawAccountInfo `json:"dst"`    // key
 	Amount     hexstring       `json:"amount"` // key
 	UnitString string          `json:"unit"`   // optional
+	Meta       []byte          `json:"meta"`
 }
 
 type BaseContractInvocationOpIntent struct {
@@ -34,12 +40,14 @@ type BaseContractInvocationOpIntent struct {
 	Code     []byte          `json:"contract_code"` // key
 	FuncName string          `json:"func"`
 	Params   []RawParams     `json:"parameters"`
+	Meta     []byte          `json:"meta"`
 }
 
 type ContractInvokeMeta struct {
 	Code     []byte      `json:"contract_code"` // key
 	FuncName string      `json:"func"`
 	Params   []RawParams `json:"parameters"`
+	Meta     []byte      `json:"meta"`
 }
 
 type RawAccountInfo struct {

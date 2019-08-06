@@ -42,6 +42,7 @@ func (ier *OpIntentInitializer) InitContractInvocationOpIntent(
 		meta.Code = invokeIntent.Code
 		meta.FuncName = invokeIntent.FuncName
 		meta.Params = invokeIntent.Params
+		meta.Meta = invokeIntent.Meta
 		var b, err = json.Marshal(&meta)
 		if err != nil {
 			return nil, err
