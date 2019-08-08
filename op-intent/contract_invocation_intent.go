@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 
+	merkleprooftype "github.com/Myriad-Dreamin/go-uip/const/merkle-proof-type"
 	merkleproof_proposal_type "github.com/Myriad-Dreamin/go-uip/const/merkleproof_proposal_type"
-	merkleproof_type "github.com/Myriad-Dreamin/go-uip/const/merkleproof_type"
 	trans_type "github.com/Myriad-Dreamin/go-uip/const/trans_type"
 	value_type "github.com/Myriad-Dreamin/go-uip/const/value_type"
 	types "github.com/Myriad-Dreamin/go-uip/types"
@@ -77,7 +77,7 @@ func parseContractInvokeProof(intent *types.BaseContractInvocationOpIntent) (pro
 	if err != nil {
 		return
 	}
-	var merkleproofType merkleproof_type.Type
+	var merkleproofType merkleprooftype.Type
 	merkleproofType, err = getTransactionProofType(intent.Src.ChainId)
 	if err != nil {
 		return

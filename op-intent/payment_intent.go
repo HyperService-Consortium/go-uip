@@ -6,8 +6,8 @@ import (
 
 	types "github.com/Myriad-Dreamin/go-uip/types"
 
+	merkleprooftype "github.com/Myriad-Dreamin/go-uip/const/merkle-proof-type"
 	merkleproof_proposal_type "github.com/Myriad-Dreamin/go-uip/const/merkleproof_proposal_type"
-	merkleproof_type "github.com/Myriad-Dreamin/go-uip/const/merkleproof_type"
 	trans_type "github.com/Myriad-Dreamin/go-uip/const/trans_type"
 	unit_type "github.com/Myriad-Dreamin/go-uip/const/unit_type"
 	value_type "github.com/Myriad-Dreamin/go-uip/const/value_type"
@@ -109,7 +109,7 @@ func (ier *OpIntentInitializer) genPayment(
 	if err != nil {
 		return nil, nil, err
 	}
-	var merkleproofType merkleproof_type.Type
+	var merkleproofType merkleprooftype.Type
 	merkleproofType, err = getTransactionProofType(dst.GetChainId())
 	if err != nil {
 		return nil, nil, err

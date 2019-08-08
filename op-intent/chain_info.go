@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	chain_type "github.com/Myriad-Dreamin/go-uip/const/chain_type"
-	merkleproof_type "github.com/Myriad-Dreamin/go-uip/const/merkleproof_type"
+	merkleprooftype "github.com/Myriad-Dreamin/go-uip/const/merkle-proof-type"
 	types "github.com/Myriad-Dreamin/go-uip/types"
 	"github.com/Myriad-Dreamin/go-uip/types/account"
 )
@@ -165,16 +165,16 @@ func getTransactionProofType(chainId uint64) (uint16, error) {
 	// ethereum chain 1
 	switch chainId {
 	case 0:
-		return merkleproof_type.Invalid, errors.New("nil domain is not allowed")
+		return merkleprooftype.Invalid, errors.New("nil domain is not allowed")
 	case 1: // ethereum chain 1
-		return merkleproof_type.SecureMerklePatriciaTrieUsingKeccak256, nil
+		return merkleprooftype.SecureMerklePatriciaTrieUsingKeccak256, nil
 	case 2: // ethereum chain 2
-		return merkleproof_type.SecureMerklePatriciaTrieUsingKeccak256, nil
+		return merkleprooftype.SecureMerklePatriciaTrieUsingKeccak256, nil
 	case 3: // tendermint chain 1
-		return merkleproof_type.MerklePatriciaTrieUsingKeccak256, nil
+		return merkleprooftype.MerklePatriciaTrieUsingKeccak256, nil
 	case 4: // tendermint chain 1
-		return merkleproof_type.MerklePatriciaTrieUsingKeccak256, nil
+		return merkleprooftype.MerklePatriciaTrieUsingKeccak256, nil
 	default:
-		return merkleproof_type.Invalid, errors.New("not found")
+		return merkleprooftype.Invalid, errors.New("not found")
 	}
 }
