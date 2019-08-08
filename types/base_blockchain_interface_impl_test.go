@@ -19,8 +19,8 @@ func (bn *BlockChainInterfaceTest) RouteWithSigner(signer Signer) Router {
 	return &nbn
 }
 
-func (bn *BlockChainInterfaceTest) WaitForTransact(chainID uint64, receipt []byte, opt *WaitOption) ([]byte, error) {
-	return nil, errors.New("must impl method WaitForTransact(cid, receipt, opt) (info, err)")
+func (bn *BlockChainInterfaceTest) WaitForTransact(chainID uint64, receipt []byte, opt *WaitOption) ([]byte, []byte, error) {
+	return nil, nil, errors.New("must impl method WaitForTransact(cid, receipt, opt) (bid, info, err)")
 }
 
 func (bn *BlockChainInterfaceTest) GetTransactionProof(chainID uint64, blockID []byte, additional []byte) (MerkleProof, error) {

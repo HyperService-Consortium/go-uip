@@ -25,10 +25,11 @@ func NewWaitOption() *WaitOption {
 }
 
 type receipt = []byte
-type blockResult = []byte
+type additional = []byte
+type blockID = []byte
 type Router interface {
 	RouteRaw(chainID, rawTransaction) (receipt, error)
-	WaitForTransact(chainID, receipt, *WaitOption) (blockResult, error)
+	WaitForTransact(chainID, receipt, *WaitOption) (blockID, additional, error)
 	// Route(*TransactionIntent, provedData) (information, error)
 
 	MustWithSigner() bool
@@ -43,14 +44,12 @@ type Checker interface {
 	CheckAddress(address) bool
 }
 
-type blockID = []byte
-type additional = []byte
 type typeID = uint16
 type contract = []byte
 type pos = []byte
 type desc = []byte
 type Storage interface {
-	GetTransactionProof(chainID, blockID, blockResult) (MerkleProof, error)
+	GetTransactionProof(chainID, blockID, additional) (MerkleProof, error)
 	GetStorageAt(chainID, typeID, contract, pos, desc) (interface{}, error)
 }
 
@@ -73,9 +72,14 @@ type RouterGetter interface {
 	GetRouter(chainID) Router
 }
 
+type StorageGetter interface {
+	GetBlockStorage(chainID) Router
+}
+
 type BlockChainGetter interface {
 	CheckerGetter
 	TranslatorGetter
 	RouterGetter
+	StorageGetter
 	GetBlockChainInterface(chainID) BlockChainInterface
 }
