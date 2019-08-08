@@ -13,7 +13,7 @@ type MerkleProof interface {
 	GetValue() []byte
 }
 
-// BlockCheck is the merkle proof that proves the existence of merkle tree (root hash) on the  block
+// BlockCheck is the merkle proof that proves the existence of merkle tree (root hash) on the block
 type BlockCheck interface {
 	GetChainId() uint64
 	GetBlockId() []byte
