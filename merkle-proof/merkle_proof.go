@@ -35,8 +35,16 @@ func (mp *MerkleProof) GetValue() []byte {
 	return mp.Value
 }
 
+type MPTMerkleProof struct {
+	RootHash  []byte   `json:"r"`
+	HashChain [][]byte `json:"h"`
+}
+
 func NewMPTUsingKeccak256(proof [][]byte, key, value []byte) types.MerkleProof {
-	p, _ := json.Marshal(proof)
+	p, _ := json.Marshal(&MPTMerkleProof{
+		RootHash:  proof[0],
+		HashChain: proof,
+	})
 	return &MerkleProof{
 		Type:     merkleprooftype.MerklePatriciaTrieUsingKeccak256,
 		RootHash: proof[0],
@@ -47,7 +55,10 @@ func NewMPTUsingKeccak256(proof [][]byte, key, value []byte) types.MerkleProof {
 }
 
 func NewSecureMPTUsingKeccak256(proof [][]byte, key, value []byte) types.MerkleProof {
-	p, _ := json.Marshal(proof)
+	p, _ := json.Marshal(&MPTMerkleProof{
+		RootHash:  proof[0],
+		HashChain: proof,
+	})
 	return &MerkleProof{
 		Type:     merkleprooftype.SecureMerklePatriciaTrieUsingKeccak256,
 		RootHash: proof[0],
@@ -57,8 +68,14 @@ func NewSecureMPTUsingKeccak256(proof [][]byte, key, value []byte) types.MerkleP
 	}
 }
 
+type SimpleMerkleProof struct {
+	HashChain [][]byte `json:"h"`
+}
+
 func NewSimpleMekrleTreeUsingSha256(proof [][]byte, key, value []byte) types.MerkleProof {
-	p, _ := json.Marshal(proof)
+	p, _ := json.Marshal(&SimpleMerkleProof{
+		HashChain: proof,
+	})
 	return &MerkleProof{
 		Type:     merkleprooftype.SimpleMerkleTreeUsingSha256,
 		RootHash: proof[0],
@@ -69,7 +86,9 @@ func NewSimpleMekrleTreeUsingSha256(proof [][]byte, key, value []byte) types.Mer
 }
 
 func NewSimpleMekrleTreeUsingSha512(proof [][]byte, key, value []byte) types.MerkleProof {
-	p, _ := json.Marshal(proof)
+	p, _ := json.Marshal(&SimpleMerkleProof{
+		HashChain: proof,
+	})
 	return &MerkleProof{
 		Type:     merkleprooftype.SimpleMerkleTreeUsingSha512,
 		RootHash: proof[0],
