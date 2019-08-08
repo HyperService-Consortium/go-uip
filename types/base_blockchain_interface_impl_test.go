@@ -35,6 +35,10 @@ func (bn *BlockChainInterfaceTest) RouteRaw(uint64, []byte) ([]byte, error) {
 	return nil, errors.New("must impl method RouteRaw(cid, rtx) (info, err)")
 }
 
+func (bn *BlockChainInterfaceTest) RouteRawTransaction(chainID, rawTransaction) (receipt, error) {
+	return nil, errors.New("must impl method RouteRawTransaction(cid, rawTx) (receipt, error)")
+}
+
 func (bn *BlockChainInterfaceTest) Translate(*TransactionIntent, KVGetter) ([]byte, error) {
 	return nil, errors.New("must impl method Translate(tx, kvs) (rtx, err)")
 }

@@ -25,10 +25,12 @@ func NewWaitOption() *WaitOption {
 }
 
 type receipt = []byte
+type info = []byte
 type additional = []byte
 type blockID = []byte
 type Router interface {
-	RouteRaw(chainID, rawTransaction) (receipt, error)
+	RouteRaw(chainID, rawTransaction) (info, error)
+	RouteRawTransaction(chainID, rawTransaction) (receipt, error)
 	WaitForTransact(chainID, receipt, *WaitOption) (blockID, additional, error)
 	// Route(*TransactionIntent, provedData) (information, error)
 
