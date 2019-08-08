@@ -8,6 +8,7 @@ type value = []byte
 // MerkleProof is the merkle proof that proves the existence of key-value pair on the  merkle tree
 type MerkleProof interface {
 	GetType() uint16
+	GetRootHash() []byte
 	GetProof() []byte
 	GetKey() []byte
 	GetValue() []byte
