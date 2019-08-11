@@ -1,4 +1,4 @@
-package opintent
+package chaininfo
 
 import (
 	"encoding/hex"
@@ -44,10 +44,10 @@ func SearchChainId(domain uint64) (ChainInfoInterface, error) {
 		}, nil
 	case 3: // tendermint chain 1
 		return &ChainInfo{
-			Host:      "47.254.66.11",
+			Host:      "47.251.2.73", //"47.254.66.11",
 			ChainType: chain_type.TendermintNSB,
 		}, nil
-	case 4: // ethereum chain 1
+	case 4: // tendermint chain 2
 		return &ChainInfo{
 			Host:      "47.251.2.73",
 			ChainType: chain_type.TendermintNSB,
@@ -74,13 +74,13 @@ func TempGetRelay(domain uint64) (types.Account, error) {
 			Address: b,
 		}, err
 	case 3: // tendermint chain 1
-		b, err := hex.DecodeString("cfe900c7a56f87882f0e18e26851bce7b7e61ebeca6c4b235fa360d627dfac63")
+		b, err := hex.DecodeString("2333bbffffffffffffff2333bbffffffffffffff2333bbffffffffffffffffff")
 		return &account.PureAccount{
 			ChainId: 3,
 			Address: b,
 		}, err
-	case 4: // ethereum chain 1
-		b, err := hex.DecodeString("cfe900c7a56f87882f0e18e26851bce7b7e61ebeca6c4b235fa360d627dfac63")
+	case 4: // tendermint chain 2
+		b, err := hex.DecodeString("2333bbffffffffffffff2333bbffffffffffffff2333bbffffffffffffffffff")
 		return &account.PureAccount{
 			ChainId: 4,
 			Address: b,
@@ -156,12 +156,50 @@ func TempSearchAccount(name string, chainId uint64) (types.Account, error) {
 		default:
 			return nil, errors.New("not found")
 		}
+	case "a3": // ethereum chain 1
+		switch chainId {
+		case 0:
+			return nil, errors.New("nil domain is not allowed")
+		case 3: // tendermint chain 1
+			b, err := hex.DecodeString("2333eeffffffffffffff2333eeffffffffffffff2333eeffffffffffffffffff")
+			return &account.PureAccount{
+				ChainId: 3,
+				Address: b,
+			}, err
+		case 4: // tendermint chain 1
+			b, err := hex.DecodeString("2333eeffffffffffffff2333eeffffffffffffff2333eeffffffffffffffffff")
+			return &account.PureAccount{
+				ChainId: 4,
+				Address: b,
+			}, err
+		default:
+			return nil, errors.New("not found")
+		}
+	case "a4": // ethereum chain 1
+		switch chainId {
+		case 0:
+			return nil, errors.New("nil domain is not allowed")
+		case 3: // tendermint chain 1
+			b, err := hex.DecodeString("2333ffffffffffffffff2333ffffffffffffffff2333ffffffffffffffffffff")
+			return &account.PureAccount{
+				ChainId: 3,
+				Address: b,
+			}, err
+		case 4: // tendermint chain 1
+			b, err := hex.DecodeString("2333ffffffffffffffff2333ffffffffffffffff2333ffffffffffffffffffff")
+			return &account.PureAccount{
+				ChainId: 4,
+				Address: b,
+			}, err
+		default:
+			return nil, errors.New("not found")
+		}
 	default:
 		return nil, errors.New("not registered account")
 	}
 }
 
-func getTransactionProofType(chainId uint64) (uint16, error) {
+func GetTransactionProofType(chainId uint64) (uint16, error) {
 	// ethereum chain 1
 	switch chainId {
 	case 0:

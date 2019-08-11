@@ -10,6 +10,8 @@ import (
 	value_type "github.com/Myriad-Dreamin/go-uip/const/value_type"
 	types "github.com/Myriad-Dreamin/go-uip/types"
 
+	chaininfo "github.com/Myriad-Dreamin/go-uip/temporary-chain-info"
+
 	gjson "github.com/tidwall/gjson"
 )
 
@@ -33,7 +35,7 @@ func (ier *OpIntentInitializer) InitContractInvocationOpIntent(
 		return nil, nil, initializeError("function name")
 	}
 	var srcInfo types.Account
-	srcInfo, err = TempSearchAccount(invokeIntent.Src.Name, invokeIntent.Src.ChainId)
+	srcInfo, err = chaininfo.TempSearchAccount(invokeIntent.Src.Name, invokeIntent.Src.ChainId)
 	if err != nil {
 		return
 	}
@@ -78,7 +80,7 @@ func parseContractInvokeProof(intent *types.BaseContractInvocationOpIntent) (pro
 		return
 	}
 	var merkleproofType merkleprooftype.Type
-	merkleproofType, err = getTransactionProofType(intent.Src.ChainId)
+	merkleproofType, err = chaininfo.GetTransactionProofType(intent.Src.ChainId)
 	if err != nil {
 		return
 	}

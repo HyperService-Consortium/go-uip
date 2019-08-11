@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 
+	chaininfo "github.com/Myriad-Dreamin/go-uip/temporary-chain-info"
 	types "github.com/Myriad-Dreamin/go-uip/types"
 
 	merkleprooftype "github.com/Myriad-Dreamin/go-uip/const/merkle-proof-type"
@@ -38,11 +39,11 @@ func (ier *OpIntentInitializer) InitPaymentOpIntent(
 		return nil, nil, errors.New("unknown unit type")
 	}
 	var srcInfo, dstInfo types.Account
-	srcInfo, err = TempSearchAccount(paymentIntent.Src.Name, paymentIntent.Src.ChainId)
+	srcInfo, err = chaininfo.TempSearchAccount(paymentIntent.Src.Name, paymentIntent.Src.ChainId)
 	if err != nil {
 		return
 	}
-	dstInfo, err = TempSearchAccount(paymentIntent.Dst.Name, paymentIntent.Dst.ChainId)
+	dstInfo, err = chaininfo.TempSearchAccount(paymentIntent.Dst.Name, paymentIntent.Dst.ChainId)
 	if err != nil {
 		return
 	}
@@ -85,11 +86,11 @@ func (ier *OpIntentInitializer) genPayment(
 	src types.Account, dst types.Account, amt string, meta []byte, utid unit_type.Type,
 ) (tx *TransactionIntent, proposal []*MerkleProofProposal, err error) {
 	if src == nil {
-		if src, err = TempGetRelay(dst.GetChainId()); err != nil {
+		if src, err = chaininfo.TempGetRelay(dst.GetChainId()); err != nil {
 			return nil, nil, err
 		}
 	} else {
-		if dst, err = TempGetRelay(src.GetChainId()); err != nil {
+		if dst, err = chaininfo.TempGetRelay(src.GetChainId()); err != nil {
 			return nil, nil, err
 		}
 	}
@@ -110,7 +111,7 @@ func (ier *OpIntentInitializer) genPayment(
 		return nil, nil, err
 	}
 	var merkleproofType merkleprooftype.Type
-	merkleproofType, err = getTransactionProofType(dst.GetChainId())
+	merkleproofType, err = chaininfo.GetTransactionProofType(dst.GetChainId())
 	if err != nil {
 		return nil, nil, err
 	}
