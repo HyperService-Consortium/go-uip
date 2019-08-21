@@ -44,12 +44,17 @@ func SearchChainId(domain uint64) (ChainInfoInterface, error) {
 		}, nil
 	case 3: // tendermint chain 1
 		return &ChainInfo{
-			Host:      "47.251.2.73", //"47.254.66.11",
+			Host:      "47.251.2.73:26657", //"47.254.66.11",
 			ChainType: chain_type.TendermintNSB,
 		}, nil
 	case 4: // tendermint chain 2
 		return &ChainInfo{
-			Host:      "47.251.2.73",
+			Host:      "47.251.2.73:26657",
+			ChainType: chain_type.TendermintNSB,
+		}, nil
+	case 5: // tendermint chain 3
+		return &ChainInfo{
+			Host:      "47.88.101.45:26657",
 			ChainType: chain_type.TendermintNSB,
 		}, nil
 	default:
