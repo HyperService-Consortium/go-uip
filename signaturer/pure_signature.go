@@ -1,8 +1,8 @@
 package signaturer
 
 import (
-	signaturetype "github.com/Myriad-Dreamin/go-uip/const/signature_type"
-	types "github.com/Myriad-Dreamin/go-uip/types"
+	signaturetype "github.com/HyperService-Consortium/go-uip/const/signature_type"
+	types "github.com/HyperService-Consortium/go-uip/types"
 )
 
 type PureSignature struct {

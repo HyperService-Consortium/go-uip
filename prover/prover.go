@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strconv"
 
-	rlp "github.com/Myriad-Dreamin/go-rlp"
-	crypto "github.com/Myriad-Dreamin/go-uip/crypto"
+	rlp "github.com/HyperService-Consortium/go-rlp"
+	crypto "github.com/HyperService-Consortium/go-uip/crypto"
 )
 
 const (

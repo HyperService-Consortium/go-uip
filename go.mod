@@ -1,11 +1,11 @@
-module github.com/Myriad-Dreamin/go-uip
+module github.com/HyperService-Consortium/go-uip
 
 go 1.12
 
 require (
-	github.com/Myriad-Dreamin/go-hexutil v1.0.0
-	github.com/Myriad-Dreamin/go-py v0.0.0-20190629155946-c47d2c093430
-	github.com/Myriad-Dreamin/go-rlp v1.0.1
+	github.com/HyperService-Consortium/go-hexutil v1.0.0
+	github.com/HyperService-Consortium/go-py v0.0.0-20190629155946-c47d2c093430
+	github.com/HyperService-Consortium/go-rlp v1.0.1
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gogo/protobuf v1.2.1
 	github.com/stretchr/testify v1.3.0 // indirect

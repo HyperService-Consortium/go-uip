@@ -4,14 +4,14 @@ import (
 	"encoding/json"
 	"errors"
 
-	chaininfo "github.com/Myriad-Dreamin/go-uip/temporary-chain-info"
-	types "github.com/Myriad-Dreamin/go-uip/types"
+	chaininfo "github.com/HyperService-Consortium/go-uip/temporary-chain-info"
+	types "github.com/HyperService-Consortium/go-uip/types"
 
-	merkleprooftype "github.com/Myriad-Dreamin/go-uip/const/merkle-proof-type"
-	merkleproof_proposal_type "github.com/Myriad-Dreamin/go-uip/const/merkleproof_proposal_type"
-	trans_type "github.com/Myriad-Dreamin/go-uip/const/trans_type"
-	unit_type "github.com/Myriad-Dreamin/go-uip/const/unit_type"
-	value_type "github.com/Myriad-Dreamin/go-uip/const/value_type"
+	merkleprooftype "github.com/HyperService-Consortium/go-uip/const/merkle-proof-type"
+	merkleproof_proposal_type "github.com/HyperService-Consortium/go-uip/const/merkleproof_proposal_type"
+	trans_type "github.com/HyperService-Consortium/go-uip/const/trans_type"
+	unit_type "github.com/HyperService-Consortium/go-uip/const/unit_type"
+	value_type "github.com/HyperService-Consortium/go-uip/const/value_type"
 )
 
 func (ier *OpIntentInitializer) InitPaymentOpIntent(

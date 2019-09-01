@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"math/big"
 
-	signaturetype "github.com/Myriad-Dreamin/go-uip/const/signature_type"
-	secp256k1 "github.com/Myriad-Dreamin/go-uip/signaturer/go-ethereum-secp256k1"
+	signaturetype "github.com/HyperService-Consortium/go-uip/const/signature_type"
+	secp256k1 "github.com/HyperService-Consortium/go-uip/signaturer/go-ethereum-secp256k1"
 	ed25519 "golang.org/x/crypto/ed25519"
 )
 

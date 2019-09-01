@@ -4,10 +4,10 @@ import (
 	"encoding/hex"
 	"errors"
 
-	chain_type "github.com/Myriad-Dreamin/go-uip/const/chain_type"
-	merkleprooftype "github.com/Myriad-Dreamin/go-uip/const/merkle-proof-type"
-	types "github.com/Myriad-Dreamin/go-uip/types"
-	"github.com/Myriad-Dreamin/go-uip/types/account"
+	chain_type "github.com/HyperService-Consortium/go-uip/const/chain_type"
+	merkleprooftype "github.com/HyperService-Consortium/go-uip/const/merkle-proof-type"
+	types "github.com/HyperService-Consortium/go-uip/types"
+	"github.com/HyperService-Consortium/go-uip/types/account"
 )
 
 type ChainInfo struct {

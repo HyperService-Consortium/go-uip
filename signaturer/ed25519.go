@@ -1,7 +1,7 @@
 package signaturer
 
 import (
-	signaturetype "github.com/Myriad-Dreamin/go-uip/const/signature_type"
+	signaturetype "github.com/HyperService-Consortium/go-uip/const/signature_type"
 	ed25519 "golang.org/x/crypto/ed25519"
 )
 

@@ -1,6 +1,6 @@
 package signaturer
 
-import "github.com/Myriad-Dreamin/go-uip/types"
+import "github.com/HyperService-Consortium/go-uip/types"
 
 type TendermintNSBSigner struct {
 	prikey *Ed25519PrivateKey

@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/hex"
 	
-	"github.com/Myriad-Dreamin/go-uip/types"
+	"github.com/HyperService-Consortium/go-uip/types"
 )
 
 type ECCSignature interface {

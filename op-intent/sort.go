@@ -4,7 +4,7 @@ import (
 	"errors"
 	"sync/atomic"
 
-	queue "github.com/Myriad-Dreamin/go-uip/queue"
+	queue "github.com/HyperService-Consortium/go-uip/queue"
 )
 
 func (ier *OpIntentInitializer) TopologicalSort(

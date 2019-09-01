@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	crypto "github.com/Myriad-Dreamin/go-uip/crypto"
+	crypto "github.com/HyperService-Consortium/go-uip/crypto"
 )
 
 func TestEthProve(t *testing.T) {

@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 
-	merkleprooftype "github.com/Myriad-Dreamin/go-uip/const/merkle-proof-type"
-	merkleproof_proposal_type "github.com/Myriad-Dreamin/go-uip/const/merkleproof_proposal_type"
-	trans_type "github.com/Myriad-Dreamin/go-uip/const/trans_type"
-	value_type "github.com/Myriad-Dreamin/go-uip/const/value_type"
-	types "github.com/Myriad-Dreamin/go-uip/types"
+	merkleprooftype "github.com/HyperService-Consortium/go-uip/const/merkle-proof-type"
+	merkleproof_proposal_type "github.com/HyperService-Consortium/go-uip/const/merkleproof_proposal_type"
+	trans_type "github.com/HyperService-Consortium/go-uip/const/trans_type"
+	value_type "github.com/HyperService-Consortium/go-uip/const/value_type"
+	types "github.com/HyperService-Consortium/go-uip/types"
 
-	chaininfo "github.com/Myriad-Dreamin/go-uip/temporary-chain-info"
+	chaininfo "github.com/HyperService-Consortium/go-uip/temporary-chain-info"
 
 	gjson "github.com/tidwall/gjson"
 )

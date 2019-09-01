@@ -3,8 +3,8 @@ package merkleproof
 import (
 	"encoding/json"
 
-	merkleprooftype "github.com/Myriad-Dreamin/go-uip/const/merkle-proof-type"
-	types "github.com/Myriad-Dreamin/go-uip/types"
+	merkleprooftype "github.com/HyperService-Consortium/go-uip/const/merkle-proof-type"
+	types "github.com/HyperService-Consortium/go-uip/types"
 )
 
 type MerkleProof struct {

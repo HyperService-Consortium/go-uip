@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"unsafe"
 
-	types "github.com/Myriad-Dreamin/go-uip/types"
+	types "github.com/HyperService-Consortium/go-uip/types"
 	gjson "github.com/tidwall/gjson"
 )
 
