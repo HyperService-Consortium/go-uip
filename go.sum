@@ -1,9 +1,7 @@
-github.com/HyperService-Consortium/go-hexutil v1.0.0 h1:dk5E5xS7iLL3xSMkXcNjZS7p2wXNAS14Pmu6qTL7/RM=
-github.com/HyperService-Consortium/go-hexutil v1.0.0/go.mod h1:dA7CDVx/LjztO02qxAvrdDNDivCdfnAApOBBgprKpnc=
-github.com/HyperService-Consortium/go-py v0.0.0-20190629155946-c47d2c093430 h1:u8Le582T1vOgLdFYXAKWKlzIcJO10VnRhJumU1qcCoI=
-github.com/HyperService-Consortium/go-py v0.0.0-20190629155946-c47d2c093430/go.mod h1:8MylZUJMPb0l0XNH7tSCO84VFzA5sAGE29NXsaUn2Is=
-github.com/HyperService-Consortium/go-rlp v1.0.1 h1:6ygY9VhxCNjD34q0nOmyqEATkHHh3vfr5yC+mDDobOk=
-github.com/HyperService-Consortium/go-rlp v1.0.1/go.mod h1:zB5TOEH12Hi6px2FiJF9V8h3NWrSczcHt0tkz91DGIs=
+github.com/HyperService-Consortium/go-hexutil v1.0.1-0.20190901115112-895ca17550ce h1:xElSjwyoJKKuVhFK5lUgdGVTztRQH6GkQ1bEC1LBWiw=
+github.com/HyperService-Consortium/go-hexutil v1.0.1-0.20190901115112-895ca17550ce/go.mod h1:vYaJbDud2oEPXokgziTQJQ4gA7GwIHCMu0F804fLKkE=
+github.com/HyperService-Consortium/go-rlp v1.0.1-0.20190903144357-b5693c05a6b8 h1:KBmZ/AwlF/iKvbQwGL6+09bbZHzksJFr/6tjKzX29ME=
+github.com/HyperService-Consortium/go-rlp v1.0.1-0.20190903144357-b5693c05a6b8/go.mod h1:f6lLuGRJua3AHgMk4m6XvsF64GFlr5ekGeb2n+ymYfQ=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

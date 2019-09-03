@@ -3,9 +3,8 @@ module github.com/HyperService-Consortium/go-uip
 go 1.12
 
 require (
-	github.com/HyperService-Consortium/go-hexutil v1.0.0
-	github.com/HyperService-Consortium/go-py v0.0.0-20190629155946-c47d2c093430
-	github.com/HyperService-Consortium/go-rlp v1.0.1
+	github.com/HyperService-Consortium/go-hexutil v1.0.1-0.20190901115112-895ca17550ce
+	github.com/HyperService-Consortium/go-rlp v1.0.1-0.20190903144357-b5693c05a6b8
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gogo/protobuf v1.2.1
 	github.com/stretchr/testify v1.3.0 // indirect
