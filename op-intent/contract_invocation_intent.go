@@ -35,7 +35,7 @@ func (ier *OpIntentInitializer) InitContractInvocationOpIntent(
 		return nil, nil, initializeError("function name")
 	}
 	var srcInfo types.Account
-	srcInfo, err = chaininfo.TempSearchAccount(invokeIntent.Src.Name, invokeIntent.Src.ChainId)
+	srcInfo, err = ier.accountProvider.Get(invokeIntent.Src.Name, invokeIntent.Src.ChainId)
 	if err != nil {
 		return
 	}

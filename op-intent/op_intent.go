@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/json"
 	"errors"
+	chaininfo "github.com/HyperService-Consortium/go-uip/temporary-chain-info"
 	"reflect"
 	"unsafe"
 
@@ -11,15 +12,59 @@ import (
 	gjson "github.com/tidwall/gjson"
 )
 
+type AccountBase interface {
+	// sign
+	AccountBase() AccountBase
+	Get(name string, chainId uint64) (types.Account, error)
+	GetRelay(domain uint64) (types.Account, error)
+	GetTransactionProofType(chainId uint64) (uint16, error)
+}
+
+type accountProvider struct {
+}
+
+func (a accountProvider) AccountBase() AccountBase {
+	return a
+}
+
+func (accountProvider) Get(name string, chainId uint64) (types.Account, error) {
+	return chaininfo.TempSearchAccount(name, chainId)
+}
+
+func (accountProvider) GetRelay(domain uint64) (types.Account, error) {
+	return chaininfo.TempGetRelay(domain)
+}
+
+func (accountProvider) GetTransactionProofType(chainId uint64) (uint16, error) {
+	return chaininfo.GetTransactionProofType(chainId)
+}
+
+func defaultAccountProvider() AccountBase {
+	return accountProvider{}
+}
+
+
 type OpIntentInitializer struct {
 	degPool          *DegreePool
+	accountProvider AccountBase
 	largerThanLarger uint32
 }
 
-func NewOpIntentInitializer() *OpIntentInitializer {
-	return &OpIntentInitializer{
-		degPool: newDegreePool(),
+func NewOpIntentInitializer(options... interface{}) *OpIntentInitializer {
+	var opIntent = &OpIntentInitializer{}
+	for i := range options {
+		switch op := options[i].(type) {
+		case AccountBase:
+			opIntent.accountProvider = op
+		}
 	}
+	if opIntent.degPool == nil {
+		opIntent.degPool = newDegreePool()
+	}
+	if opIntent.accountProvider == nil {
+		opIntent.accountProvider = defaultAccountProvider()
+	}
+	return opIntent
 }
 
 func (ier *OpIntentInitializer) InitOpIntent(

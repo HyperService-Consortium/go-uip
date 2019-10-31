@@ -39,11 +39,11 @@ func (ier *OpIntentInitializer) InitPaymentOpIntent(
 		return nil, nil, errors.New("unknown unit type")
 	}
 	var srcInfo, dstInfo types.Account
-	srcInfo, err = chaininfo.TempSearchAccount(paymentIntent.Src.Name, paymentIntent.Src.ChainId)
+	srcInfo, err = ier.accountProvider.Get(paymentIntent.Src.Name, paymentIntent.Src.ChainId)
 	if err != nil {
 		return
 	}
-	dstInfo, err = chaininfo.TempSearchAccount(paymentIntent.Dst.Name, paymentIntent.Dst.ChainId)
+	dstInfo, err = ier.accountProvider.Get(paymentIntent.Dst.Name, paymentIntent.Dst.ChainId)
 	if err != nil {
 		return
 	}
@@ -86,11 +86,11 @@ func (ier *OpIntentInitializer) genPayment(
 	src types.Account, dst types.Account, amt string, meta []byte, utid unit_type.Type,
 ) (tx *TransactionIntent, proposal []*MerkleProofProposal, err error) {
 	if src == nil {
-		if src, err = chaininfo.TempGetRelay(dst.GetChainId()); err != nil {
+		if src, err = ier.accountProvider.GetRelay(dst.GetChainId()); err != nil {
 			return nil, nil, err
 		}
 	} else {
-		if dst, err = chaininfo.TempGetRelay(src.GetChainId()); err != nil {
+		if dst, err = ier.accountProvider.GetRelay(src.GetChainId()); err != nil {
 			return nil, nil, err
 		}
 	}
