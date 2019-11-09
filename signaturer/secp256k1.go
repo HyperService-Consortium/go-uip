@@ -5,6 +5,7 @@ import (
 	"crypto/elliptic"
 	"errors"
 	"fmt"
+	"github.com/HyperService-Consortium/go-uip/uiptypes"
 	"math/big"
 
 	signaturetype "github.com/HyperService-Consortium/go-uip/const/signature_type"
@@ -72,7 +73,7 @@ func (s *Secp256k1PrivateKey) IsValid() bool {
 }
 
 func (s *Secp256k1PrivateKey) ToPublic() ECCPublicKey {
-	return NewSecp256k1PublicKeyFromBytes([]byte(ed25519.PrivateKey(*s.BaseHexType).Public().(ed25519.PublicKey)))
+	return NewSecp256k1PublicKeyFromBytes(ed25519.PrivateKey(*s.BaseHexType).Public().(ed25519.PublicKey))
 }
 
 func (s *Secp256k1PrivateKey) Sign(b []byte) ECCSignature {
@@ -95,7 +96,7 @@ func (s *Secp256k1Signature) GetContent() []byte {
 	return s.BaseHexType.Bytes()
 }
 
-func (s *Secp256k1Signature) GetSignatureType() uint32 {
+func (s *Secp256k1Signature) GetSignatureType() uiptypes.SignatureType {
 	return signaturetype.Secp256k1
 }
 

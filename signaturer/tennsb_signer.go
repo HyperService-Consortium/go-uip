@@ -1,23 +1,28 @@
 package signaturer
 
-import "github.com/HyperService-Consortium/go-uip/types"
+import (
+	"errors"
+	"github.com/HyperService-Consortium/go-uip/uiptypes"
+)
 
 type TendermintNSBSigner struct {
 	prikey *Ed25519PrivateKey
 	pubKey *Ed25519PublicKey
 }
 
-func NewTendermintNSBSigner(pri []byte) (ten *TendermintNSBSigner) {
+var ErrConvert = errors.New("could not covert it to signer's private key")
+
+func NewTendermintNSBSigner(pri []byte) (ten *TendermintNSBSigner, err error) {
 	ten = new(TendermintNSBSigner)
 	ten.prikey = NewEd25519PrivateKeyFromBytes(pri)
 	if ten.prikey == nil {
-		return nil
+		return nil, ErrConvert
 	}
 	ten.pubKey = ten.prikey.ToPublic().(*Ed25519PublicKey)
 	return
 }
 
-func (ten *TendermintNSBSigner) Sign(b []byte) types.Signature {
+func (ten *TendermintNSBSigner) Sign(b []byte) uiptypes.Signature {
 	return ten.prikey.Sign(b)
 }
 

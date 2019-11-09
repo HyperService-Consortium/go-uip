@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"unsafe"
 
-	types "github.com/HyperService-Consortium/go-uip/types"
+	types "github.com/HyperService-Consortium/go-uip/uiptypes"
 	gjson "github.com/tidwall/gjson"
 )
 

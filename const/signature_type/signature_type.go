@@ -1,6 +1,8 @@
 package signaturetype
 
-type Type = uint32
+import "github.com/HyperService-Consortium/go-uip/uiptypes"
+
+type Type = uiptypes.SignatureType
 
 const (
 	Unknown Type = 0 + iota

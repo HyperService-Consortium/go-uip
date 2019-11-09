@@ -8,7 +8,7 @@ import (
 	merkleproof_proposal_type "github.com/HyperService-Consortium/go-uip/const/merkleproof_proposal_type"
 	trans_type "github.com/HyperService-Consortium/go-uip/const/trans_type"
 	value_type "github.com/HyperService-Consortium/go-uip/const/value_type"
-	types "github.com/HyperService-Consortium/go-uip/types"
+	types "github.com/HyperService-Consortium/go-uip/uiptypes"
 
 	chaininfo "github.com/HyperService-Consortium/go-uip/temporary-chain-info"
 

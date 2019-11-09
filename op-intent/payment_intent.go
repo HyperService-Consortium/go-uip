@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	chaininfo "github.com/HyperService-Consortium/go-uip/temporary-chain-info"
-	types "github.com/HyperService-Consortium/go-uip/types"
+	types "github.com/HyperService-Consortium/go-uip/uiptypes"
 
 	merkleprooftype "github.com/HyperService-Consortium/go-uip/const/merkle-proof-type"
 	merkleproof_proposal_type "github.com/HyperService-Consortium/go-uip/const/merkleproof_proposal_type"

@@ -1,4 +1,4 @@
-package types
+package uiptypes
 
 import "encoding/json"
 
