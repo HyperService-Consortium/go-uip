@@ -9,7 +9,7 @@ type Storage interface {
 
 	// blockID + color decide an only transaction on chain with id chainID
 	GetTransactionProof(chainID ChainID, blockID BlockID, color []byte) (MerkleProof, error)
-	GetStorageAt(chainID ChainID, typeID TypeID, contractAddress ContractAddress, pos []byte, description []byte) ([]byte, error)
+	GetStorageAt(chainID ChainID, typeID TypeID, contractAddress ContractAddress, pos []byte, description []byte) (interface{}, error)
 }
 
 type StorageGetter interface {
