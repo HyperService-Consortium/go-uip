@@ -31,12 +31,12 @@ type BasePaymentOpIntent struct {
 	Dst        *RawAccountInfo `json:"dst"`    // key
 	Amount     hexstring       `json:"amount"` // key
 	UnitString string          `json:"unit"`   // optional
-	Meta       []byte          `json:"meta"`
+	Meta       json.RawMessage `json:"meta"`
 }
 
 type BaseContractInvocationOpIntent struct {
 	Src      *RawAccountInfo `json:"invoker"`       // key
-	Dst      []byte          `json:"contract_addr"` // key
+	Dst      hexstring       `json:"contract_addr"` // key
 	Code     []byte          `json:"contract_code"` // key
 	FuncName string          `json:"func"`
 	Params   []RawParams     `json:"parameters"`

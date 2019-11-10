@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 
-	types "github.com/HyperService-Consortium/go-uip/uiptypes"
+	"github.com/HyperService-Consortium/go-uip/uiptypes"
 
 	merkleprooftype "github.com/HyperService-Consortium/go-uip/const/merkle-proof-type"
 	merkleproof_proposal_type "github.com/HyperService-Consortium/go-uip/const/merkleproof_proposal_type"
@@ -17,7 +17,7 @@ func (ier *OpIntentInitializer) InitPaymentOpIntent(
 	name string,
 	subIntent json.RawMessage,
 ) (txs []*TransactionIntent, requiringMerkleProof []*MerkleProofProposal, err error) {
-	var paymentIntent types.BasePaymentOpIntent
+	var paymentIntent uiptypes.BasePaymentOpIntent
 	err = json.Unmarshal(subIntent, &paymentIntent)
 	var tx *TransactionIntent
 	var proposal []*MerkleProofProposal
@@ -37,7 +37,7 @@ func (ier *OpIntentInitializer) InitPaymentOpIntent(
 	if !ok {
 		return nil, nil, errors.New("unknown unit type")
 	}
-	var srcInfo, dstInfo types.Account
+	var srcInfo, dstInfo uiptypes.Account
 	srcInfo, err = ier.accountProvider.Get(paymentIntent.Src.Name, paymentIntent.Src.ChainId)
 	if err != nil {
 		return
@@ -82,14 +82,14 @@ type transactionProofSourceDescription struct {
 }
 
 func (ier *OpIntentInitializer) genPayment(
-	src types.Account, dst types.Account, amt string, meta []byte, utid unit_type.Type,
+	src uiptypes.Account, dst uiptypes.Account, amt string, meta []byte, utid unit_type.Type,
 ) (tx *TransactionIntent, proposal []*MerkleProofProposal, err error) {
 	if src == nil {
-		if src, err = ier.accountProvider.GetRelay(dst.GetChainId()); err != nil {
+		if src, err = ier.accountProvider.GetRelay(uiptypes.ChainIDUnderlyingType(dst.GetChainId())); err != nil {
 			return nil, nil, err
 		}
 	} else {
-		if dst, err = ier.accountProvider.GetRelay(src.GetChainId()); err != nil {
+		if dst, err = ier.accountProvider.GetRelay(uiptypes.ChainIDUnderlyingType(src.GetChainId())); err != nil {
 			return nil, nil, err
 		}
 	}
@@ -100,17 +100,17 @@ func (ier *OpIntentInitializer) genPayment(
 		TransType: trans_type.Payment,
 		Amt:       amt,
 		Meta:      meta,
-		ChainID:   dst.GetChainId(),
+		ChainID:   uiptypes.ChainIDUnderlyingType(dst.GetChainId()),
 	}
 
 	var txp transactionProofSourceDescription
-	txp.ChainID = dst.GetChainId()
+	txp.ChainID = uiptypes.ChainIDUnderlyingType(dst.GetChainId())
 	b, err := json.Marshal(&txp)
 	if err != nil {
 		return nil, nil, err
 	}
 	var merkleproofType merkleprooftype.Type
-	merkleproofType, err = ier.accountProvider.GetTransactionProofType(dst.GetChainId())
+	merkleproofType, err = ier.accountProvider.GetTransactionProofType(uiptypes.ChainIDUnderlyingType(dst.GetChainId()))
 	if err != nil {
 		return nil, nil, err
 	}

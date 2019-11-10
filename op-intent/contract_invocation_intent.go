@@ -1,23 +1,23 @@
 package opintent
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"errors"
-
 	merkleprooftype "github.com/HyperService-Consortium/go-uip/const/merkle-proof-type"
-	merkleproof_proposal_type "github.com/HyperService-Consortium/go-uip/const/merkleproof_proposal_type"
-	trans_type "github.com/HyperService-Consortium/go-uip/const/trans_type"
-	value_type "github.com/HyperService-Consortium/go-uip/const/value_type"
-	types "github.com/HyperService-Consortium/go-uip/uiptypes"
+	"github.com/HyperService-Consortium/go-uip/const/merkleproof_proposal_type"
+	"github.com/HyperService-Consortium/go-uip/const/trans_type"
+	"github.com/HyperService-Consortium/go-uip/const/value_type"
+	"github.com/HyperService-Consortium/go-uip/uiptypes"
 
-	gjson "github.com/tidwall/gjson"
+	"github.com/tidwall/gjson"
 )
 
 func (ier *OpIntentInitializer) InitContractInvocationOpIntent(
 	name string,
 	subIntent json.RawMessage,
 ) (txs []*TransactionIntent, requiringMerkleProof []*MerkleProofProposal, err error) {
-	var invokeIntent types.BaseContractInvocationOpIntent
+	var invokeIntent uiptypes.BaseContractInvocationOpIntent
 	err = json.Unmarshal(subIntent, &invokeIntent)
 	var tx *TransactionIntent
 	if err != nil {
@@ -26,19 +26,25 @@ func (ier *OpIntentInitializer) InitContractInvocationOpIntent(
 	if invokeIntent.Src == nil {
 		return nil, nil, initializeError("src")
 	}
-	if invokeIntent.Dst == nil {
+	if len(invokeIntent.Dst) == 0 {
 		return nil, nil, initializeError("dst")
 	}
 	if len(invokeIntent.FuncName) == 0 {
 		return nil, nil, initializeError("function name")
 	}
-	var srcInfo types.Account
+	var dstAddr []byte
+	dstAddr, err = hex.DecodeString(invokeIntent.Dst)
+	if err != nil {
+		return
+	}
+
+	var srcInfo uiptypes.Account
 	srcInfo, err = ier.accountProvider.Get(invokeIntent.Src.Name, invokeIntent.Src.ChainId)
 	if err != nil {
 		return
 	}
 	if tx, err = func() (*TransactionIntent, error) {
-		var meta types.ContractInvokeMeta
+		var meta uiptypes.ContractInvokeMeta
 		meta.Code = invokeIntent.Code
 		meta.FuncName = invokeIntent.FuncName
 		meta.Params = invokeIntent.Params
@@ -51,11 +57,11 @@ func (ier *OpIntentInitializer) InitContractInvocationOpIntent(
 		tx := &TransactionIntent{
 			TransType: trans_type.ContractInvoke,
 			Src:       srcInfo.GetAddress(),
-			Dst:       invokeIntent.Dst,
+			Dst:       dstAddr,
 			Meta:      b,
 			// temporary = 1000
-			Amt:     "0x3e8",
-			ChainID: srcInfo.GetChainId(),
+			Amt:     "03e8",
+			ChainID: uiptypes.ChainIDUnderlyingType(srcInfo.GetChainId()),
 		}
 		return tx, nil
 	}(); err != nil {
@@ -69,7 +75,7 @@ func (ier *OpIntentInitializer) InitContractInvocationOpIntent(
 	return
 }
 
-func (ier *OpIntentInitializer) parseContractInvokeProof(intent *types.BaseContractInvocationOpIntent) (proposal []*MerkleProofProposal, err error) {
+func (ier *OpIntentInitializer) parseContractInvokeProof(intent *uiptypes.BaseContractInvocationOpIntent) (proposal []*MerkleProofProposal, err error) {
 	var b []byte
 	var txp transactionProofSourceDescription
 	txp.ChainID = intent.Src.ChainId
