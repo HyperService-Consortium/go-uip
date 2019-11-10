@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 
-	chaininfo "github.com/HyperService-Consortium/go-uip/temporary-chain-info"
 	types "github.com/HyperService-Consortium/go-uip/uiptypes"
 
 	merkleprooftype "github.com/HyperService-Consortium/go-uip/const/merkle-proof-type"
@@ -111,7 +110,7 @@ func (ier *OpIntentInitializer) genPayment(
 		return nil, nil, err
 	}
 	var merkleproofType merkleprooftype.Type
-	merkleproofType, err = chaininfo.GetTransactionProofType(dst.GetChainId())
+	merkleproofType, err = ier.accountProvider.GetTransactionProofType(dst.GetChainId())
 	if err != nil {
 		return nil, nil, err
 	}

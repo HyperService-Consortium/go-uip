@@ -63,9 +63,9 @@ type RawParams struct {
 type MerkleProofProposal struct {
 	Tid uint64
 	// 0 = transaction proof, 1 = data proof
-	DescriptionType uint8
+	DescriptionType MerkleProofProposalType
 	// 0 = simpleMerkleTreeUsingSha256, 1 = simpleMerkleTreeUsingSha512, 2 = merklePatriciaTrieUsingKeccak256
-	MerkleProofType   uint16
-	ValueType         uint16
+	MerkleProofType   MerkleProofType
+	ValueType         TypeID
 	SourceDescription []byte
 }

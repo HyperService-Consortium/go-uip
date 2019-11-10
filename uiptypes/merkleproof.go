@@ -6,7 +6,8 @@ type RootHash = []byte
 type Proof = []byte
 type MerkleProofKey = []byte
 type MerkleProofValue = []byte
-type MerkleProofProposalType uint8
+type MerkleProofProposalTypeUnderlyingType = uint8
+type MerkleProofProposalType MerkleProofProposalTypeUnderlyingType
 
 // MerkleProof is the merkle proof that proves the existence of key-value pair on the  merkle tree
 type MerkleProof interface {

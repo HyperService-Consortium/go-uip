@@ -10,8 +10,6 @@ import (
 	value_type "github.com/HyperService-Consortium/go-uip/const/value_type"
 	types "github.com/HyperService-Consortium/go-uip/uiptypes"
 
-	chaininfo "github.com/HyperService-Consortium/go-uip/temporary-chain-info"
-
 	gjson "github.com/tidwall/gjson"
 )
 
@@ -65,13 +63,13 @@ func (ier *OpIntentInitializer) InitContractInvocationOpIntent(
 	}
 	txs = append(txs, tx)
 	var proposal []*MerkleProofProposal
-	proposal, err = parseContractInvokeProof(&invokeIntent)
+	proposal, err = ier.parseContractInvokeProof(&invokeIntent)
 	requiringMerkleProof = append(requiringMerkleProof, proposal...)
 
 	return
 }
 
-func parseContractInvokeProof(intent *types.BaseContractInvocationOpIntent) (proposal []*MerkleProofProposal, err error) {
+func (ier *OpIntentInitializer) parseContractInvokeProof(intent *types.BaseContractInvocationOpIntent) (proposal []*MerkleProofProposal, err error) {
 	var b []byte
 	var txp transactionProofSourceDescription
 	txp.ChainID = intent.Src.ChainId
@@ -80,7 +78,7 @@ func parseContractInvokeProof(intent *types.BaseContractInvocationOpIntent) (pro
 		return
 	}
 	var merkleproofType merkleprooftype.Type
-	merkleproofType, err = chaininfo.GetTransactionProofType(intent.Src.ChainId)
+	merkleproofType, err = ier.accountProvider.GetTransactionProofType(intent.Src.ChainId)
 	if err != nil {
 		return
 	}

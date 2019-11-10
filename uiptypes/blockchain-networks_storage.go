@@ -1,7 +1,8 @@
 package uiptypes
 
 
-type TypeID = uint16
+type TypeIDUnderlyingType = uint16
+type TypeID TypeIDUnderlyingType
 type Contract = []byte
 type Pos = []byte
 type Desc = []byte

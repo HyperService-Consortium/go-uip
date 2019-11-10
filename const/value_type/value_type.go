@@ -1,6 +1,8 @@
 package value_type
 
-type Type = uint16
+import "github.com/HyperService-Consortium/go-uip/uiptypes"
+
+type Type = uiptypes.TypeID
 
 const (
 	Unknown Type = iota

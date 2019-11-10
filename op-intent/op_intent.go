@@ -4,20 +4,19 @@ import (
 	"crypto/md5"
 	"encoding/json"
 	"errors"
-	chaininfo "github.com/HyperService-Consortium/go-uip/temporary-chain-info"
 	"reflect"
 	"unsafe"
 
-	types "github.com/HyperService-Consortium/go-uip/uiptypes"
+	"github.com/HyperService-Consortium/go-uip/uiptypes"
 	gjson "github.com/tidwall/gjson"
 )
 
 type AccountBase interface {
 	// sign
 	AccountBase() AccountBase
-	Get(name string, chainId uint64) (types.Account, error)
-	GetRelay(domain uint64) (types.Account, error)
-	GetTransactionProofType(chainId uint64) (uint16, error)
+	Get(name string, chainId uint64) (uiptypes.Account, error)
+	GetRelay(domain uint64) (uiptypes.Account, error)
+	GetTransactionProofType(chainId uint64) (uiptypes.MerkleProofType, error)
 }
 
 type accountProvider struct {
@@ -27,16 +26,16 @@ func (a accountProvider) AccountBase() AccountBase {
 	return a
 }
 
-func (accountProvider) Get(name string, chainId uint64) (types.Account, error) {
-	return chaininfo.TempSearchAccount(name, chainId)
+func (accountProvider) Get(name string, chainId uint64) (uiptypes.Account, error) {
+	return nil, errors.New("op intent: empty provider")
 }
 
-func (accountProvider) GetRelay(domain uint64) (types.Account, error) {
-	return chaininfo.TempGetRelay(domain)
+func (accountProvider) GetRelay(domain uint64) (uiptypes.Account, error) {
+	return nil, errors.New("op intent: empty provider")
 }
 
-func (accountProvider) GetTransactionProofType(chainId uint64) (uint16, error) {
-	return chaininfo.GetTransactionProofType(chainId)
+func (accountProvider) GetTransactionProofType(chainId uint64) (uiptypes.MerkleProofType, error) {
+	return 0, errors.New("op intent: empty provider")
 }
 
 func defaultAccountProvider() AccountBase {
@@ -68,10 +67,10 @@ func NewOpIntentInitializer(options... interface{}) *OpIntentInitializer {
 }
 
 func (ier *OpIntentInitializer) InitOpIntent(
-	opIntents types.OpIntents,
+	opIntents uiptypes.OpIntents,
 ) (transactionIntents []*TransactionIntent, proposals []*MerkleProofProposal, err error) {
 	contents, rawDependencies := opIntents.GetContents(), opIntents.GetDependencies()
-	var intent types.BaseOpIntent
+	var intent uiptypes.BaseOpIntent
 	var rtx [][]*TransactionIntent
 
 	// todo: add merkle proof proposals
