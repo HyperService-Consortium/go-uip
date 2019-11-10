@@ -2,9 +2,9 @@ package uiptypes
 
 
 type Translator interface {
-	Translate(*TransactionIntent, KVGetter) (RawTransaction, error)
+	Translate(intent *TransactionIntent, kvGetter KVGetter) (rawTransaction RawTransaction, err error)
 }
 
 type TranslatorGetter interface {
-	GetTranslator(ChainID) Translator
+	GetTranslator(chainID ChainID) (intent Translator)
 }
