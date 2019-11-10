@@ -4,8 +4,8 @@ import "github.com/HyperService-Consortium/go-uip/uiptypes"
 
 type Transaction []byte
 
-func (t Transaction) Bytes() []byte {
-	return t
+func (t Transaction) Serialize() ([]byte, error) {
+	return t, nil
 }
 
 func (t Transaction) Signed() bool {

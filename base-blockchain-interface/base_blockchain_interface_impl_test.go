@@ -10,6 +10,10 @@ type BlockChainInterfaceTest struct {
 	BlockChainInterface
 }
 
+func (bn *BlockChainInterfaceTest) Deserialize(raw []byte) (rawTransaction uiptypes.RawTransaction, err error) {
+	panic("implement me")
+}
+
 func (bn *BlockChainInterfaceTest) MustWithSigner() bool {
 	return true
 }

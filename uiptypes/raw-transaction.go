@@ -2,7 +2,8 @@ package uiptypes
 
 
 type RawTransaction interface {
-	Bytes() []byte
+	// must have no logic error
+	Serialize() ([]byte, error)
 	Signed() bool
 	Sign(Signer) (RawTransaction, error)
 }
