@@ -299,8 +299,9 @@ func TestGeneratePaymentMetaTransactionIntent(t *testing.T) {
 			"value-inconsistent": obj{
 				"type": "uint256",
 				"value": obj{
+					"domain":    2,
 					"contract": "00e1eaa022cc40d4808bfe62b8997540c914d81e",
-					"pos": "1",
+					"pos": "01",
 					"field": "strikePrice",
 				},
 			},
