@@ -41,7 +41,7 @@ func (bn *BlockChainInterfaceTest) Translate(*uiptypes.TransactionIntent, uiptyp
 	return nil, errors.New("must impl method Translate(tx, kvs) (rtx, err)")
 }
 
-func (bn *BlockChainInterfaceTest) GetStorageAt(uiptypes.ChainID, uiptypes.TypeID, uiptypes.ContractAddress, []byte, []byte) (interface{}, error) {
+func (bn *BlockChainInterfaceTest) GetStorageAt(uiptypes.ChainID, uiptypes.TypeID, uiptypes.ContractAddress, []byte, []byte) (uiptypes.Variable, error) {
 	return nil, errors.New("must impl method GetStorageAt(chainID, typeID, contract, pos, desc) (interface{}, error)")
 }
 
