@@ -37,11 +37,11 @@ func (bn *BlockChainInterfaceTest) RouteRaw(uiptypes.ChainID, uiptypes.RawTransa
 }
 
 
-func (bn *BlockChainInterfaceTest) Translate(*uiptypes.TransactionIntent, uiptypes.KVGetter) (uiptypes.RawTransaction, error) {
+func (bn *BlockChainInterfaceTest) Translate(*uiptypes.TransactionIntent, uiptypes.Storage) (uiptypes.RawTransaction, error) {
 	return nil, errors.New("must impl method Translate(tx, kvs) (rtx, err)")
 }
 
-func (bn *BlockChainInterfaceTest) GetStorageAt(uiptypes.ChainID, uiptypes.TypeID, uiptypes.Contract, uiptypes.Pos, uiptypes.Desc) (interface{}, error) {
+func (bn *BlockChainInterfaceTest) GetStorageAt(uiptypes.ChainID, uiptypes.TypeID, uiptypes.ContractAddress, []byte, []byte) ([]byte, error) {
 	return nil, errors.New("must impl method GetStorageAt(chainID, typeID, contract, pos, desc) (interface{}, error)")
 }
 

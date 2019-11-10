@@ -1,8 +1,5 @@
 package uiptypes
 
-type KVGetter interface {
-	Get([]byte) ([]byte, error)
-}
 
 type BlockChainInterface interface {
 	Router

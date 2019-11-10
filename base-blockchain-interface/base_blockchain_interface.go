@@ -18,7 +18,7 @@ func (bn BlockChainInterface) MustWithSigner() bool {
 //
 // }
 
-func Route(newBn uiptypes.BlockChainInterface, intent *uiptypes.TransactionIntent, kvGetter uiptypes.KVGetter) ([]byte, error) {
+func Route(newBn uiptypes.BlockChainInterface, intent *uiptypes.TransactionIntent, kvGetter uiptypes.Storage) ([]byte, error) {
 	// todo
 	onChainTransaction, err := newBn.Translate(intent, kvGetter)
 	if err != nil {
