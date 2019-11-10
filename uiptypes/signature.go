@@ -1,7 +1,7 @@
 package uiptypes
 
-type SignatureType uint32
 type SignatureUnderlyingType = uint32
+type SignatureType SignatureUnderlyingType
 type SignatureContent = []byte
 type SignedContent = []byte
 

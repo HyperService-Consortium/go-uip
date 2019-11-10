@@ -1,6 +1,8 @@
 package ChainType
 
-type Type = uint64
+import "github.com/HyperService-Consortium/go-uip/uiptypes"
+
+type Type = uiptypes.ChainType
 
 const (
 	Unassigned Type = iota
