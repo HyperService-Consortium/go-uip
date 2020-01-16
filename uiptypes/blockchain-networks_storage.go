@@ -18,5 +18,5 @@ type Storage interface {
 }
 
 type StorageGetter interface {
-	GetBlockStorage(chainID ChainID) (router Router)
+	GetBlockStorage(chainID ChainID) (storage Storage)
 }

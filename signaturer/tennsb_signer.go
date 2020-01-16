@@ -22,7 +22,7 @@ func NewTendermintNSBSigner(pri []byte) (ten *TendermintNSBSigner, err error) {
 	return
 }
 
-func (ten *TendermintNSBSigner) Sign(b []byte) uiptypes.Signature {
+func (ten *TendermintNSBSigner) Sign(b []byte, ctxVars ...interface{}) uiptypes.Signature {
 	return ten.prikey.Sign(b)
 }
 

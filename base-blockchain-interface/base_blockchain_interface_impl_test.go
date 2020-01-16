@@ -88,7 +88,7 @@ func (s *signature) IsValid() bool {
 	return true
 }
 
-func (s signer) Sign([]byte) uiptypes.Signature {
+func (s signer) Sign(op []byte, options ...interface{}) uiptypes.Signature {
 	return &signature{}
 }
 
