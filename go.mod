@@ -1,6 +1,6 @@
 module github.com/HyperService-Consortium/go-uip
 
-go 1.12
+go 1.13
 
 require (
 	github.com/HyperService-Consortium/go-hexutil v1.0.1-0.20190901115112-895ca17550ce

@@ -8,6 +8,11 @@ func (t Transaction) Serialize() ([]byte, error) {
 	return t, nil
 }
 
+func (t Transaction) Bytes() ([]byte, error) {
+	return t, nil
+}
+
+
 func (t Transaction) Signed() bool {
 	return true
 }
