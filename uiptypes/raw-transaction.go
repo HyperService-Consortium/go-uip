@@ -6,5 +6,5 @@ type RawTransaction interface {
 	Serialize() ([]byte, error)
 	Bytes() ([]byte, error)
 	Signed() bool
-	Sign(Signer) (RawTransaction, error)
+	Sign(signer Signer, ctxVars ...interface{}) (RawTransaction, error)
 }

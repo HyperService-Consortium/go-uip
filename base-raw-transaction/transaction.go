@@ -17,6 +17,6 @@ func (t Transaction) Signed() bool {
 	return true
 }
 
-func (t Transaction) Sign(uiptypes.Signer) (uiptypes.RawTransaction, error) {
+func (t Transaction) Sign(signer uiptypes.Signer, ctxVars ...interface{}) (uiptypes.RawTransaction, error) {
 	return t, nil
 }
