@@ -22,8 +22,8 @@ func NewTendermintNSBSigner(pri []byte) (ten *TendermintNSBSigner, err error) {
 	return
 }
 
-func (ten *TendermintNSBSigner) Sign(b []byte, ctxVars ...interface{}) uiptypes.Signature {
-	return ten.prikey.Sign(b)
+func (ten *TendermintNSBSigner) Sign(b []byte, ctxVars ...interface{}) (uiptypes.Signature, error) {
+	return ten.prikey.Sign(b), nil
 }
 
 func (ten *TendermintNSBSigner) GetPublicKey() []byte {

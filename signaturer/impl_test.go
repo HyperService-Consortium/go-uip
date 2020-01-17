@@ -32,5 +32,5 @@ func TestNewTendermintNSBSigner(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	var _ = _s.Sign([]byte{0, 1})
+	var _, _ = _s.Sign([]byte{0, 1})
 }

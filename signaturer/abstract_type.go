@@ -61,29 +61,29 @@ func (h *BaseHexType) PureString() string {
 	return string(*h)
 }
 
-func (h *BaseHexType) FromBytes(b []byte) bool {
+func (h *BaseHexType) FromBytes(b []byte) error {
 	if h == nil {
 		h = new(BaseHexType)
 	}
 	*h = b
-	return true
+	return nil
 }
 
-func (h *BaseHexType) FromPureString(b string) bool {
+func (h *BaseHexType) FromPureString(b string) error {
 	if h == nil {
 		h = new(BaseHexType)
 	}
 	*h = []byte(b)
-	return true
+	return nil
 }
 
-func (h *BaseHexType) FromString(b string) bool {
+func (h *BaseHexType) FromString(b string) error {
 	var err error
 	if h == nil {
 		h = new(BaseHexType)
 	}
 	*h, err = hex.DecodeString(b)
-	return err != nil
+	return err
 }
 
 func (h *BaseHexType) Equal(rh uiptypes.HexType) bool {

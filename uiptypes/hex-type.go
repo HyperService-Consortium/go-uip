@@ -3,7 +3,7 @@ package uiptypes
 type HexType interface {
 	Bytes() []byte
 	String() string
-	FromBytes([]byte) bool
-	FromString(string) bool
+	FromBytes([]byte) error
+	FromString(string) error
 	Equal(HexType) bool
 }

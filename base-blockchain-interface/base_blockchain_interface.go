@@ -6,8 +6,8 @@ type BlockChainInterface struct {
 	Signer uiptypes.Signer
 }
 
-func (bn BlockChainInterface) CheckAddress(address []byte) bool {
-	return true
+func (bn BlockChainInterface) CheckAddress(address []byte) error {
+	return nil
 }
 
 func (bn BlockChainInterface) MustWithSigner() bool {

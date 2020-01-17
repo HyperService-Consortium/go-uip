@@ -2,7 +2,7 @@ package uiptypes
 
 
 type Checker interface {
-	CheckAddress(Address) bool
+	CheckAddress(Address) error
 }
 
 type CheckerGetter interface {

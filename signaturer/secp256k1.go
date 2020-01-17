@@ -76,11 +76,12 @@ func (s *Secp256k1PrivateKey) ToPublic() ECCPublicKey {
 	return NewSecp256k1PublicKeyFromBytes(ed25519.PrivateKey(*s.BaseHexType).Public().(ed25519.PublicKey))
 }
 
-func (s *Secp256k1PrivateKey) Sign(b []byte) ECCSignature {
-	if sig := new(Secp256k1Signature); !sig.FromBytes(ed25519.Sign([]byte(*s.BaseHexType), b)) {
-		return nil
+func (s *Secp256k1PrivateKey) Sign(b []byte) (ECCSignature, error) {
+	sig := new(Secp256k1Signature)
+	if err := sig.FromBytes(ed25519.Sign([]byte(*s.BaseHexType), b)); err != nil {
+		return nil, err
 	} else {
-		return sig
+		return sig, nil
 	}
 }
 
@@ -103,11 +104,11 @@ func (s *Secp256k1Signature) GetSignatureType() uiptypes.SignatureType {
 type Secp256k1Signaturer struct {
 }
 
-func (ed *Secp256k1Signaturer) Sign(privateKey, msg []byte) ECCSignature {
+func (ed *Secp256k1Signaturer) Sign(privateKey, msg []byte) (ECCSignature, error) {
 	var edpri = new(Secp256k1PrivateKey)
 	*edpri.BaseHexType = privateKey
 	if !edpri.IsValid() {
-		return nil
+		return nil, errors.New("invalid private key")
 	}
 	return edpri.Sign(msg)
 }

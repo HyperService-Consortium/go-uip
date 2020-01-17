@@ -74,11 +74,11 @@ func (s *signature) Bytes() []byte {
 func (s *signature) String() string {
 	return "666"
 }
-func (s *signature) FromBytes([]byte) bool {
-	return true
+func (s *signature) FromBytes([]byte) error {
+	return nil
 }
-func (s *signature) FromString(string) bool {
-	return true
+func (s *signature) FromString(string) error {
+	return nil
 }
 
 func (s *signature) Equal(uiptypes.HexType) bool {
@@ -88,8 +88,8 @@ func (s *signature) IsValid() bool {
 	return true
 }
 
-func (s signer) Sign(op []byte, options ...interface{}) uiptypes.Signature {
-	return &signature{}
+func (s signer) Sign(op []byte, options ...interface{}) (uiptypes.Signature, error) {
+	return &signature{}, nil
 }
 
 func init() {
