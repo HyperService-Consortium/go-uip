@@ -2,20 +2,20 @@ package merkleproof
 
 import (
 	"encoding/json"
-	"github.com/HyperService-Consortium/go-uip/uiptypes"
+	"github.com/HyperService-Consortium/go-uip/uip"
 
 	merkleprooftype "github.com/HyperService-Consortium/go-uip/const/merkle-proof-type"
 )
 
 type MerkleProof struct {
-	Type     uiptypes.MerkleProofType `json:"mtype"`
-	RootHash []byte `json:"roothash"`
-	Proof    []byte `json:"proof"`
-	Key      []byte `json:"key"`
-	Value    []byte `json:"value"`
+	Type     uip.MerkleProofType `json:"mtype"`
+	RootHash []byte              `json:"roothash"`
+	Proof    []byte              `json:"proof"`
+	Key      []byte              `json:"key"`
+	Value    []byte              `json:"value"`
 }
 
-func (mp *MerkleProof) GetType() uiptypes.MerkleProofType {
+func (mp *MerkleProof) GetType() uip.MerkleProofType {
 	return mp.Type
 }
 
@@ -40,7 +40,7 @@ type MPTMerkleProof struct {
 	HashChain [][]byte `json:"h"`
 }
 
-func NewMPTUsingKeccak256(proof [][]byte, key, value []byte) uiptypes.MerkleProof {
+func NewMPTUsingKeccak256(proof [][]byte, key, value []byte) uip.MerkleProof {
 	p, _ := json.Marshal(&MPTMerkleProof{
 		RootHash:  proof[0],
 		HashChain: proof,
@@ -54,7 +54,7 @@ func NewMPTUsingKeccak256(proof [][]byte, key, value []byte) uiptypes.MerkleProo
 	}
 }
 
-func NewSecureMPTUsingKeccak256(proof [][]byte, key, value []byte) uiptypes.MerkleProof {
+func NewSecureMPTUsingKeccak256(proof [][]byte, key, value []byte) uip.MerkleProof {
 	p, _ := json.Marshal(&MPTMerkleProof{
 		RootHash:  proof[0],
 		HashChain: proof,
@@ -72,7 +72,7 @@ type SimpleMerkleProof struct {
 	HashChain [][]byte `json:"h"`
 }
 
-func NewSimpleMekrleTreeUsingSha256(proof [][]byte, key, value []byte) uiptypes.MerkleProof {
+func NewSimpleMekrleTreeUsingSha256(proof [][]byte, key, value []byte) uip.MerkleProof {
 	p, _ := json.Marshal(&SimpleMerkleProof{
 		HashChain: proof,
 	})
@@ -85,7 +85,7 @@ func NewSimpleMekrleTreeUsingSha256(proof [][]byte, key, value []byte) uiptypes.
 	}
 }
 
-func NewSimpleMekrleTreeUsingSha512(proof [][]byte, key, value []byte) uiptypes.MerkleProof {
+func NewSimpleMekrleTreeUsingSha512(proof [][]byte, key, value []byte) uip.MerkleProof {
 	p, _ := json.Marshal(&SimpleMerkleProof{
 		HashChain: proof,
 	})

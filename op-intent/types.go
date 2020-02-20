@@ -1,13 +1,12 @@
 package opintent
 
-import types "github.com/HyperService-Consortium/go-uip/uiptypes"
+import types "github.com/HyperService-Consortium/go-uip/uip"
 
 type TransactionIntent = types.TransactionIntent
 type MerkleProofProposal = types.MerkleProofProposal
-type hexstring = string
 
-// the LeftName intent is before RightName intent
-type Dependency struct {
-	Src uint32
-	Dst uint32
+
+type RawAccountInfo struct {
+	ChainId uint64 `json:"domain"`
+	Name    string `json:"user_name"`
 }

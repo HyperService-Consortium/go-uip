@@ -2,7 +2,7 @@ package signaturer
 
 import (
 	signaturetype "github.com/HyperService-Consortium/go-uip/const/signature_type"
-	"github.com/HyperService-Consortium/go-uip/uiptypes"
+	"github.com/HyperService-Consortium/go-uip/uip"
 	ed25519 "golang.org/x/crypto/ed25519"
 )
 
@@ -64,7 +64,7 @@ func (s *Ed25519Signature) GetContent() []byte {
 	return s.BaseHexType.Bytes()
 }
 
-func (s *Ed25519Signature) GetSignatureType() uiptypes.SignatureType {
+func (s *Ed25519Signature) GetSignatureType() uip.SignatureType {
 	return signaturetype.Ed25519
 }
 

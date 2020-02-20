@@ -1,8 +1,8 @@
 package ChainType
 
-import "github.com/HyperService-Consortium/go-uip/uiptypes"
+import "github.com/HyperService-Consortium/go-uip/uip"
 
-type Type = uiptypes.ChainType
+type Type = uip.ChainType
 
 const (
 	Unassigned Type = iota

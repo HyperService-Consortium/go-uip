@@ -5,7 +5,7 @@ import (
 	"crypto/elliptic"
 	"errors"
 	"fmt"
-	"github.com/HyperService-Consortium/go-uip/uiptypes"
+	"github.com/HyperService-Consortium/go-uip/uip"
 	"math/big"
 
 	signaturetype "github.com/HyperService-Consortium/go-uip/const/signature_type"
@@ -97,7 +97,7 @@ func (s *Secp256k1Signature) GetContent() []byte {
 	return s.BaseHexType.Bytes()
 }
 
-func (s *Secp256k1Signature) GetSignatureType() uiptypes.SignatureType {
+func (s *Secp256k1Signature) GetSignatureType() uip.SignatureType {
 	return signaturetype.Secp256k1
 }
 

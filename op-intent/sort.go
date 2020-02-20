@@ -4,14 +4,18 @@ import (
 	"errors"
 	"sync/atomic"
 
-	queue "github.com/HyperService-Consortium/go-uip/queue"
+	queue "github.com/HyperService-Consortium/go-uip/internal/queue"
 )
 
-func (ier *OpIntentInitializer) TopologicalSort(
-	transactionIntents [][]*TransactionIntent,
-	dependencies []Dependency,
+type ArrayI interface {
+	Len() int
+	Swap(i, j int)
+}
+
+func (ier *Initializer) TopologicalSort(
+	arr ArrayI, dependencies []Dependency,
 ) error {
-	niz := len(transactionIntents)
+	niz := arr.Len()
 	miz := len(dependencies)
 	if niz > maxIntentSizeLimit || (miz>>2) > maxIntentSizeLimit {
 		return errors.New("too large")
@@ -29,7 +33,7 @@ func (ier *OpIntentInitializer) TopologicalSort(
 		var mal uint32 = 1
 
 		for _, dep := range dependencies {
-			lnk[mal] = dep.Dst
+			lnk[mal] = uint32(dep.Dst)
 			nxt[mal] = hed[dep.Src]
 			hed[dep.Src] = mal
 			mal++
@@ -70,7 +74,7 @@ func (ier *OpIntentInitializer) TopologicalSort(
 			for idx := 0; idx < niz; idx++ {
 				for hed[idx] != uint32(idx) {
 					h := hed[idx]
-					transactionIntents[idx], transactionIntents[h] = transactionIntents[h], transactionIntents[idx]
+					arr.Swap(idx, int(h))
 					hed[h], hed[idx] = hed[idx], hed[h]
 				}
 			}
@@ -138,7 +142,7 @@ func (ier *OpIntentInitializer) TopologicalSort(
 		for idx := 0; idx < niz; idx++ {
 			for hed[idx] != uint16(idx) {
 				h := hed[idx]
-				transactionIntents[idx], transactionIntents[h] = transactionIntents[h], transactionIntents[idx]
+				arr.Swap(idx, int(h))
 				hed[h], hed[idx] = hed[idx], hed[h]
 			}
 		}

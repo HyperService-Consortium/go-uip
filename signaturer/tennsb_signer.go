@@ -2,7 +2,7 @@ package signaturer
 
 import (
 	"errors"
-	"github.com/HyperService-Consortium/go-uip/uiptypes"
+	"github.com/HyperService-Consortium/go-uip/uip"
 )
 
 type TendermintNSBSigner struct {
@@ -22,7 +22,7 @@ func NewTendermintNSBSigner(pri []byte) (ten *TendermintNSBSigner, err error) {
 	return
 }
 
-func (ten *TendermintNSBSigner) Sign(b []byte, ctxVars ...interface{}) (uiptypes.Signature, error) {
+func (ten *TendermintNSBSigner) Sign(b []byte, ctxVars ...interface{}) (uip.Signature, error) {
 	return ten.prikey.Sign(b), nil
 }
 

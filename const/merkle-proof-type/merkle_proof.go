@@ -1,8 +1,8 @@
 package merkle_proof
 
-import "github.com/HyperService-Consortium/go-uip/uiptypes"
+import "github.com/HyperService-Consortium/go-uip/uip"
 
-type Type = uiptypes.MerkleProofType
+type Type = uip.MerkleProofType
 
 const (
 	Invalid Type = 0 + iota

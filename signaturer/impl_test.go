@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	types "github.com/HyperService-Consortium/go-uip/uiptypes"
+	types "github.com/HyperService-Consortium/go-uip/uip"
 )
 
 var _ ECCPublicKey = new(Ed25519PublicKey)

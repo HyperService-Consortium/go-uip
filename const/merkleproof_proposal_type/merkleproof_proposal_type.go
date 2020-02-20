@@ -1,8 +1,8 @@
 package merkleproof_proposal_type
 
-import "github.com/HyperService-Consortium/go-uip/uiptypes"
+import "github.com/HyperService-Consortium/go-uip/uip"
 
-type Type = uiptypes.MerkleProofProposalType
+type Type = uip.MerkleProofProposalType
 
 const (
 	TransactionProof Type = iota

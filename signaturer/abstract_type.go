@@ -4,18 +4,18 @@ import (
 	"bytes"
 	"encoding/hex"
 	
-	"github.com/HyperService-Consortium/go-uip/uiptypes"
+	"github.com/HyperService-Consortium/go-uip/uip"
 )
 
-type ECCSignature = uiptypes.Signature
+type ECCSignature = uip.Signature
 
 type ECCPublicKey interface {
-	uiptypes.HexType
+	uip.HexType
 	IsValid() bool
 }
 
 type ECCPrivateKey interface {
-	uiptypes.HexType
+	uip.HexType
 	ToPublic() ECCPublicKey
 	Sign([]byte) ECCSignature
 }
@@ -86,6 +86,6 @@ func (h *BaseHexType) FromString(b string) error {
 	return err
 }
 
-func (h *BaseHexType) Equal(rh uiptypes.HexType) bool {
+func (h *BaseHexType) Equal(rh uip.HexType) bool {
 	return bytes.Equal(*h, rh.Bytes())
 }
