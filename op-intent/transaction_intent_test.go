@@ -11,11 +11,11 @@ import (
 )
 
 type _opIntents struct {
-	Contents             [][]byte `protobuf:"bytes,1,rep,name=contents,proto3" json:"contents,omitempty"`
-	Dependencies         [][]byte `protobuf:"bytes,2,rep,name=dependencies,proto3" json:"dependencies,omitempty"`
+	Contents     [][]byte `protobuf:"bytes,1,rep,name=contents,proto3" json:"contents,omitempty"`
+	Dependencies [][]byte `protobuf:"bytes,2,rep,name=dependencies,proto3" json:"dependencies,omitempty"`
 }
 
-func (m *_opIntents) Reset()         { *m = _opIntents{} }
+func (m *_opIntents) Reset() { *m = _opIntents{} }
 
 func (m *_opIntents) GetContents() [][]byte {
 	if m != nil {
@@ -261,6 +261,122 @@ func TestGenerateInvokeTransactionIntent(t *testing.T) {
 	//	fmt.Println(string(intent.Meta))
 	//	fmt.Println(intent.Amt)
 	//}
+}
+
+func TestGenerateInconsistentTransactionIntent(t *testing.T) {
+	type obj map[string]interface{}
+	var err error
+	var opintent = obj{
+		"name":    "Op1",
+		"op_type": "ContractInvocation",
+		"invoker": obj{
+			"domain":    6,
+			"user_name": "a1",
+		},
+		"contract_addr": "263fef3fe76fd4075ac16271d5115d01206d3674",
+		"func":          "updateStake",
+		"parameters": []obj{
+			{
+				"type": "uint256",
+				"value": obj{
+					"constant": "1050",
+				},
+			},
+		},
+		"amount": "00",
+		"unit":   "wei",
+	}
+	var dep = obj{
+		"left":  "Op1",
+		"right": "Op2",
+		"dep":   "before",
+	}
+
+	var b []byte
+	b, err = json.Marshal(opintent)
+	if err != nil {
+		t.Error(fmt.Errorf("marshal failed: %v", err))
+		return
+	}
+
+	opintent = obj{
+		"name":    "Op2",
+		"op_type": "Payment",
+		"src": obj{
+			"domain":    1,
+			"user_name": "a2",
+		},
+		"dst": obj{
+			"domain":    6,
+			"user_name": "a2",
+		},
+		"meta": obj{
+			"value-inconsistent": obj{
+				"type": "uint256",
+				"value": obj{
+					"domain":   6,
+					"contract": "263fef3fe76fd4075ac16271d5115d01206d3674",
+					"pos":      "01",
+					"field":    "strikePrice",
+				},
+			},
+		},
+		"amount": "02e0",
+		"unit":   "wei",
+	}
+
+	var c []byte
+	c, err = json.Marshal(opintent)
+	if err != nil {
+		t.Error(fmt.Errorf("marshal failed: %v", err))
+		return
+	}
+	var d []byte
+	d, err = json.Marshal(dep)
+	if err != nil {
+		t.Error(fmt.Errorf("marshal failed: %v", err))
+		return
+	}
+
+	var opIntents = &_opIntents{
+		Dependencies: [][]byte{
+			d,
+		},
+		Contents: [][]byte{
+			b,
+			c,
+		},
+	}
+
+	var intents TxIntents
+
+	ier, err := NewInitializer(uip.BlockChainGetterNilImpl{}, mAccountProvider{})
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	intents, err = ier.Parse(opIntents)
+	if err != nil {
+		t.Error(err)
+		pe := err.(*ParseError)
+		fmt.Println(string(sugar.HandlerError(pe.Serialize()).([]byte)))
+		return
+	}
+
+	for _, intent := range intents.GetTxIntents() {
+		intent, proposals := intent.GetIntent(), intent.GetProposals()
+		fmt.Println(hex.EncodeToString(intent.Src), hex.EncodeToString(intent.Dst), intent.Amt)
+		fmt.Println(string(intent.Meta))
+		fmt.Println(intent.ChainID, intent.TransType)
+		for _, proposal := range proposals {
+			fmt.Println("qwq..................")
+			fmt.Println(proposal.ValueType, proposal.Tid, proposal.DescriptionType, proposal.MerkleProofType)
+			fmt.Println(string(proposal.SourceDescription))
+			fmt.Println("qwq..................")
+		}
+		fmt.Println("qwq.....................")
+	}
 }
 
 func TestGeneratePaymentMetaTransactionIntent(t *testing.T) {

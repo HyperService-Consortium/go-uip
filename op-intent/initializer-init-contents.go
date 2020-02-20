@@ -55,11 +55,13 @@ func (ier *Initializer) InitContent(intent *RawIntent, content []byte) (err erro
 
 	switch intent.OpTypeString {
 	case "Payment":
+		intent.OpType = trans_type.Payment
 		if intent.Sub, err = ier.initPayment(intent, content); err != nil {
 			return err
 		}
 
 	case "ContractInvocation":
+		intent.OpType = trans_type.ContractInvoke
 		if intent.Sub, err = ier.initContractInvocation(intent, content); err != nil {
 			return err
 		}

@@ -62,6 +62,7 @@ func (ier *Initializer) parseContractInvocation(rawIntent RawIntentI) (intents [
 		return nil, newParseTransactionIntentError(err)
 	}
 
+	intents = append(intents, intent)
 	return
 }
 
