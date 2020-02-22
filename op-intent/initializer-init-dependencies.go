@@ -1,23 +1,5 @@
 package opintent
 
-import (
-	"github.com/tidwall/gjson"
-)
-
-// the LeftName intent is before RightName intent
-type RawDependency struct {
-	Src string
-	Dst string
-}
-
-func (r *RawDependency) GetSrc() string {
-	return r.Src
-}
-
-func (r *RawDependency) GetDst() string {
-	return r.Dst
-}
-
 type RawDependenciesInfo struct {
 	dependencies []RawDependency
 }
@@ -34,29 +16,36 @@ func (ier *Initializer) InitDependencies(rawDeps [][]byte) (deps *RawDependencie
 	deps = &RawDependenciesInfo{
 		dependencies: make([]RawDependency, len(rawDeps)),
 	}
-	var res, left, right, dep gjson.Result
+	var res ResultI
 	for idx, dependency := range rawDeps {
-		res = gjson.ParseBytes(dependency)
-		if left = res.Get("left"); !left.Exists() {
-			return nil, newFieldNotFound("left")
+		res, err = NewGJSONResult(dependency)
+		if err != nil {
+			return
 		}
-		deps.dependencies[idx].Src = left.String()
-		if right = res.Get("right"); !right.Exists() {
-			return nil, newFieldNotFound("right")
-		}
-		deps.dependencies[idx].Dst = right.String()
-		if dep = res.Get("dep"); !dep.Exists() {
-			return nil, newFieldNotFound("dep")
-		}
-
-		switch dep.String() {
-		case "before":
-		case "after":
-			deps.dependencies[idx].Src, deps.dependencies[idx].Dst =
-				deps.dependencies[idx].Dst, deps.dependencies[idx].Src
-		default:
-			return nil, newInvalidFieldError(unknownDependencyType)
+		err = deps.dependencies[idx].UnmarshalResult(res)
+		if err != nil {
+			return
 		}
 	}
 	return
 }
+
+func (ier *Initializer) InitDependenciesR(source ResultI) (deps *RawDependenciesInfo, err error) {
+	rawContents := source.Get(FieldOpIntentsDependencies)
+	if ! rawContents.Exists() {
+		return nil, newFieldNotFound(FieldOpIntentsDependencies)
+	}
+	rawDeps := rawContents.Array()
+
+	deps = &RawDependenciesInfo{
+		dependencies: make([]RawDependency, rawDeps.Len()),
+	}
+	for idx := 0; idx < rawDeps.Len(); idx++ {
+		err = deps.dependencies[idx].UnmarshalResult(rawDeps.Index(idx))
+		if err != nil {
+			return
+		}
+	}
+	return
+}
+

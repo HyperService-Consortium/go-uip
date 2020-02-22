@@ -44,7 +44,7 @@ type transactionProofSourceDescription struct {
 }
 
 func (ier *Initializer) genPayment(
-	src uip.Account, dst uip.Account, amt string, meta []byte, ut UnitType.Type,
+	src uip.Account, dst uip.Account, amt string, meta ResultI, ut UnitType.Type,
 ) (tx uip.TxIntentI, err error) {
 	if src == nil {
 		if src, err = ier.accountBase.GetRelay(dst.GetChainId()); err != nil {
@@ -58,12 +58,16 @@ func (ier *Initializer) genPayment(
 
 	tx = new(TxIntentImpl)
 
+	m ,err := meta.RawBytes()
+	if err != nil {
+		return nil, err
+	}
 	tx.SetIntent(&TransactionIntent{
 		Src:       src.GetAddress(),
 		Dst:       dst.GetAddress(),
 		TransType: trans_type.Payment,
 		Amt:       amt,
-		Meta:      meta,
+		Meta:      m,
 		ChainID:   dst.GetChainId(),
 	})
 

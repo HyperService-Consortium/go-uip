@@ -40,15 +40,3 @@ type TxIntentI interface {
 	SetProposals([]MerkleProofProposal)
 }
 
-
-type ContractInvokeMeta struct {
-	Code     []byte     `json:"contract_code"` // key
-	FuncName string     `json:"func"`
-	Params   []RawParam `json:"parameters"`
-	Meta     []byte     `json:"meta"`
-}
-
-type RawParam struct {
-	Type  string          `json:"Type"`
-	Value json.RawMessage `json:"Value"`
-}

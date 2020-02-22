@@ -6,9 +6,9 @@ import (
 	"github.com/HyperService-Consortium/go-uip/const/trans_type"
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
 	"github.com/HyperService-Consortium/go-uip/uip"
-	"github.com/tidwall/gjson"
 	"strconv"
 )
+
 
 func (ier *Initializer) parseContractInvocation(rawIntent RawIntentI) (intents []uip.TxIntentI, err error) {
 	invokeIntent := rawIntent.GetSub().(*BaseContractInvocationOpIntent)
@@ -20,11 +20,14 @@ func (ier *Initializer) parseContractInvocation(rawIntent RawIntentI) (intents [
 		return nil, newGetAccountFailed(err).Desc(AtOpIntentField{"src"})
 	}
 
-	var meta uip.ContractInvokeMeta
+	var meta ContractInvokeMeta
 	meta.Code = invokeIntent.Code
 	meta.FuncName = invokeIntent.FuncName
 	meta.Params = invokeIntent.Params
-	meta.Meta = invokeIntent.Meta
+	meta.Meta, err = invokeIntent.Meta.RawBytes()
+	if err != nil {
+		return nil, err
+	}
 	b, err := ier.marshal(&meta)
 	if err != nil {
 		return nil, err
@@ -104,13 +107,13 @@ func (ier *Initializer) parseContractInvokeProof(intent *BaseContractInvocationO
 	return
 }
 
-func (ier *Initializer) addProposal(param uip.RawParam, proposal []MerkleProofProposal) ([]MerkleProofProposal, error) {
+func (ier *Initializer) addProposal(param RawParam, proposal []MerkleProofProposal) ([]MerkleProofProposal, error) {
 	var intDesc value_type.Type
 	if intDesc = value_type.FromString(param.Type); intDesc == value_type.Unknown {
 		return nil, newValueTypeNotFound(param.Type)
 	}
 
-	result := gjson.ParseBytes(param.Value)
+	result := param.Value
 	if !result.Get("constant").Exists() {
 		if result.Get("contract").Exists() &&
 			result.Get("pos").Exists() &&
@@ -143,11 +146,15 @@ func (ier *Initializer) addProposal(param uip.RawParam, proposal []MerkleProofPr
 
 			_, _ = ca, pos
 
+			v, err := param.Value.RawBytes()
+			if err != nil {
+				return nil, err
+			}
 			proposal = append(proposal, MerkleProofProposal{
 				DescriptionType:   merkleproof_proposal_type.DataProof,
 				MerkleProofType:   mpt,
 				ValueType:         intDesc,
-				SourceDescription: param.Value,
+				SourceDescription: v,
 			})
 		} else {
 			return nil, newNotEnoughParamInformation()

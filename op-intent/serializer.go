@@ -2,7 +2,6 @@ package opintent
 
 import (
 	"encoding/json"
-	"github.com/HyperService-Consortium/go-uip/uip"
 )
 
 type mcs struct{}
@@ -16,11 +15,11 @@ type _serializer struct {
 
 var Serializer = _serializer{}
 
-func (mcs) Unmarshal(b []byte, meta *uip.ContractInvokeMeta) error {
+func (mcs) Unmarshal(b []byte, meta *ContractInvokeMeta) error {
 	return json.Unmarshal(b, meta)
 }
 
-func (mcs) Marshal(meta *uip.ContractInvokeMeta) ([]byte, error) {
+func (mcs) Marshal(meta *ContractInvokeMeta) ([]byte, error) {
 	return json.Marshal(meta)
 }
 
