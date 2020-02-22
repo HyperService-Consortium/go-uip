@@ -24,4 +24,8 @@ const (
 	FieldOpIntentsUserName = "user_name"
 	FieldOpIntentsType = "type"
 	FieldOpIntentsValue = "value"
+
+	FieldDependencyLeft = "left"
+	FieldDependencyRight = "right"
+	FieldDependencyDep = "dep"
 )

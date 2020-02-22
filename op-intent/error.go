@@ -12,7 +12,9 @@ var (
 	ErrNoAccountBaseProvided      = errors.New("uip.AccountBase must be provided")
 	ErrNoBlockChainGetterProvided = errors.New("uip.BlockChainGetter must be provided")
 	ErrNotEnoughParamInformation  = errors.New("not enough param information")
+	ErrTypeError = errors.New("unexpected field type")
 )
+
 
 type ValueTypeNotFound struct {
 	ValueType string

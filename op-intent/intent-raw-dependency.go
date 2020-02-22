@@ -15,21 +15,18 @@ func (r *RawDependency) GetDst() string {
 }
 
 func (r *RawDependency) UnmarshalResult(res ResultI) error {
-	var left, right, dep ResultI
-	if left = res.Get("left"); !left.Exists() {
-		return newFieldNotFound("left")
+	var sub ResultI
+	if sub = res.Get(FieldDependencyLeft); !sub.Exists() {
+		return newFieldNotFound(FieldDependencyLeft)
 	}
-	r.Src = left.String()
-	if right = res.Get("right"); !right.Exists() {
-		return newFieldNotFound("right")
+	r.Src = sub.String()
+	if sub = res.Get(FieldDependencyRight); !sub.Exists() {
+		return newFieldNotFound(FieldDependencyRight)
 	}
-	r.Dst = right.String()
-	if dep = res.Get("dep"); !dep.Exists() {
-		return newFieldNotFound("dep")
-	}
+	r.Dst = sub.String()
 
-	switch dep.String() {
-	case "before":
+	switch res.Get(FieldDependencyDep).String() {
+	case "before", "":
 	case "after":
 		r.Src, r.Dst =
 			r.Dst, r.Src

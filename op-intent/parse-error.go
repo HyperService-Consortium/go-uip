@@ -27,16 +27,19 @@ func newSortError(err error) *ParseError {
 	return _newParseError(err, "sort error")
 }
 
+const ErrorTypeUnmarshalError = "unmarshal error"
 func newUnmarshalError(err error) *ParseError {
-	return _newParseError(err, "unmarshal error")
+	return _newParseError(err, ErrorTypeUnmarshalError)
 }
 
+const ErrorTypeMarshalError = "marshal error"
 func newMarshalError(err error) *ParseError {
-	return _newParseError(err, "marshal error")
+	return _newParseError(err, ErrorTypeMarshalError)
 }
 
+const ErrorTypeInvalidField = "invalid field error"
 func newInvalidFieldError(err error) *ParseError {
-	return _newParseError(err, "invalid field error")
+	return _newParseError(err, ErrorTypeInvalidField)
 }
 
 func newGetAccountFailed(err error) *ParseError {
@@ -63,8 +66,9 @@ func newValueTypeNotFound(valueType string) *ParseError {
 	return _newParseError(ValueTypeNotFound{ValueType: valueType}, "value type not found")
 }
 
+const ErrorTypeFieldNotFound = "field not found"
 func newFieldNotFound(field string) *ParseError {
-	return _newParseError(FieldNotFound{Field: field}, "field not found")
+	return _newParseError(FieldNotFound{Field: field}, ErrorTypeFieldNotFound)
 }
 
 func newOpNameNotFound(opName string) *ParseError {
@@ -136,6 +140,12 @@ type AtOpIntentField struct{ Field string }
 
 func (a AtOpIntentField) String() string {
 	return fmt.Sprintf("at op intents field %s", a.Field)
+}
+
+type AtOpIntentParameterPos struct { Pos int }
+
+func (a AtOpIntentParameterPos) String() string {
+	return fmt.Sprintf("at parameter pos %d", a.Pos)
 }
 
 //func (a AtOpIntentsPos) String() string {

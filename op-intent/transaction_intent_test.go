@@ -393,8 +393,8 @@ func genIntentsR(t testing.TB) map[string]interface{} {
 		},
 		"contract_addr": "263fef3fe76fd4075ac16271d5115d01206d3674",
 		"func":          "updateStake",
-		"parameters": []obj{
-			{
+		"parameters": []interface{}{
+			obj{
 				"type": "uint256",
 				"value": obj{
 					"constant": "1050",

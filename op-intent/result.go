@@ -1,7 +1,9 @@
 package opintent
 
 import (
+	"encoding/json"
 	"github.com/tidwall/gjson"
+	"reflect"
 	"time"
 )
 
@@ -108,4 +110,120 @@ func (G GJSONResult) Get(path string) ResultI {
 
 func NewGJSONResult(contents []byte) (ResultI, error) {
 	return GJSONResult{Result: gjson.ParseBytes(contents)}, nil
+}
+
+type mObj map[string]interface{}
+type MapResult struct {
+	m mObj
+	e interface{}
+}
+
+func (m MapResult) String() string {
+	if m.e == nil {
+		return ""
+	}
+	return m.e.(string)
+}
+
+func (m MapResult) Bool() bool {
+	if m.e == nil {
+		return false
+	}
+	return m.e.(bool)
+}
+
+var iT = reflect.TypeOf(int64(0))
+
+func (m MapResult) Int() int64 {
+	if m.e == nil {
+		return 0
+	}
+	return reflect.ValueOf(m.e).Convert(iT).Int()
+}
+
+var uiT = reflect.TypeOf(uint64(0))
+
+func (m MapResult) Uint() uint64 {
+	if m.e == nil {
+		return 0
+	}
+	return reflect.ValueOf(m.e).Convert(uiT).Uint()
+}
+
+func (m MapResult) Float() float64 {
+	if m.e == nil {
+		return 0
+	}
+	return reflect.ValueOf(m.e).Float()
+}
+
+func (m MapResult) Time() time.Time {
+	if m.e == nil {
+		return time.Time{}
+	}
+	return m.e.(time.Time)
+}
+
+func (m MapResult) Array() ResultsI {
+	return NewMapResults(m.e.([]interface{}))
+}
+
+func (m MapResult) IsObject() bool {
+	return m.m != nil
+}
+
+func (m MapResult) IsArray() (ok bool) {
+	_, ok = m.e.([]interface{})
+	return
+}
+
+func (m MapResult) Get(path string) ResultI {
+	i, _ := m.m[path]
+	r, _ := NewMapResult(i)
+	return r
+}
+
+func (m MapResult) Exists() bool {
+	return reflect.ValueOf(m.e).IsValid()
+}
+
+func (m MapResult) Value() interface{} {
+	return m.e
+}
+
+func (m MapResult) RawBytes() ([]byte, error) {
+	return json.Marshal(m.m)
+}
+
+func NewMapResult(m interface{}) (MapResult, error) {
+	return MapResult{
+		m: maybeMap(m),
+		e: m,
+	}, nil
+}
+
+type MapResults []MapResult
+
+func (m MapResults) Index(i int) ResultI {
+	return m[i]
+}
+
+func (m MapResults) Len() int {
+	return len(m)
+}
+
+func NewMapResults(is []interface{}) ResultsI {
+	mps := make(MapResults, len(is))
+	for i := range is {
+		mps[i], _ = NewMapResult(is[i])
+	}
+	return mps
+}
+
+func maybeMap(m interface{}) mObj {
+	if m, ok := m.(mObj); ok {
+		return m
+	} else {
+		return nil
+	}
 }

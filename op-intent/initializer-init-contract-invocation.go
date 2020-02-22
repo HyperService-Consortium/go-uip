@@ -13,22 +13,8 @@ func (ier *Initializer) initContractInvocation(info *RawIntent, content []byte) 
 		return
 	}
 
-	if intent.Src == nil {
-		return nil, newFieldNotFound("src")
-	}
-	if err = standard.CheckValidHexString(intent.Dst); err != nil {
-		return nil, newInvalidFieldError(err).Desc(AtOpIntentField{"dst"})
-	}
-
-	if len(intent.Amount) == 0 {
-		intent.Amount = "00"
-	}
-	if err = standard.CheckValidHexString(intent.Amount); err != nil {
-		return nil, newInvalidFieldError(err).Desc(AtOpIntentField{"amount"})
-	}
-
-	if len(intent.FuncName) == 0 {
-		return nil, newFieldNotFound("function name")
+	if err = checkContractInvocationFields(intent); err != nil {
+		return nil, err
 	}
 	return
 }
@@ -41,23 +27,31 @@ func (ier *Initializer) initContractInvocationR(info *RawIntent, content ResultI
 	if err != nil {
 		return nil, err
 	}
+	if err = checkContractInvocationFields(intent); err != nil {
+		return nil, err
+	}
+	return
+}
+
+func checkContractInvocationFields(intent *BaseContractInvocationOpIntent) (err error) {
+
 
 	if intent.Src == nil {
-		return nil, newFieldNotFound("src")
+		return newFieldNotFound("src")
 	}
 	if err = standard.CheckValidHexString(intent.Dst); err != nil {
-		return nil, newInvalidFieldError(err).Desc(AtOpIntentField{"dst"})
+		return newInvalidFieldError(err).Desc(AtOpIntentField{"dst"})
 	}
 
 	if len(intent.Amount) == 0 {
 		intent.Amount = "00"
 	}
 	if err = standard.CheckValidHexString(intent.Amount); err != nil {
-		return nil, newInvalidFieldError(err).Desc(AtOpIntentField{"amount"})
+		return newInvalidFieldError(err).Desc(AtOpIntentField{"amount"})
 	}
 
 	if len(intent.FuncName) == 0 {
-		return nil, newFieldNotFound("function name")
+		return newFieldNotFound("function name")
 	}
-	return
+	return nil
 }

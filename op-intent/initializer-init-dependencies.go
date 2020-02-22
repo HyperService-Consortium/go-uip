@@ -1,19 +1,19 @@
 package opintent
 
-type RawDependenciesInfo struct {
+type RawDependencies struct {
 	dependencies []RawDependency
 }
 
-func (r RawDependenciesInfo) Len() int {
+func (r RawDependencies) Len() int {
 	return len(r.dependencies)
 }
 
-func (r RawDependenciesInfo) GetDependencies(i int) RawDependencyI {
+func (r RawDependencies) GetDependencies(i int) RawDependencyI {
 	return &r.dependencies[i]
 }
 
-func (ier *Initializer) InitDependencies(rawDeps [][]byte) (deps *RawDependenciesInfo, err error) {
-	deps = &RawDependenciesInfo{
+func (ier *Initializer) InitDependencies(rawDeps [][]byte) (deps *RawDependencies, err error) {
+	deps = &RawDependencies{
 		dependencies: make([]RawDependency, len(rawDeps)),
 	}
 	var res ResultI
@@ -30,14 +30,13 @@ func (ier *Initializer) InitDependencies(rawDeps [][]byte) (deps *RawDependencie
 	return
 }
 
-func (ier *Initializer) InitDependenciesR(source ResultI) (deps *RawDependenciesInfo, err error) {
-	rawContents := source.Get(FieldOpIntentsDependencies)
-	if ! rawContents.Exists() {
-		return nil, newFieldNotFound(FieldOpIntentsDependencies)
+func (ier *Initializer) InitDependenciesR(source ResultI) (deps *RawDependencies, err error) {
+	if source.Exists() && !source.IsArray() {
+		return nil, newInvalidFieldError(ErrTypeError).Desc(AtOpIntentField{Field: FieldOpIntentsParameters})
 	}
-	rawDeps := rawContents.Array()
+	rawDeps := source.Array()
 
-	deps = &RawDependenciesInfo{
+	deps = &RawDependencies{
 		dependencies: make([]RawDependency, rawDeps.Len()),
 	}
 	for idx := 0; idx < rawDeps.Len(); idx++ {
