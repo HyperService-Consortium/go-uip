@@ -66,12 +66,23 @@ func (ier *Initializer) InitContent(intent *RawIntent, content []byte) (err erro
 			return err
 		}
 
+	case "IfStatement":
+		intent.OpType = trans_type.IfStatement
+		if intent.Sub, err = ier.initIfStatement(intent, content); err != nil {
+			return err
+		}
+
+	case "loopFunction":
+		intent.OpType = trans_type.LoopStatement
+		if intent.Sub, err = ier.initLoopStatement(intent, content); err != nil {
+			return err
+		}
+
 	default:
 		return newInvalidFieldError(invalidOpType)
 	}
 	return nil
 }
-
 
 func (ier *Initializer) InitContentsR(source ResultI) (intents *RawIntents, err error) {
 	rawContents := source.Get(FieldOpIntents)
@@ -131,4 +142,3 @@ func (ier *Initializer) InitContentR(intent *RawIntent, content ResultI) (err er
 	}
 	return nil
 }
-
