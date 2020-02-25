@@ -1,4 +1,4 @@
-package opintent
+package lexer
 
 
 const (
@@ -28,4 +28,12 @@ const (
 	FieldDependencyLeft = "left"
 	FieldDependencyRight = "right"
 	FieldDependencyDep = "dep"
+
+	FieldContractPos = "pos"
+	FieldContractField = "field"
+	FieldContractAccount = "contract"
+
+	FieldValueConstant = "constant"
+
+	FieldKeyAddress = "address"
 )

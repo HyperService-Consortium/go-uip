@@ -1,4 +1,4 @@
-package opintent
+package errorn
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 )
 
 func TestParseError_Error(t *testing.T) {
-	fmt.Println((&ParseError{Err:invalidOpType, Descriptions:[]fmt.Stringer{
+	fmt.Println((&ParseError{Err: InvalidOpType, Descriptions:[]fmt.Stringer{
 		AtOpIntentsPos{Pos: 2},
 	}}).ToError())
 }

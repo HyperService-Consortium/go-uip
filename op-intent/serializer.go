@@ -2,6 +2,7 @@ package opintent
 
 import (
 	"encoding/json"
+	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
 )
 
 type mcs struct{}
@@ -15,11 +16,11 @@ type _serializer struct {
 
 var Serializer = _serializer{}
 
-func (mcs) Unmarshal(b []byte, meta *ContractInvokeMeta) error {
+func (mcs) Unmarshal(b []byte, meta *lexer.ContractInvokeMeta) error {
 	return json.Unmarshal(b, meta)
 }
 
-func (mcs) Marshal(meta *ContractInvokeMeta) ([]byte, error) {
+func (mcs) Marshal(meta *lexer.ContractInvokeMeta) ([]byte, error) {
 	return json.Marshal(meta)
 }
 

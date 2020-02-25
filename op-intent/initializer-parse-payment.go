@@ -3,30 +3,33 @@ package opintent
 import (
 	"github.com/HyperService-Consortium/go-uip/const/trans_type"
 	UnitType "github.com/HyperService-Consortium/go-uip/const/unit_type"
+	"github.com/HyperService-Consortium/go-uip/op-intent/document"
+	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
+	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
 	"github.com/HyperService-Consortium/go-uip/uip"
 )
 
-func (ier *Initializer) parsePayment(i RawIntentI) (intents []uip.TxIntentI, err error) {
-	paymentIntent := i.GetSub().(*BasePaymentOpIntent)
+func (ier *Initializer) parsePayment(i lexer.Intent) (intents []uip.TxIntentI, err error) {
+	paymentIntent := i.(*lexer.PaymentIntent)
 	var srcInfo, dstInfo uip.Account
 	var intent uip.TxIntentI
 	srcInfo, err = ier.accountBase.Get(
 		paymentIntent.Src.Name, paymentIntent.Src.ChainId)
 	if err != nil {
-		return nil, newGetAccountFailed(err).Desc(AtOpIntentField{"src"})
+		return nil, errorn.NewGetAccountFailed(err).Desc(errorn.AtOpIntentField{"src"})
 	}
 	dstInfo, err = ier.accountBase.Get(
 		paymentIntent.Dst.Name, paymentIntent.Dst.ChainId)
 	if err != nil {
-		return nil, newGetAccountFailed(err).Desc(AtOpIntentField{"dst"})
+		return nil, errorn.NewGetAccountFailed(err).Desc(errorn.AtOpIntentField{"dst"})
 	}
 
 	if intent, err = ier.genPayment(srcInfo, nil, paymentIntent.Amount, paymentIntent.Meta, paymentIntent.Unit); err != nil {
-		return nil, newGenPaymentError(err).Desc(AtOpIntentField{"src"})
+		return nil, errorn.NewGenPaymentError(err).Desc(errorn.AtOpIntentField{"src"})
 	}
 	intents = append(intents, intent)
 	if intent, err = ier.genPayment(nil, dstInfo, paymentIntent.Amount, paymentIntent.Meta, paymentIntent.Unit); err != nil {
-		return nil, newGenPaymentError(err).Desc(AtOpIntentField{"dst"})
+		return nil, errorn.NewGenPaymentError(err).Desc(errorn.AtOpIntentField{"dst"})
 	}
 	intents = append(intents, intent)
 
@@ -44,7 +47,7 @@ type transactionProofSourceDescription struct {
 }
 
 func (ier *Initializer) genPayment(
-	src uip.Account, dst uip.Account, amt string, meta ResultI, ut UnitType.Type,
+	src uip.Account, dst uip.Account, amt string, meta document.Document, ut UnitType.Type,
 ) (tx uip.TxIntentI, err error) {
 	if src == nil {
 		if src, err = ier.accountBase.GetRelay(dst.GetChainId()); err != nil {
@@ -73,12 +76,12 @@ func (ier *Initializer) genPayment(
 
 	translator, err := ier.chainGetter.GetTranslator(dst.GetChainId())
 	if err != nil {
-		return nil, newGetTranslatorError(err).Desc(AtChainID{dst.GetChainId()})
+		return nil, errorn.NewGetTranslatorError(err).Desc(errorn.AtChainID{dst.GetChainId()})
 	}
 
 	tx, err = translator.ParseTransactionIntent(tx)
 	if err != nil {
-		return nil, newParseTransactionIntentError(err)
+		return nil, errorn.NewParseTransactionIntentError(err)
 	}
 
 	//if err = Parse

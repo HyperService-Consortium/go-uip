@@ -1,4 +1,4 @@
-package opintent
+package errorn
 
 import (
 	"errors"
@@ -6,9 +6,11 @@ import (
 )
 
 var (
-	invalidOpType                 = errors.New("there is at least an unexpected op_type in OpIntents")
-	unknownUnitType               = errors.New("unknown unit type")
-	unknownDependencyType         = errors.New("unknown dependency type")
+	InvalidOpType                 = errors.New("there is at least an unexpected op_type in OpIntents")
+	UnknownUnitType               = errors.New("unknown unit type")
+	UnknownDependencyType         = errors.New("unknown dependency type")
+	UnknownParam = errors.New("unknown param type")
+	UnknownAccount = errors.New("unknown account format")
 	ErrNoAccountBaseProvided      = errors.New("uip.AccountBase must be provided")
 	ErrNoBlockChainGetterProvided = errors.New("uip.BlockChainGetter must be provided")
 	ErrNotEnoughParamInformation  = errors.New("not enough param information")

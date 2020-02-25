@@ -1,4 +1,9 @@
-package opintent
+package lexer
+
+import (
+	"github.com/HyperService-Consortium/go-uip/op-intent/document"
+	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
+)
 
 // the LeftName intent is before RightName intent
 type RawDependency struct {
@@ -14,14 +19,14 @@ func (r *RawDependency) GetDst() string {
 	return r.Dst
 }
 
-func (r *RawDependency) UnmarshalResult(res ResultI) error {
-	var sub ResultI
+func (r *RawDependency) UnmarshalResult(res document.Document) error {
+	var sub document.Document
 	if sub = res.Get(FieldDependencyLeft); !sub.Exists() {
-		return newFieldNotFound(FieldDependencyLeft)
+		return errorn.NewFieldNotFound(FieldDependencyLeft)
 	}
 	r.Src = sub.String()
 	if sub = res.Get(FieldDependencyRight); !sub.Exists() {
-		return newFieldNotFound(FieldDependencyRight)
+		return errorn.NewFieldNotFound(FieldDependencyRight)
 	}
 	r.Dst = sub.String()
 
@@ -31,7 +36,7 @@ func (r *RawDependency) UnmarshalResult(res ResultI) error {
 		r.Src, r.Dst =
 			r.Dst, r.Src
 	default:
-		return newInvalidFieldError(unknownDependencyType)
+		return errorn.NewInvalidFieldError(errorn.UnknownDependencyType)
 	}
 	return nil
 }

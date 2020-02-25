@@ -1,5 +1,10 @@
 package opintent
 
+import (
+	"github.com/HyperService-Consortium/go-uip/op-intent/document"
+	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
+	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
+)
 
 type OpIntents interface {
 	GetContents() [][]byte
@@ -9,12 +14,13 @@ type OpIntents interface {
 func (ier *Initializer) Parse(
 	opIntents OpIntents,
 ) (txIntents TxIntents, err error) {
-	rawIntents, err := ier.InitContents(opIntents.GetContents())
+	l := &lexer.RawDocumentLexer{}
+	rawIntents, err := l.InitContents(opIntents.GetContents())
 	if err != nil {
 		return nil, err
 	}
 
-	rawDependencies, err := ier.InitDependencies(
+	rawDependencies, err := l.InitDependencies(
 		opIntents.GetDependencies())
 	if err != nil {
 		return nil, err
@@ -27,17 +33,19 @@ type OpIntentsPacket interface {
 }
 
 func (ier *Initializer) ParseR(opIntents OpIntentsPacket) (txIntents TxIntents, err error) {
-	res, err := NewGJSONResult(opIntents.GetContent())
+	res, err := document.NewGJSONDocument(opIntents.GetContent())
 	if err != nil {
 		return nil, err
 	}
 
-	rawIntents, err := ier.InitContentsR(res)
+	l := &lexer.DocumentLexer{}
+
+	rawIntents, err := l.InitContents(res)
 	if err != nil {
 		return nil, err
 	}
 
-	rawDependencies, err := ier.InitDependenciesR(res.Get(FieldOpIntentsDependencies))
+	rawDependencies, err := l.InitDependencies(res.Get(lexer.FieldOpIntentsDependencies))
 	if err != nil {
 		return nil, err
 	}
@@ -45,10 +53,10 @@ func (ier *Initializer) ParseR(opIntents OpIntentsPacket) (txIntents TxIntents, 
 	return ier.Parse_(rawIntents, rawDependencies)
 }
 
-func (ier *Initializer) Parse_(rawIntents *RawIntents, rawDeps *RawDependencies) (txIntents TxIntents, err error) {
+func (ier *Initializer) Parse_(rawIntents *lexer.RootIntents, rawDeps *lexer.RawDependencies) (txIntents TxIntents, err error) {
 
-	deps, err := ier.ParseDependencies(
-		rawDeps, rawIntents.nameMap)
+	deps, err := ier.InitDependencies(
+		rawDeps, rawIntents.NameMap)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +68,7 @@ func (ier *Initializer) Parse_(rawIntents *RawIntents, rawDeps *RawDependencies)
 
 	// WARNING: ier.TopologicalSort assume that the size of total intents is <= 2 * len(rtx)
 	if err = ier.TopologicalSort(intents, deps.dependencies); err != nil {
-		return nil, newSortError(err)
+		return nil, errorn.NewSortError(err)
 	}
 	return intents, nil
 }

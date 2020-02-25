@@ -2,6 +2,7 @@ package opintent
 
 import (
 	"errors"
+	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
 	"reflect"
 	"testing"
 )
@@ -18,7 +19,7 @@ func TestInitializer_decodeHex(t *testing.T) {
 		errType string
 	}{
 		{name: "good", args: args{"00"}, wantB: []byte{0}},
-		{name: "failed", args: args{"0"}, wantB: nil, wantErr: true, errType: ErrorTypeUnmarshalError},
+		{name: "failed", args: args{"0"}, wantB: nil, wantErr: true, errType: errorn.ErrorTypeUnmarshalError},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -29,7 +30,7 @@ func TestInitializer_decodeHex(t *testing.T) {
 				t.Errorf("decodeHex() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			} else if err != nil {
-				pe := err.(*ParseError)
+				pe := err.(*errorn.ParseError)
 				if pe.ErrType != tt.errType {
 					t.Errorf("err.t = %v, want = %v", pe.ErrType, tt.errType)
 				}
@@ -61,7 +62,7 @@ func TestInitializer_marshal(t *testing.T) {
 		errType string
 	}{
 		{name: "good", args: args{"00"}, wantB: []byte(`"00"`)},
-		{name: "failed", args: args{errorT{}}, wantB: nil, wantErr: true, errType: ErrorTypeMarshalError},
+		{name: "failed", args: args{errorT{}}, wantB: nil, wantErr: true, errType: errorn.ErrorTypeMarshalError},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -72,7 +73,7 @@ func TestInitializer_marshal(t *testing.T) {
 				t.Errorf("marshal() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			} else if err != nil {
-				pe := err.(*ParseError)
+				pe := err.(*errorn.ParseError)
 				if pe.ErrType != tt.errType {
 					t.Errorf("err.t = %v, want = %v", pe.ErrType, tt.errType)
 				}
@@ -97,7 +98,7 @@ func TestInitializer_unmarshal(t *testing.T) {
 		errType string
 	}{
 		{name: "good", args: args{[]byte("0"), new(int)}},
-		{name: "failed", args: args{[]byte("{"), nil}, wantErr: true, errType: ErrorTypeUnmarshalError},
+		{name: "failed", args: args{[]byte("{"), nil}, wantErr: true, errType: errorn.ErrorTypeUnmarshalError},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -106,7 +107,7 @@ func TestInitializer_unmarshal(t *testing.T) {
 			if err := ier.unmarshal(tt.args.b, tt.args.v); (err != nil) != tt.wantErr {
 				t.Errorf("unmarshal() error = %v, wantErr %v", err, tt.wantErr)
 			} else if err != nil {
-				pe := err.(*ParseError)
+				pe := err.(*errorn.ParseError)
 				if pe.ErrType != tt.errType {
 					t.Errorf("err.t = %v, want = %v", pe.ErrType, tt.errType)
 				}

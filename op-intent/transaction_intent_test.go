@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	merkle_proof "github.com/HyperService-Consortium/go-uip/const/merkle-proof-type"
+	error2 "github.com/HyperService-Consortium/go-uip/op-intent/errorn"
+	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
 	"github.com/HyperService-Consortium/go-uip/uip"
 	"github.com/Myriad-Dreamin/minimum-lib/sugar"
 	"testing"
@@ -96,7 +98,7 @@ func TestGenerateTransactionIntentRev(t *testing.T) {
 	intents, err = ier.Parse(opIntents)
 	if err != nil {
 		t.Error(err)
-		pe := err.(*ParseError)
+		pe := err.(*error2.ParseError)
 		fmt.Println(string(sugar.HandlerError(pe.Serialize()).([]byte)))
 		return
 	}
@@ -359,7 +361,7 @@ func TestGenerateInconsistentTransactionIntent(t *testing.T) {
 	intents, err = ier.Parse(opIntents)
 	if err != nil {
 		t.Error(err)
-		pe := err.(*ParseError)
+		pe := err.(*error2.ParseError)
 		fmt.Println(string(sugar.HandlerError(pe.Serialize()).([]byte)))
 		return
 	}
@@ -437,11 +439,11 @@ func genIntentsR(t testing.TB) map[string]interface{} {
 	}
 
 	return obj{
-		FieldOpIntents: []obj {
+		lexer.FieldOpIntents: []obj {
 			opintent,
 			opintent2,
 		},
-		FieldOpIntentsDependencies: []obj {
+		lexer.FieldOpIntentsDependencies: []obj {
 			dep,
 		},
 	}
@@ -483,7 +485,7 @@ func TestGenerateInconsistentTransactionIntentR(t *testing.T) {
 	intents, err = ier.ParseR(p)
 	if err != nil {
 		t.Error(err)
-		pe := err.(*ParseError)
+		pe := err.(*error2.ParseError)
 		fmt.Println(string(sugar.HandlerError(pe.Serialize()).([]byte)))
 		return
 	}
@@ -537,7 +539,7 @@ func BenchmarkGenerateInconsistentTransactionIntentR(b *testing.B) {
 		_, err = ier.ParseR(p)
 		if err != nil {
 			b.Error(err)
-			pe := err.(*ParseError)
+			pe := err.(*error2.ParseError)
 			fmt.Println(string(sugar.HandlerError(pe.Serialize()).([]byte)))
 			return
 		}

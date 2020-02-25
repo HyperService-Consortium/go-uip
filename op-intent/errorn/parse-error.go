@@ -1,4 +1,4 @@
-package opintent
+package errorn
 
 import (
 	"encoding/json"
@@ -23,76 +23,85 @@ func _newParseError(err error, errType string) *ParseError {
 	return &ParseError{Err: err, ErrType: errType}
 }
 
-func newSortError(err error) *ParseError {
+func NewSortError(err error) *ParseError {
 	return _newParseError(err, "sort error")
 }
 
 const ErrorTypeUnmarshalError = "unmarshal error"
-func newUnmarshalError(err error) *ParseError {
+func NewUnmarshalError(err error) *ParseError {
 	return _newParseError(err, ErrorTypeUnmarshalError)
 }
 
 const ErrorTypeMarshalError = "marshal error"
-func newMarshalError(err error) *ParseError {
+func NewMarshalError(err error) *ParseError {
 	return _newParseError(err, ErrorTypeMarshalError)
 }
 
 const ErrorTypeInvalidField = "invalid field error"
-func newInvalidFieldError(err error) *ParseError {
+func NewInvalidFieldError(err error) *ParseError {
 	return _newParseError(err, ErrorTypeInvalidField)
 }
 
-func newGetAccountFailed(err error) *ParseError {
+func NewGetAccountFailed(err error) *ParseError {
 	return _newParseError(err, "get account failed")
 }
 
-func newGenPaymentError(err error) *ParseError {
+func NewGenPaymentError(err error) *ParseError {
 	return _newParseError(err, "generate payment tx error")
 }
 
-func newGetTranslatorError(err error) *ParseError {
+func NewGetTranslatorError(err error) *ParseError {
 	return _newParseError(err, "get translator error")
 }
 
-func newGetTransactionProofType(err error) *ParseError {
+func NewGetTransactionProofType(err error) *ParseError {
 	return _newParseError(err, "get transaction proof error")
 }
 
-func newParseTransactionIntentError(err error) *ParseError {
+func NewParseTransactionIntentError(err error) *ParseError {
 	return _newParseError(err, "translator parse transaction intent error")
 }
 
-func newValueTypeNotFound(valueType string) *ParseError {
-	return _newParseError(ValueTypeNotFound{ValueType: valueType}, "value type not found")
+
+const ErrorTypeValueTypeNotFound = "value type not found"
+func NewValueTypeNotFound(valueType string) *ParseError {
+	return _newParseError(ValueTypeNotFound{ValueType: valueType}, ErrorTypeValueTypeNotFound)
 }
 
 const ErrorTypeFieldNotFound = "field not found"
-func newFieldNotFound(field string) *ParseError {
+func NewFieldNotFound(field string) *ParseError {
 	return _newParseError(FieldNotFound{Field: field}, ErrorTypeFieldNotFound)
 }
 
-func newOpNameNotFound(opName string) *ParseError {
+func NewOpNameNotFound(opName string) *ParseError {
 	return _newParseError(OpNameNotFound{OpName: opName}, "op name not found")
 }
 
-func newDecodeDomainError(err error) *ParseError {
-	return _newParseError(err, "decode domain error")
+const ErrorTypeDecodeDomainError = "decode domain error"
+func NewDecodeDomainError(err error) *ParseError {
+	return _newParseError(err, ErrorTypeDecodeDomainError)
 }
 
-func newGetDomainError(err error) *ParseError {
+func NewInvalidDocumentType(hint string) *ParseError {
+	return _newParseError(fmt.Errorf("invalid document type: %v", hint), "invalid document type")
+}
+
+func NewGetDomainError(err error) *ParseError {
 	return _newParseError(err, "get domain error")
 }
 
 
-func newDecodeContractAddressError(err error) *ParseError {
-	return _newParseError(err, "decode contract address error")
+const ErrorTypeDecodeAddressError = "decode address error"
+func NewDecodeAddressError(err error) *ParseError {
+	return _newParseError(err, ErrorTypeDecodeAddressError)
 }
 
-func newDecodeContractPosError(err error) *ParseError {
-	return _newParseError(err, "decode contract pos error")
+const ErrorTypeDecodeContractPosError = "decode contract pos error"
+func NewDecodeContractPosError(err error) *ParseError {
+	return _newParseError(err, ErrorTypeDecodeContractPosError)
 }
 
-func newNotEnoughParamInformation() *ParseError {
+func NewNotEnoughParamInformation() *ParseError {
 	return _newParseError(ErrNotEnoughParamInformation, "not enough param information")
 }
 

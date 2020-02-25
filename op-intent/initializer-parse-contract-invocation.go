@@ -5,22 +5,24 @@ import (
 	"github.com/HyperService-Consortium/go-uip/const/merkleproof_proposal_type"
 	"github.com/HyperService-Consortium/go-uip/const/trans_type"
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
+	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
+	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
 	"github.com/HyperService-Consortium/go-uip/uip"
 	"strconv"
 )
 
 
-func (ier *Initializer) parseContractInvocation(rawIntent RawIntentI) (intents []uip.TxIntentI, err error) {
-	invokeIntent := rawIntent.GetSub().(*BaseContractInvocationOpIntent)
+func (ier *Initializer) parseContractInvocation(rawIntent lexer.Intent) (intents []uip.TxIntentI, err error) {
+	invokeIntent := rawIntent.(*lexer.InvokeIntent)
 	var srcInfo uip.Account
 	var intent uip.TxIntentI
 	srcInfo, err = ier.accountBase.Get(
 		invokeIntent.Src.Name, invokeIntent.Src.ChainId)
 	if err != nil {
-		return nil, newGetAccountFailed(err).Desc(AtOpIntentField{"src"})
+		return nil, errorn.NewGetAccountFailed(err).Desc(errorn.AtOpIntentField{"src"})
 	}
 
-	var meta ContractInvokeMeta
+	var meta lexer.ContractInvokeMeta
 	meta.Code = invokeIntent.Code
 	meta.FuncName = invokeIntent.FuncName
 	meta.Params = invokeIntent.Params
@@ -57,12 +59,12 @@ func (ier *Initializer) parseContractInvocation(rawIntent RawIntentI) (intents [
 
 	translator, err := ier.chainGetter.GetTranslator(srcInfo.GetChainId())
 	if err != nil {
-		return nil, newGetTranslatorError(err).Desc(AtChainID{srcInfo.GetChainId()})
+		return nil, errorn.NewGetTranslatorError(err).Desc(errorn.AtChainID{srcInfo.GetChainId()})
 	}
 
 	intent, err = translator.ParseTransactionIntent(intent)
 	if err != nil {
-		return nil, newParseTransactionIntentError(err)
+		return nil, errorn.NewParseTransactionIntentError(err)
 	}
 
 	intents = append(intents, intent)
@@ -77,7 +79,7 @@ func DecodeContractPos(src string) ([]byte, error) {
 	return hex.DecodeString(src)
 }
 
-func (ier *Initializer) parseContractInvokeProof(intent *BaseContractInvocationOpIntent) (proposals []MerkleProofProposal, err error) {
+func (ier *Initializer) parseContractInvokeProof(intent *lexer.InvokeIntent) (proposals []MerkleProofProposal, err error) {
 	//var b []byte
 	//var txp transactionProofSourceDescription
 	//txp.ChainID = intent.Src.ChainId
@@ -107,10 +109,10 @@ func (ier *Initializer) parseContractInvokeProof(intent *BaseContractInvocationO
 	return
 }
 
-func (ier *Initializer) addProposal(param RawParam, proposal []MerkleProofProposal) ([]MerkleProofProposal, error) {
+func (ier *Initializer) addProposal(param lexer.ParamImpl, proposal []MerkleProofProposal) ([]MerkleProofProposal, error) {
 	var intDesc value_type.Type
 	if intDesc = value_type.FromString(param.Type); intDesc == value_type.Unknown {
-		return nil, newValueTypeNotFound(param.Type)
+		return nil, errorn.NewValueTypeNotFound(param.Type)
 	}
 
 	result := param.Value
@@ -120,28 +122,28 @@ func (ier *Initializer) addProposal(param RawParam, proposal []MerkleProofPropos
 			result.Get("field").Exists() {
 			ca, err := DecodeContractAddress(result.Get("contract").String())
 			if err != nil {
-				return nil, newDecodeContractAddressError(err)
+				return nil, errorn.NewDecodeAddressError(err)
 			}
 			pos, err := DecodeContractPos(result.Get("pos").String())
 			if err != nil {
-				return nil, newDecodeContractPosError(err)
+				return nil, errorn.NewDecodeContractPosError(err)
 			}
 			var domain uint64
 			if result.Get("domain").Exists() {
 				domain, err = strconv.ParseUint(result.Get("domain").String(), 10, 64)
 				if err != nil {
-					return nil, newDecodeDomainError(err)
+					return nil, errorn.NewDecodeDomainError(err)
 				}
 			} else {
 				domain, err = ier.contractBase.GetChainID(ca)
 				if err != nil {
-					return nil, newGetDomainError(err)
+					return nil, errorn.NewGetDomainError(err)
 				}
 			}
 
 			mpt, err := ier.accountBase.GetTransactionProofType(domain)
 			if err != nil {
-				return nil, newGetTransactionProofType(err).Desc(AtChainID{domain})
+				return nil, errorn.NewGetTransactionProofType(err).Desc(errorn.AtChainID{domain})
 			}
 
 			_, _ = ca, pos
@@ -157,7 +159,7 @@ func (ier *Initializer) addProposal(param RawParam, proposal []MerkleProofPropos
 				SourceDescription: v,
 			})
 		} else {
-			return nil, newNotEnoughParamInformation()
+			return nil, errorn.NewNotEnoughParamInformation()
 		}
 	}
 	return proposal, nil

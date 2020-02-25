@@ -1,9 +1,12 @@
 package opintent
 
-import "github.com/HyperService-Consortium/go-uip/uip"
+import (
+	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
+	"github.com/HyperService-Consortium/go-uip/uip"
+)
 
-func (ier *Initializer) parseIf(rawIntent RawIntentI) (intents []uip.TxIntentI, err error) {
-	ifIntent := rawIntent.GetSub().(*BaseIfStatementOpIntent)
-	ifIntent.If
+func (ier *Initializer) parseIf(rawIntent lexer.Intent) (intents []uip.TxIntentI, err error) {
+	//ifIntent := rawIntent.(*lexer.IfIntent)
+	//ifIntent.If
 	return
 }

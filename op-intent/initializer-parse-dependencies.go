@@ -1,5 +1,10 @@
 package opintent
 
+import (
+	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
+	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
+)
+
 // the LeftName intent is before RightName intent
 type Dependency struct {
 	Src int64
@@ -10,18 +15,8 @@ type DependenciesInfo struct {
 	dependencies []Dependency
 }
 
-type RawDependenciesI interface {
-	Len() int
-	GetDependencies(i int) RawDependencyI
-}
-
-type RawDependencyI interface {
-	GetSrc() string
-	GetDst() string
-}
-
-func (ier *Initializer) ParseDependencies(
-	rawDeps RawDependenciesI, nameMap map[string]int) (
+func (ier *Initializer) InitDependencies(
+	rawDeps lexer.RawDependenciesI, nameMap map[string]int) (
 	deps *DependenciesInfo, err error) {
 	deps = &DependenciesInfo{
 		dependencies: make([]Dependency, rawDeps.Len()),
@@ -32,14 +27,14 @@ func (ier *Initializer) ParseDependencies(
 
 		n := rawDep.GetSrc()
 		if i, ok := nameMap[n]; !ok {
-			return nil, newOpNameNotFound(n)
+			return nil, errorn.NewOpNameNotFound(n)
 		} else {
 			deps.dependencies[idx].Src = int64(i)
 		}
 
 		n = rawDep.GetDst()
 		if i, ok := nameMap[n]; !ok {
-			return nil, newOpNameNotFound(n)
+			return nil, errorn.NewOpNameNotFound(n)
 		} else {
 			deps.dependencies[idx].Dst = int64(i)
 		}
