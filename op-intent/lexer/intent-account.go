@@ -9,11 +9,19 @@ import (
 	"strings"
 )
 
-type Account = Token
+type Account = token.Token
 
 type NamespacedAccount struct {
-	Name string
-	ChainID uip.ChainIDUnderlyingType
+	Name string `json:"name"`
+	ChainID uip.ChainIDUnderlyingType `json:"chain_id"`
+}
+
+func (n NamespacedAccount) GetName() string {
+	return n.Name
+}
+
+func (n NamespacedAccount) GetChainID() uip.ChainIDUnderlyingType {
+	return n.ChainID
 }
 
 func (n NamespacedAccount) GetType() token.Type {
@@ -21,7 +29,11 @@ func (n NamespacedAccount) GetType() token.Type {
 }
 
 type NameAccount struct {
-	Name string
+	Name string `json:"name"`
+}
+
+func (n NameAccount) GetName() string {
+	return n.Name
 }
 
 func (n NameAccount) GetType() token.Type {
@@ -29,8 +41,15 @@ func (n NameAccount) GetType() token.Type {
 }
 
 type NamespacedRawAccount struct {
-	Address []byte
-	ChainID uip.ChainIDUnderlyingType
+	Address []byte `json:"address"`
+	ChainID uip.ChainIDUnderlyingType `json:"chain_id"`
+}
+
+func NewNamespacedRawAccount(a uip.Account) Account {
+	return &NamespacedRawAccount{
+		Address: a.GetAddress(),
+		ChainID: a.GetChainId(),
+	}
 }
 
 func (n NamespacedRawAccount) GetType() token.Type {
@@ -38,7 +57,11 @@ func (n NamespacedRawAccount) GetType() token.Type {
 }
 
 type RawAccount struct {
-	Address []byte
+	Address []byte `json:"address"`
+}
+
+func (n RawAccount) GetAddress() []byte {
+	return n.Address
 }
 
 func (n RawAccount) GetType() token.Type {

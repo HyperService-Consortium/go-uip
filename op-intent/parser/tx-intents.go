@@ -1,4 +1,4 @@
-package opintent
+package parser
 
 import (
 	"github.com/HyperService-Consortium/go-uip/uip"

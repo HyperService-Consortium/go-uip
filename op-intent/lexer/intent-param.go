@@ -6,12 +6,15 @@ import (
 	"github.com/HyperService-Consortium/go-uip/op-intent/document"
 	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
 	"github.com/HyperService-Consortium/go-uip/op-intent/token"
+	"github.com/HyperService-Consortium/go-uip/uip"
 	"strings"
 )
 
+type InstantiateAccountF = func (a Account) (uip.Account, error)
 type Param interface {
-	Token
+	token.Token
 	GetParamType() value_type.Type
+	Determine(f InstantiateAccountF) (Param, error)
 }
 
 type ParamImpl struct {
@@ -39,7 +42,15 @@ func DecodeContractPos(src string) ([]byte, error) {
 
 type ConstantVariable struct {
 	Type  value_type.Type `json:"type"`
-	Const interface{}
+	Const interface{} `json:"constant"`
+}
+
+func (p ConstantVariable) GetConstant() interface{} {
+	return p.Const
+}
+
+func (p ConstantVariable) Determine(_ InstantiateAccountF) (Param, error) {
+	return p, nil
 }
 
 func (p ConstantVariable) GetType() token.Type {
@@ -52,7 +63,7 @@ func (p ConstantVariable) GetParamType() value_type.Type {
 
 type StateVariable struct {
 	Type     value_type.Type `json:"type"`
-	Contract Account
+	Contract Account `json:"contract"`
 	Pos      []byte `json:"pos"`
 	Field    []byte `json:"field"`
 }
@@ -63,6 +74,27 @@ func (e StateVariable) GetType() token.Type {
 
 func (e StateVariable) GetParamType() value_type.Type {
 	return e.Type
+}
+
+func (e StateVariable) GetContract() token.Token {
+	return e.Contract
+}
+
+func (e StateVariable) GetPos() []byte {
+	return e.Pos
+}
+
+func (e StateVariable) GetField() []byte {
+	return e.Field
+}
+
+func (e StateVariable) Determine(f InstantiateAccountF) (Param, error) {
+	a, err := f(e.Contract)
+	if err!= nil {
+		return nil, err
+	}
+	e.Contract = NewNamespacedRawAccount(a)
+	return e, nil
 }
 
 func ParamUnmarshalResult(content document.Document) (p Param, err error) {

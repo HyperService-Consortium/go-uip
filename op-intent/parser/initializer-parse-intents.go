@@ -1,4 +1,4 @@
-package opintent
+package parser
 
 import (
 	"github.com/HyperService-Consortium/go-uip/const/trans_type"
@@ -13,7 +13,7 @@ type RawIntentsI interface {
 }
 
 
-func (ier *Initializer) ParseIntents(rawIntents RawIntentsI) (intents TxIntentsImpl, err error) {
+func (ier * Parser) ParseIntents(rawIntents RawIntentsI) (intents TxIntentsImpl, err error) {
 	var addition []uip.TxIntentI
 	intents, addition = make(TxIntentsImpl, 0, rawIntents.Len()), make([]uip.TxIntentI, 0, 1)
 
@@ -27,7 +27,7 @@ func (ier *Initializer) ParseIntents(rawIntents RawIntentsI) (intents TxIntentsI
 	return
 }
 
-func (ier *Initializer) ParseIntent(rawIntent lexer.Intent) (intents []uip.TxIntentI, err error) {
+func (ier * Parser) ParseIntent(rawIntent lexer.Intent) (intents []uip.TxIntentI, err error) {
 	switch trans_type.Type(rawIntent.GetType()) {
 	case trans_type.Payment:
 		if intents, err = ier.parsePayment(rawIntent); err != nil {

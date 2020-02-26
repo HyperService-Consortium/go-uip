@@ -7,6 +7,7 @@ import (
 	merkle_proof "github.com/HyperService-Consortium/go-uip/const/merkle-proof-type"
 	error2 "github.com/HyperService-Consortium/go-uip/op-intent/errorn"
 	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
+	"github.com/HyperService-Consortium/go-uip/op-intent/parser"
 	"github.com/HyperService-Consortium/go-uip/uip"
 	"github.com/Myriad-Dreamin/minimum-lib/sugar"
 	"testing"
@@ -87,7 +88,7 @@ func TestGenerateTransactionIntentRev(t *testing.T) {
 		},
 	}
 
-	var intents TxIntents
+	var intents parser.TxIntents
 
 	ier, err := NewInitializer(uip.BlockChainGetterNilImpl{}, mAccountProvider{})
 	if err != nil {
@@ -350,7 +351,7 @@ func TestGenerateInconsistentTransactionIntent(t *testing.T) {
 		},
 	}
 
-	var intents TxIntents
+	var intents parser.TxIntents
 
 	ier, err := NewInitializer(uip.BlockChainGetterNilImpl{}, mAccountProvider{})
 	if err != nil {
@@ -469,7 +470,7 @@ func TestGenerateInconsistentTransactionIntentR(t *testing.T) {
 		return
 	}
 
-	var intents TxIntents
+	var intents parser.TxIntents
 
 	ier, err := NewInitializer(uip.BlockChainGetterNilImpl{}, mAccountProvider{})
 	if err != nil {

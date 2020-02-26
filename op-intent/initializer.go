@@ -9,8 +9,8 @@ type Initializer struct {
 	degPool          *DegreePool
 	accountBase      uip.AccountBase
 	contractBase uip.ContractBase
-	largerThanLarger uint32
 	chainGetter uip.BlockChainGetter
+	largerThanLarger uint32
 }
 
 func NewInitializer(options ...interface{}) (*Initializer, error) {

@@ -1,4 +1,4 @@
-package opintent
+package parser
 
 import (
 	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
@@ -12,31 +12,31 @@ type Dependency struct {
 }
 
 type DependenciesInfo struct {
-	dependencies []Dependency
+	Dependencies []Dependency
 }
 
-func (ier *Initializer) InitDependencies(
+func (ier * Parser) InitDependencies(
 	rawDeps lexer.RawDependenciesI, nameMap map[string]int) (
 	deps *DependenciesInfo, err error) {
 	deps = &DependenciesInfo{
-		dependencies: make([]Dependency, rawDeps.Len()),
+		Dependencies: make([]Dependency, rawDeps.Len()),
 	}
 
-	for idx, _ := range deps.dependencies {
+	for idx, _ := range deps.Dependencies {
 		rawDep := rawDeps.GetDependencies(idx)
 
 		n := rawDep.GetSrc()
 		if i, ok := nameMap[n]; !ok {
 			return nil, errorn.NewOpNameNotFound(n)
 		} else {
-			deps.dependencies[idx].Src = int64(i)
+			deps.Dependencies[idx].Src = int64(i)
 		}
 
 		n = rawDep.GetDst()
 		if i, ok := nameMap[n]; !ok {
 			return nil, errorn.NewOpNameNotFound(n)
 		} else {
-			deps.dependencies[idx].Dst = int64(i)
+			deps.Dependencies[idx].Dst = int64(i)
 		}
 	}
 	return

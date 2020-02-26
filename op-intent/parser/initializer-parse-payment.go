@@ -1,4 +1,4 @@
-package opintent
+package parser
 
 import (
 	"github.com/HyperService-Consortium/go-uip/const/trans_type"
@@ -6,22 +6,76 @@ import (
 	"github.com/HyperService-Consortium/go-uip/op-intent/document"
 	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
 	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
+	"github.com/HyperService-Consortium/go-uip/op-intent/token"
 	"github.com/HyperService-Consortium/go-uip/uip"
 )
 
-func (ier *Initializer) parsePayment(i lexer.Intent) (intents []uip.TxIntentI, err error) {
+
+func (ier * Parser) _queryAccount(m lexer.AccountMap, a lexer.Account) (uip.Account, error) {
+	switch a.GetType() {
+	case token.NamespacedNameAccount:
+		a := a.(token.NamespacedNameAccountI)
+		if c, ok := m[a.GetName()]; ok && c != nil {
+			if r, ok := c[a.GetChainID()]; ok {
+				return r, nil
+			}
+		}
+		r, err := ier.AccountBase.Get(a.GetName(), a.GetChainID())
+		if err != nil {
+			return nil, errorn.NewGetAccountFailed(err)
+		}
+		return r, nil
+	case token.NameAccount:
+		a := a.(token.NameAccountI)
+		if c, ok := m[a.GetName()]; ok && c != nil {
+			if r, ok := c[0]; ok {
+				return r, nil
+			} else {
+				if ier.contextChainID == 0 {
+					return nil, errorn.NewNoDeterminedChainID()
+				}
+				if r, ok := c[ier.contextChainID]; ok {
+					return r, nil
+				}
+			}
+		}
+		return nil, errorn.NewAccountNotFound(a.GetName(), 0x20200202)
+	case token.NamespacedRawAccount:
+		return a.(token.NamespacedRawAccountI), nil
+	case token.RawAccount:
+		if ier.contextChainID == 0 {
+			return nil, errorn.NewNoDeterminedChainID()
+		}
+		return &uip.AccountImpl{
+			ChainId: ier.contextChainID,
+			Address: a.(token.RawAccountI).GetAddress(),
+		}, nil
+	default:
+		return nil, errorn.NewAccountTypeNotFound(int(a.GetType()))
+	}
+}
+func (ier * Parser) queryAccount(a lexer.Account) (uip.Account, error) {
+	return ier._queryAccount(ier.Program.AccountMapping, a)
+}
+
+
+func (ier * Parser) queryContract(a lexer.Account) (uip.Account, error) {
+	return ier._queryAccount(ier.Program.ContractMapping, a)
+}
+
+func (ier * Parser) parsePayment(i lexer.Intent) (intents []uip.TxIntentI, err error) {
 	paymentIntent := i.(*lexer.PaymentIntent)
 	var srcInfo, dstInfo uip.Account
 	var intent uip.TxIntentI
-	srcInfo, err = ier.accountBase.Get(
-		paymentIntent.Src.Name, paymentIntent.Src.ChainId)
+
+	srcInfo, err = ier.queryAccount(paymentIntent.Src)
 	if err != nil {
-		return nil, errorn.NewGetAccountFailed(err).Desc(errorn.AtOpIntentField{"src"})
+		return nil, err.(*errorn.ParseError).Desc(errorn.AtOpIntentField{Field: "src"})
 	}
-	dstInfo, err = ier.accountBase.Get(
-		paymentIntent.Dst.Name, paymentIntent.Dst.ChainId)
+
+	dstInfo, err = ier.queryAccount(paymentIntent.Dst)
 	if err != nil {
-		return nil, errorn.NewGetAccountFailed(err).Desc(errorn.AtOpIntentField{"dst"})
+		return nil, err.(*errorn.ParseError).Desc(errorn.AtOpIntentField{Field: "dst"})
 	}
 
 	if intent, err = ier.genPayment(srcInfo, nil, paymentIntent.Amount, paymentIntent.Meta, paymentIntent.Unit); err != nil {
@@ -46,15 +100,15 @@ type transactionProofSourceDescription struct {
 	ChainID uint64 `json:"chain_id"`
 }
 
-func (ier *Initializer) genPayment(
+func (ier * Parser) genPayment(
 	src uip.Account, dst uip.Account, amt string, meta document.Document, ut UnitType.Type,
 ) (tx uip.TxIntentI, err error) {
 	if src == nil {
-		if src, err = ier.accountBase.GetRelay(dst.GetChainId()); err != nil {
+		if src, err = ier.AccountBase.GetRelay(dst.GetChainId()); err != nil {
 			return
 		}
 	} else {
-		if dst, err = ier.accountBase.GetRelay(src.GetChainId()); err != nil {
+		if dst, err = ier.AccountBase.GetRelay(src.GetChainId()); err != nil {
 			return
 		}
 	}
@@ -74,7 +128,7 @@ func (ier *Initializer) genPayment(
 		ChainID:   dst.GetChainId(),
 	})
 
-	translator, err := ier.chainGetter.GetTranslator(dst.GetChainId())
+	translator, err := ier.ChainGetter.GetTranslator(dst.GetChainId())
 	if err != nil {
 		return nil, errorn.NewGetTranslatorError(err).Desc(errorn.AtChainID{dst.GetChainId()})
 	}

@@ -3,6 +3,7 @@ package errorn
 import (
 	"errors"
 	"fmt"
+	"github.com/HyperService-Consortium/go-uip/uip"
 )
 
 var (
@@ -15,6 +16,7 @@ var (
 	ErrNoBlockChainGetterProvided = errors.New("uip.BlockChainGetter must be provided")
 	ErrNotEnoughParamInformation  = errors.New("not enough param information")
 	ErrTypeError = errors.New("unexpected field type")
+	ErrNoDeterminedChainID = errors.New("no determined chain id")
 )
 
 
@@ -24,6 +26,23 @@ type ValueTypeNotFound struct {
 
 func (e ValueTypeNotFound) Error() string {
 	return fmt.Sprintf("value type %v not found", e.ValueType)
+}
+
+type AccountTypeNotFound struct {
+	AccountType int
+}
+
+func (e AccountTypeNotFound) Error() string {
+	return fmt.Sprintf("account type %v not found", e.AccountType)
+}
+
+type AccountNotFound struct {
+	Name string
+	ChainID uip.ChainIDUnderlyingType
+}
+
+func (e AccountNotFound) Error() string {
+	return fmt.Sprintf(`account <"%v",%v> not found`, e.Name, e.ChainID)
 }
 
 type FieldNotFound struct {

@@ -2,6 +2,7 @@ package opintent
 
 import (
 	"errors"
+	"github.com/HyperService-Consortium/go-uip/op-intent/parser"
 	"sync/atomic"
 
 	queue "github.com/HyperService-Consortium/go-uip/internal/queue"
@@ -13,7 +14,7 @@ type ArrayI interface {
 }
 
 func (ier *Initializer) TopologicalSort(
-	arr ArrayI, dependencies []Dependency,
+	arr ArrayI, dependencies []parser.Dependency,
 ) error {
 	niz := arr.Len()
 	miz := len(dependencies)

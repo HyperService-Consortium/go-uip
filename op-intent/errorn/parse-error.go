@@ -58,14 +58,44 @@ func NewGetTransactionProofType(err error) *ParseError {
 	return _newParseError(err, "get transaction proof error")
 }
 
+func NewNoDeterminedAccount() *ParseError {
+	return _newParseError(errors.New("nda"), "no determined account")
+}
+
+func NewAccountNotFound(name string, chainID uip.ChainIDUnderlyingType) *ParseError {
+	return _newParseError(AccountNotFound{name, chainID}, "account not found")
+}
+
 func NewParseTransactionIntentError(err error) *ParseError {
 	return _newParseError(err, "translator parse transaction intent error")
 }
 
+type AccountIndexConflict struct {
+	Name string
+	ChainID uip.ChainIDUnderlyingType
+}
+
+func (a AccountIndexConflict) Error() string {
+	return fmt.Sprintf("account indexing conflict:at <name:%v, chain_id:%v>", a.Name, a.ChainID)
+}
+
+func NewAccountIndexConflict(name string, chainID uip.ChainIDUnderlyingType) *ParseError {
+	return _newParseError(AccountIndexConflict{name, chainID}, "account indexing conflict")
+}
+
+
+func NewNoDeterminedChainID() *ParseError {
+	return _newParseError(ErrNoDeterminedChainID, ErrNoDeterminedChainID.Error())
+}
 
 const ErrorTypeValueTypeNotFound = "value type not found"
 func NewValueTypeNotFound(valueType string) *ParseError {
 	return _newParseError(ValueTypeNotFound{ValueType: valueType}, ErrorTypeValueTypeNotFound)
+}
+
+const ErrorTypeAccountTypeNotFound = "account type not found"
+func NewAccountTypeNotFound(t int) *ParseError {
+	return _newParseError(AccountTypeNotFound{AccountType: t}, ErrorTypeAccountTypeNotFound)
 }
 
 const ErrorTypeFieldNotFound = "field not found"

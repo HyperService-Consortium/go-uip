@@ -1,6 +1,7 @@
 package lexer
 
 import (
+	"errors"
 	UnitType "github.com/HyperService-Consortium/go-uip/const/unit_type"
 	"github.com/HyperService-Consortium/go-uip/op-intent/document"
 	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
@@ -179,7 +180,15 @@ type FullAccount struct {
 	Address []byte
 }
 
-func (a FullAccount) UnmarshalResult(nameKey string,content document.Document) (err error) {
+func (a *FullAccount) GetChainId() uip.ChainID {
+	return a.ChainID
+}
+
+func (a *FullAccount) GetAddress() uip.Address {
+	return a.Address
+}
+
+func (a *FullAccount) UnmarshalResult(nameKey string,content document.Document) (err error) {
 	v := content.Get(nameKey)
 	if !v.Exists() {
 		return errorn.NewFieldNotFound(nameKey)
@@ -190,6 +199,9 @@ func (a FullAccount) UnmarshalResult(nameKey string,content document.Document) (
 		return errorn.NewFieldNotFound(FieldOpIntentsDomain)
 	}
 	a.ChainID = v.Uint()
+	if a.ChainID == 0 {
+		return errorn.NewInvalidFieldError(errors.New("a.ChainID cant not be zero"))
+	}
 	v = content.Get(FieldKeyAddress)
 	if !v.Exists() {
 		return errorn.NewFieldNotFound(FieldKeyAddress)
@@ -216,10 +228,58 @@ func (l *DocumentLexer) initAccounts(nameKey string,source document.Document) (a
 	}
 	return
 }
-func (l *DocumentLexer) InitContracts(source document.Document) (accounts []FullAccount, err error) {
+
+func (l *DocumentLexer) InitContracts_(source document.Document) (accounts []FullAccount, err error) {
 	return l.initAccounts("contractName", source)
 }
 
-func (l *DocumentLexer) InitAccounts(source document.Document) (accounts []FullAccount, err error) {
+func (l *DocumentLexer) InitAccounts_(source document.Document) (accounts []FullAccount, err error) {
 	return l.initAccounts("userName", source)
+}
+
+func (l *DocumentLexer) InitContracts(source document.Document) (AccountMap, error) {
+	r, err := l.InitContracts_(source)
+	if err != nil {
+		return nil, err
+	}
+	return BuildAccountMap(r)
+}
+
+func (l *DocumentLexer) InitAccounts(source document.Document) (AccountMap, error) {
+	r, err := l.InitAccounts_(source)
+	if err != nil {
+		return nil, err
+	}
+	return BuildAccountMap(r)
+}
+
+
+type ChainMap map[uip.ChainIDUnderlyingType]*FullAccount
+type AccountMap map[string]ChainMap
+func BuildAccountMap(accounts []FullAccount) (res AccountMap, err error) {
+	res = make(AccountMap)
+	var c ChainMap
+	for i := range accounts {
+		a := &accounts[i]
+
+		if res[a.Name] == nil {
+			res[a.Name] = make(ChainMap)
+		}
+		c = res[a.Name]
+
+		if c[a.ChainID] != nil {
+			return nil, errorn.NewAccountIndexConflict(a.Name, a.ChainID)
+		}
+		c[a.ChainID] = a
+
+		if c[0] == nil {
+			c[0] = a
+		}
+	}
+	for _, c := range res {
+		if len(c) > 2 {
+			delete(c, 0)
+		}
+	}
+	return
 }

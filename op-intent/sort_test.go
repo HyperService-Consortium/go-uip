@@ -2,6 +2,7 @@ package opintent
 
 import (
 	"fmt"
+	"github.com/HyperService-Consortium/go-uip/op-intent/parser"
 	"github.com/HyperService-Consortium/go-uip/uip"
 	"github.com/Myriad-Dreamin/minimum-lib/sugar"
 	"testing"
@@ -19,7 +20,7 @@ func (is Ints) Swap(i, j int) {
 
 func TestSort(t *testing.T) {
 	var is = Ints{0, 1, 2}
-	Dep := []Dependency{
+	Dep := []parser.Dependency{
 		{1, 0},
 		{2, 0},
 	}
@@ -34,7 +35,7 @@ func TestSort(t *testing.T) {
 
 func TestSort2(t *testing.T) {
 	var is = Ints{0, 1, 2, 3}
-	Dep := []Dependency{
+	Dep := []parser.Dependency{
 		{1, 0},
 		{2, 0},
 		{2, 1},
