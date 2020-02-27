@@ -103,6 +103,10 @@ func NewFieldNotFound(field string) *ParseError {
 	return _newParseError(FieldNotFound{Field: field}, ErrorTypeFieldNotFound)
 }
 
+func NewSignTypeNotFound(sign string) *ParseError {
+	return _newParseError(SignNotFound{Sign: sign}, "sign not found")
+}
+
 func NewOpNameNotFound(opName string) *ParseError {
 	return _newParseError(OpNameNotFound{OpName: opName}, "op name not found")
 }
@@ -124,6 +128,12 @@ func NewGetDomainError(err error) *ParseError {
 const ErrorTypeDecodeAddressError = "decode address error"
 func NewDecodeAddressError(err error) *ParseError {
 	return _newParseError(err, ErrorTypeDecodeAddressError)
+}
+
+
+const ErrorTypeDecodeHexError = "decode hex error"
+func NewDecodeHexError(err error) *ParseError {
+	return _newParseError(err, ErrorTypeDecodeHexError)
 }
 
 const ErrorTypeDecodeContractPosError = "decode contract pos error"

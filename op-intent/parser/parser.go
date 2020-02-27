@@ -13,8 +13,6 @@ type Parser struct {
 	ContractBase uip.ContractBase
 	AccountBase  uip.AccountBase
 	ChainGetter  uip.BlockChainGetter
-
-	contextChainID uip.ChainIDUnderlyingType
 }
 
 

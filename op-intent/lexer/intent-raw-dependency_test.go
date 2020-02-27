@@ -20,24 +20,24 @@ func TestRawDependency_UnmarshalResult(t *testing.T) {
 		errType string
 	}{
 		{name: "left-absent", args: args{i: sugar.HandlerError(
-			document.NewMapDocument(document.MObj{FieldDependencyRight: "op2", FieldDependencyDep: "before"})).(document.Document)}, wantErr: true, errType: errorn.ErrorTypeFieldNotFound},
+			document.NewMapDocument(document.MObj{FieldKeyRight: "op2", FieldDependencyDep: "before"})).(document.Document)}, wantErr: true, errType: errorn.ErrorTypeFieldNotFound},
 		{name: "right-absent", args: args{i: sugar.HandlerError(
-			document.NewMapDocument(document.MObj{FieldDependencyLeft: "op1", FieldDependencyDep: "before"})).(document.Document)}, wantErr: true, errType: errorn.ErrorTypeFieldNotFound},
+			document.NewMapDocument(document.MObj{FieldKeyLeft: "op1", FieldDependencyDep: "before"})).(document.Document)}, wantErr: true, errType: errorn.ErrorTypeFieldNotFound},
 		{name: "dep-wrong", args: args{i: sugar.HandlerError(
-			document.NewMapDocument(document.MObj{FieldDependencyLeft: "op1", FieldDependencyRight: "op2",
+			document.NewMapDocument(document.MObj{FieldKeyLeft: "op1", FieldKeyRight: "op2",
 				FieldDependencyDep: "<wrong-parsed>"})).(document.Document)}, wantErr: true, errType: errorn.ErrorTypeInvalidField},
 		{name: "good-dep-absent", args: args{i: sugar.HandlerError(
-			document.NewMapDocument(document.MObj{FieldDependencyLeft: "op1", FieldDependencyRight: "op2"})).(document.Document)},
+			document.NewMapDocument(document.MObj{FieldKeyLeft: "op1", FieldKeyRight: "op2"})).(document.Document)},
 			wantErr: false, want: RawDependency{
 				Src: "op1", Dst: "op2",
 		}},
 		{name: "good-before", args: args{i: sugar.HandlerError(
-			document.NewMapDocument(document.MObj{FieldDependencyLeft: "op1", FieldDependencyRight: "op2", FieldDependencyDep: "before"})).(document.Document)},
+			document.NewMapDocument(document.MObj{FieldKeyLeft: "op1", FieldKeyRight: "op2", FieldDependencyDep: "before"})).(document.Document)},
 			wantErr: false, want: RawDependency{
 			Src: "op1", Dst: "op2",
 		}},
 		{name: "good-after", args: args{i: sugar.HandlerError(
-			document.NewMapDocument(document.MObj{FieldDependencyLeft: "op1", FieldDependencyRight: "op2", FieldDependencyDep: "after"})).(document.Document)},
+			document.NewMapDocument(document.MObj{FieldKeyLeft: "op1", FieldKeyRight: "op2", FieldDependencyDep: "after"})).(document.Document)},
 			wantErr: false, want: RawDependency{
 			Src: "op2", Dst: "op1",
 		}},

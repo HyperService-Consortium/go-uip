@@ -53,6 +53,14 @@ func (e FieldNotFound) Error() string {
 	return fmt.Sprintf("field %v not found", e.Field)
 }
 
+type SignNotFound struct {
+	Sign string
+}
+
+func (e SignNotFound) Error() string {
+	return fmt.Sprintf("sign %v not found", e.Sign)
+}
+
 type OpNameNotFound struct {
 	OpName string
 }

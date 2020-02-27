@@ -45,6 +45,14 @@ type NamespacedRawAccount struct {
 	ChainID uip.ChainIDUnderlyingType `json:"chain_id"`
 }
 
+func (n NamespacedRawAccount) GetChainId() uip.ChainID {
+	return n.ChainID
+}
+
+func (n NamespacedRawAccount) GetAddress() uip.Address {
+	return n.Address
+}
+
 func NewNamespacedRawAccount(a uip.Account) Account {
 	return &NamespacedRawAccount{
 		Address: a.GetAddress(),

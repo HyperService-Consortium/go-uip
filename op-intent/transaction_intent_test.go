@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/HyperService-Consortium/go-uip/const/instruction_type"
 	merkle_proof "github.com/HyperService-Consortium/go-uip/const/merkle-proof-type"
 	error2 "github.com/HyperService-Consortium/go-uip/op-intent/errorn"
 	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
@@ -27,6 +28,8 @@ func (m *_opIntents) GetContents() [][]byte {
 	return nil
 }
 
+type obj map[string]interface{}
+
 func (m *_opIntents) GetDependencies() [][]byte {
 	if m != nil {
 		return m.Dependencies
@@ -34,12 +37,223 @@ func (m *_opIntents) GetDependencies() [][]byte {
 	return nil
 }
 
+
+func runIntentRTest(t *testing.T, opIntents map[string]interface{}, callback func (intents parser.TxIntents)) {
+	var intents parser.TxIntents
+
+	ier, err := NewInitializer(uip.BlockChainGetterNilImpl{}, mAccountProvider{})
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	p := packet{
+		content: sugar.HandlerError(json.Marshal(opIntents)).([]byte),
+		ct:      "json",
+	}
+
+	intents, err = ier.ParseR(p)
+	if err != nil {
+		t.Error(err)
+		pe := err.(*error2.ParseError)
+		fmt.Println(string(sugar.HandlerError(pe.Serialize()).([]byte)))
+		return
+	}
+
+	for _, intent := range intents.GetTxIntents() {
+		instruction, proposals := intent.GetInstruction(), intent.GetProposals()
+		if instruction.GetType() == instruction_type.Payment || instruction.GetType() == instruction_type.ContractInvoke {
+			intent := instruction.(*TransactionIntent)
+			fmt.Println(hex.EncodeToString(intent.Src), hex.EncodeToString(intent.Dst), intent.Amt)
+			fmt.Println(string(intent.Meta))
+			fmt.Println(intent.ChainID, intent.TransType)
+			for _, proposal := range proposals {
+				fmt.Println("qwq..................")
+				fmt.Println(proposal.ValueType, proposal.Tid, proposal.DescriptionType, proposal.MerkleProofType)
+				fmt.Println(string(proposal.SourceDescription))
+				fmt.Println("qwq..................")
+			}
+			fmt.Println("qwq.....................")
+		}
+	}
+	callback(intents)
+}
+
+
+//{
+//      "name": "op1",
+//      "type": "Payment",
+//      "src": {
+//        "domain": "chain1",
+//        "user_name": "a1"
+//      },
+//      "dst": {
+//        "domain": "chain2",
+//        "user_name": "a2"
+//      },
+//      "amount": "1a",
+//      "unit": "ether",
+//      "ratio": "1 ether as XYZ"
+//    }
+
+func TestGenerateIfLoopIntentR(t *testing.T) {
+
+	i := obj{
+		"op-intents": []obj{
+			{
+				"name": "op1",
+				"type": "Payment",
+				"src": obj{
+					"domain":    1,
+					"user_name": "a1",
+				},
+				"dst": obj{
+					"domain":    2,
+					"user_name": "a2",
+				},
+				"amount": "1a",
+				"unit":   "ether",
+			},
+			{
+				"name": "op2",
+				"type": "ContractInvocation",
+				"invoker": "a2",
+				"func": "vote",
+				"contract": obj{
+					"domain": 2,
+					"address": "0x3723261b2a5a62b778b5c74318534d7fdf8db38c",
+				},
+				"parameters": []obj{},
+			},
+			{
+				"name": "if-op",
+				"type": "IfStatement",
+				"if": []obj{
+					{
+						"name": "op3",
+						"type": "ContractInvocation",
+						"invoker": "a2",
+						"func": "vote",
+						"contract": obj{
+							"address": "0x3723261b2a5a62b778b5c74318d34d7fdbadb38e",
+						},
+						"parameters": []obj{},
+					},
+					{
+						"name": "op4",
+						"type": "Payment",
+						"src": obj{
+							"domain": 1,
+							"user_name": "a1",
+						},
+						"dst": obj{
+							"domain": 2,
+							"user_name": "a2",
+						},
+						"amount": "aa",
+						"unit": "ether",
+					},
+				},
+				"else": []obj{
+					{
+						"name": "op5",
+						"type": "ContractInvocation",
+						"invoker": "a2",
+						"func": "vote",
+						"contract": obj{
+							"domain": 2,
+							"address": "0x3723261b2a5a62b778b5c74318534d7fdf8db38c",
+						},
+						"parameters": []obj{},
+					},
+				},
+				"condition": obj{
+					"left": obj{
+						"type": "uint256",
+						"value": obj{
+							"contract": "c2",
+							"field": "num_count",
+							"pos": "00",
+						},
+					},
+					"right": obj{
+						"type": "uint256",
+						"value": obj{
+							"contract": "c2",
+							"field": "totalVotes",
+							"pos": "01",
+						},
+					},
+					"sign": "Greater",
+				},
+			},
+			{
+				"name": "loop",
+				"type": "loopFunction",
+				"loop": []obj{
+				{
+					"name": "op6",
+					"type": "ContractInvocation",
+					"invoker": "a2",
+					"func": "vote",
+					"contract": obj{
+						"domain": 2,
+						"address": "0x3723261b2a5a62b778b5c74318534d7fdf8db38c",
+					},
+					"parameters": []obj{},
+				},
+				},
+				"loopTime": "5",
+			},
+		},
+		"dependencies": []obj{},
+		"contracts": []obj{
+			{
+				"contractName": "c1",
+				"domain":       1,
+				"address":      "0xafc7d2959e72081770304f6474151293be1fbba7",
+			},
+			{
+				"contractName": "c2",
+				"domain":       2,
+				"address":      "0x3723261b2a5a62b778b5c74318534d7fdf8db38c",
+			},
+			{
+				"contractName": "c3",
+				"domain":       3,
+				"address":      "0x3723261b2a5a62b778b5c74318d34d7fdbadb38e",
+			},
+		},
+		"accounts": []obj{
+			{
+				"userName": "a1",
+				"domain":   1,
+				"address":  "0x7019fa779024c0a0eac1d8475733eefe10a49f3b",
+			},
+			{
+				"userName": "a2",
+				"domain":   2,
+				"address":  "0x47a1cdb6594d6efed3a6b917f2fbaa2bbcf61a2e",
+			},
+			{
+				"userName": "a3",
+				"domain":   3,
+				"address":  "0x47a1cdb6559d6efed3a6b917f2fbaa2bbcf61a2e",
+			},
+		},
+	}
+	runIntentRTest(t, i, func(intents parser.TxIntents) {
+		for _, intent := range intents.GetTxIntents() {
+			fmt.Println(intent.GetName())
+		}
+	})
+}
+
 func TestGenerateTransactionIntentRev(t *testing.T) {
-	type obj map[string]interface{}
 	var err error
 	var opintent = obj{
 		"name":    "Op1",
-		"op_type": "Payment",
+		"type": "Payment",
 		"src": obj{
 			"domain":    2,
 			"user_name": "a1",
@@ -105,14 +319,16 @@ func TestGenerateTransactionIntentRev(t *testing.T) {
 	}
 
 	for _, intent := range intents.GetTxIntents() {
-		intent := intent.GetIntent()
-		fmt.Println(hex.EncodeToString(intent.Src), hex.EncodeToString(intent.Dst), intent.Amt)
+		instruction := intent.GetInstruction()
+		if instruction.GetType() == instruction_type.Payment || instruction.GetType() == instruction_type.ContractInvoke {
+			intent := instruction.(*TransactionIntent)
+			fmt.Println(hex.EncodeToString(intent.Src), hex.EncodeToString(intent.Dst), intent.Amt)
+		}
 		fmt.Println()
 	}
 }
 
 func TestGenerateTransactionIntent(t *testing.T) {
-	//type obj map[string]interface{}
 	//var err error
 	//var opintent = obj{
 	//	"name":    "Op1",
@@ -214,7 +430,6 @@ func (mAccountProvider) GetTransactionProofType(chainId uint64) (uip.MerkleProof
 }
 
 func TestGenerateInvokeTransactionIntent(t *testing.T) {
-	//type obj map[string]interface{}
 	//var err error
 	//var opintent = obj{
 	//	"name":    "Op1",
@@ -267,16 +482,18 @@ func TestGenerateInvokeTransactionIntent(t *testing.T) {
 }
 
 func TestGenerateInconsistentTransactionIntent(t *testing.T) {
-	type obj map[string]interface{}
 	var err error
 	var opintent = obj{
 		"name":    "Op1",
-		"op_type": "ContractInvocation",
+		"type": "ContractInvocation",
 		"invoker": obj{
 			"domain":    6,
 			"user_name": "a1",
 		},
-		"contract_addr": "263fef3fe76fd4075ac16271d5115d01206d3674",
+		"contract": obj{
+			"address": "263fef3fe76fd4075ac16271d5115d01206d3674",
+			"domain": 6,
+		},
 		"func":          "updateStake",
 		"parameters": []obj{
 			{
@@ -304,7 +521,7 @@ func TestGenerateInconsistentTransactionIntent(t *testing.T) {
 
 	opintent = obj{
 		"name":    "Op2",
-		"op_type": "Payment",
+		"type": "Payment",
 		"src": obj{
 			"domain":    1,
 			"user_name": "a2",
@@ -368,33 +585,36 @@ func TestGenerateInconsistentTransactionIntent(t *testing.T) {
 	}
 
 	for _, intent := range intents.GetTxIntents() {
-		intent, proposals := intent.GetIntent(), intent.GetProposals()
-		fmt.Println(hex.EncodeToString(intent.Src), hex.EncodeToString(intent.Dst), intent.Amt)
-		fmt.Println(string(intent.Meta))
-		fmt.Println(intent.ChainID, intent.TransType)
-		for _, proposal := range proposals {
-			fmt.Println("qwq..................")
-			fmt.Println(proposal.ValueType, proposal.Tid, proposal.DescriptionType, proposal.MerkleProofType)
-			fmt.Println(string(proposal.SourceDescription))
-			fmt.Println("qwq..................")
+		instruction, proposals := intent.GetInstruction(), intent.GetProposals()
+		if instruction.GetType() == instruction_type.Payment || instruction.GetType() == instruction_type.ContractInvoke {
+			intent := instruction.(*TransactionIntent)
+			fmt.Println(hex.EncodeToString(intent.Src), hex.EncodeToString(intent.Dst), intent.Amt)
+			fmt.Println(string(intent.Meta))
+			fmt.Println(intent.ChainID, intent.TransType)
+			for _, proposal := range proposals {
+				fmt.Println("qwq..................")
+				fmt.Println(proposal.ValueType, proposal.Tid, proposal.DescriptionType, proposal.MerkleProofType)
+				fmt.Println(string(proposal.SourceDescription))
+				fmt.Println("qwq..................")
+			}
+			fmt.Println("qwq.....................")
 		}
-		fmt.Println("qwq.....................")
 	}
 }
 
-
-
 func genIntentsR(t testing.TB) map[string]interface{} {
 	t.Helper()
-	type obj = map[string]interface{}
 	var opintent = obj{
 		"name":    "Op1",
-		"op_type": "ContractInvocation",
+		"type": "ContractInvocation",
 		"invoker": obj{
 			"domain":    6,
 			"user_name": "a1",
 		},
-		"contract_addr": "263fef3fe76fd4075ac16271d5115d01206d3674",
+		"contract": obj{
+			"address": "263fef3fe76fd4075ac16271d5115d01206d3674",
+			"domain": 6,
+		},
 		"func":          "updateStake",
 		"parameters": []interface{}{
 			obj{
@@ -415,7 +635,7 @@ func genIntentsR(t testing.TB) map[string]interface{} {
 
 	var opintent2 = obj{
 		"name":    "Op2",
-		"op_type": "Payment",
+		"type": "Payment",
 		"src": obj{
 			"domain":    1,
 			"user_name": "a2",
@@ -440,11 +660,11 @@ func genIntentsR(t testing.TB) map[string]interface{} {
 	}
 
 	return obj{
-		lexer.FieldOpIntents: []obj {
+		lexer.FieldOpIntents: []obj{
 			opintent,
 			opintent2,
 		},
-		lexer.FieldOpIntentsDependencies: []obj {
+		lexer.FieldOpIntentsDependencies: []obj{
 			dep,
 		},
 	}
@@ -453,7 +673,7 @@ func genIntentsR(t testing.TB) map[string]interface{} {
 
 type packet struct {
 	content []byte
-	ct string
+	ct      string
 }
 
 func (p packet) GetContent() (content []byte) {
@@ -470,40 +690,9 @@ func TestGenerateInconsistentTransactionIntentR(t *testing.T) {
 		return
 	}
 
-	var intents parser.TxIntents
+	runIntentRTest(t, opIntents, func(intents parser.TxIntents) {
 
-	ier, err := NewInitializer(uip.BlockChainGetterNilImpl{}, mAccountProvider{})
-	if err != nil {
-		t.Error(err)
-		return
-	}
-
-	p := packet{
-		content: sugar.HandlerError(json.Marshal(opIntents)).([]byte),
-		ct:      "json",
-	}
-
-	intents, err = ier.ParseR(p)
-	if err != nil {
-		t.Error(err)
-		pe := err.(*error2.ParseError)
-		fmt.Println(string(sugar.HandlerError(pe.Serialize()).([]byte)))
-		return
-	}
-
-	for _, intent := range intents.GetTxIntents() {
-		intent, proposals := intent.GetIntent(), intent.GetProposals()
-		fmt.Println(hex.EncodeToString(intent.Src), hex.EncodeToString(intent.Dst), intent.Amt)
-		fmt.Println(string(intent.Meta))
-		fmt.Println(intent.ChainID, intent.TransType)
-		for _, proposal := range proposals {
-			fmt.Println("qwq..................")
-			fmt.Println(proposal.ValueType, proposal.Tid, proposal.DescriptionType, proposal.MerkleProofType)
-			fmt.Println(string(proposal.SourceDescription))
-			fmt.Println("qwq..................")
-		}
-		fmt.Println("qwq.....................")
-	}
+	})
 }
 
 //GOROOT=/home/kamiyoru/work/go #gosetup
@@ -548,7 +737,6 @@ func BenchmarkGenerateInconsistentTransactionIntentR(b *testing.B) {
 }
 
 func TestGeneratePaymentMetaTransactionIntent(t *testing.T) {
-	//type obj map[string]interface{}
 	//var err error
 	//var opintent = obj{
 	//	"name":    "Op1",

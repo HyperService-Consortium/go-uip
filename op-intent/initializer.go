@@ -25,6 +25,7 @@ func NewInitializer(options ...interface{}) (*Initializer, error) {
 			ier.chainGetter = op
 		}
 	}
+
 	if ier.degPool == nil {
 		ier.degPool = newDegreePool()
 	}

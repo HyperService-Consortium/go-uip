@@ -9,7 +9,7 @@ import (
 type InvokeIntent struct {
 	*IntentImpl
 	Src      Account           `json:"invoker"`       // key
-	Dst      string            `json:"contract_addr"` // key
+	Dst      Account            `json:"contract_addr"` // key
 	Code     []byte            `json:"contract_code"` // key
 	FuncName string            `json:"func"`
 	Params   []Param           `json:"parameters"`
@@ -33,7 +33,17 @@ func (intent *InvokeIntent) UnmarshalDocument(content document.Document) (err er
 	}
 	contractAddr := content.Get(FieldOpIntentsContractAddr)
 	if !contractAddr.Exists() {
-		return errorn.NewFieldNotFound(FieldOpIntentsContractAddr)
+		a, err := AccountUnmarshalResult("name", content.Get(FieldOpIntentsContract))
+		if err != nil {
+			return err
+		}
+		intent.Dst = a
+	} else {
+		b, err := DecodeAddress(contractAddr.String())
+		if err != nil {
+			return err
+		}
+		intent.Dst = RawAccount{Address:b}
 	}
 	contractCode := content.Get(FieldOpIntentsContractCode)
 	fn := content.Get(FieldOpIntentsFunc)
@@ -46,7 +56,9 @@ func (intent *InvokeIntent) UnmarshalDocument(content document.Document) (err er
 	}
 	amount := content.Get(FieldOpIntentsAmount)
 	if !amount.Exists() {
-		return errorn.NewFieldNotFound(FieldOpIntentsAmount)
+		intent.Amount = "00"
+	} else {
+		intent.Amount = amount.String()
 	}
 	meta := content.Get(FieldOpIntentsMeta)
 
@@ -54,7 +66,6 @@ func (intent *InvokeIntent) UnmarshalDocument(content document.Document) (err er
 	if err != nil {
 		return
 	}
-	intent.Dst = contractAddr.String()
 	intent.Code, err = base64.StdEncoding.DecodeString(contractCode.String())
 	if err != nil {
 		return
@@ -64,7 +75,6 @@ func (intent *InvokeIntent) UnmarshalDocument(content document.Document) (err er
 	if err != nil {
 		return
 	}
-	intent.Amount = amount.String()
 	intent.Meta = meta
 
 	return

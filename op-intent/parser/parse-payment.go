@@ -11,7 +11,7 @@ import (
 )
 
 
-func (ier * Parser) _queryAccount(m lexer.AccountMap, a lexer.Account) (uip.Account, error) {
+func (ier * Parser) _queryAccount(m lexer.AccountMap, a lexer.Account, contextChainID uip.ChainIDUnderlyingType) (uip.Account, error) {
 	switch a.GetType() {
 	case token.NamespacedNameAccount:
 		a := a.(token.NamespacedNameAccountI)
@@ -31,10 +31,10 @@ func (ier * Parser) _queryAccount(m lexer.AccountMap, a lexer.Account) (uip.Acco
 			if r, ok := c[0]; ok {
 				return r, nil
 			} else {
-				if ier.contextChainID == 0 {
+				if contextChainID == 0 {
 					return nil, errorn.NewNoDeterminedChainID()
 				}
-				if r, ok := c[ier.contextChainID]; ok {
+				if r, ok := c[contextChainID]; ok {
 					return r, nil
 				}
 			}
@@ -43,28 +43,38 @@ func (ier * Parser) _queryAccount(m lexer.AccountMap, a lexer.Account) (uip.Acco
 	case token.NamespacedRawAccount:
 		return a.(token.NamespacedRawAccountI), nil
 	case token.RawAccount:
-		if ier.contextChainID == 0 {
+		if contextChainID == 0 {
 			return nil, errorn.NewNoDeterminedChainID()
 		}
 		return &uip.AccountImpl{
-			ChainId: ier.contextChainID,
+			ChainId: contextChainID,
 			Address: a.(token.RawAccountI).GetAddress(),
 		}, nil
 	default:
 		return nil, errorn.NewAccountTypeNotFound(int(a.GetType()))
 	}
 }
+
 func (ier * Parser) queryAccount(a lexer.Account) (uip.Account, error) {
-	return ier._queryAccount(ier.Program.AccountMapping, a)
+	return ier._queryAccount(ier.Program.AccountMapping, a, 0)
 }
 
 
 func (ier * Parser) queryContract(a lexer.Account) (uip.Account, error) {
-	return ier._queryAccount(ier.Program.ContractMapping, a)
+	return ier._queryAccount(ier.Program.ContractMapping, a, 0)
 }
 
-func (ier * Parser) parsePayment(i lexer.Intent) (intents []uip.TxIntentI, err error) {
-	paymentIntent := i.(*lexer.PaymentIntent)
+func (ier * Parser) queryAccountWCtx(a lexer.Account, contextChainID uip.ChainIDUnderlyingType) (uip.Account, error) {
+	return ier._queryAccount(ier.Program.AccountMapping, a, contextChainID)
+}
+
+
+func (ier * Parser) queryContractWCtx(a lexer.Account, contextChainID uip.ChainIDUnderlyingType) (uip.Account, error) {
+	return ier._queryAccount(ier.Program.ContractMapping, a, contextChainID)
+}
+
+func (ier * Parser) parsePayment(paymentIntent *lexer.PaymentIntent) (intents []uip.TxIntentI, err error) {
+
 	var srcInfo, dstInfo uip.Account
 	var intent uip.TxIntentI
 
@@ -78,12 +88,14 @@ func (ier * Parser) parsePayment(i lexer.Intent) (intents []uip.TxIntentI, err e
 		return nil, err.(*errorn.ParseError).Desc(errorn.AtOpIntentField{Field: "dst"})
 	}
 
-	if intent, err = ier.genPayment(srcInfo, nil, paymentIntent.Amount, paymentIntent.Meta, paymentIntent.Unit); err != nil {
-		return nil, errorn.NewGenPaymentError(err).Desc(errorn.AtOpIntentField{"src"})
+	if intent, err = ier.genPayment(
+		paymentIntent.GetName() + ".cna", srcInfo, nil, paymentIntent.Amount, paymentIntent.Meta, paymentIntent.Unit); err != nil {
+		return nil, errorn.NewGenPaymentError(err).Desc(errorn.AtOpIntentField{Field: "src"})
 	}
 	intents = append(intents, intent)
-	if intent, err = ier.genPayment(nil, dstInfo, paymentIntent.Amount, paymentIntent.Meta, paymentIntent.Unit); err != nil {
-		return nil, errorn.NewGenPaymentError(err).Desc(errorn.AtOpIntentField{"dst"})
+	if intent, err = ier.genPayment(
+		paymentIntent.GetName() + ".cnb", nil, dstInfo, paymentIntent.Amount, paymentIntent.Meta, paymentIntent.Unit); err != nil {
+		return nil, errorn.NewGenPaymentError(err).Desc(errorn.AtOpIntentField{Field: "dst"})
 	}
 	intents = append(intents, intent)
 
@@ -101,7 +113,7 @@ type transactionProofSourceDescription struct {
 }
 
 func (ier * Parser) genPayment(
-	src uip.Account, dst uip.Account, amt string, meta document.Document, ut UnitType.Type,
+	name string, src uip.Account, dst uip.Account, amt string, meta document.Document, ut UnitType.Type,
 ) (tx uip.TxIntentI, err error) {
 	if src == nil {
 		if src, err = ier.AccountBase.GetRelay(dst.GetChainId()); err != nil {
@@ -113,20 +125,19 @@ func (ier * Parser) genPayment(
 		}
 	}
 
-	tx = new(TxIntentImpl)
-
 	m ,err := meta.RawBytes()
 	if err != nil {
 		return nil, err
 	}
-	tx.SetIntent(&TransactionIntent{
+
+	tx = newIntent(&TransactionIntent{
 		Src:       src.GetAddress(),
 		Dst:       dst.GetAddress(),
 		TransType: trans_type.Payment,
 		Amt:       amt,
 		Meta:      m,
 		ChainID:   dst.GetChainId(),
-	})
+	}, name)
 
 	translator, err := ier.ChainGetter.GetTranslator(dst.GetChainId())
 	if err != nil {

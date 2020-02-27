@@ -35,17 +35,17 @@ func TestParamUnmarshalResult(t *testing.T) {
 				"constant": 2000,
 			}})).(document.Document)}, wantErr: true, errType: errorn.ErrorTypeFieldNotFound},
 		{name: "value-absent", args: args{i: sugar.HandlerError(
-			document.NewMapDocument(document.MObj{FieldOpIntentsType: "uint256"})).(document.Document)}, wantErr: true, errType: errorn.ErrorTypeFieldNotFound},
+			document.NewMapDocument(document.MObj{FieldKeyType: "uint256"})).(document.Document)}, wantErr: true, errType: errorn.ErrorTypeFieldNotFound},
 		{name: "type error", args: args{i: sugar.HandlerError(
 			document.NewMapDocument(document.MObj{
-				FieldOpIntentsType: "uint25",
+				FieldKeyType: "uint25",
 				FieldOpIntentsValue: document.MObj{
 					"constant": 2000,
 				},
 			})).(document.Document)}, wantErr: true, errType: errorn.ErrorTypeValueTypeNotFound},
 		{name: "good", args: args{i: sugar.HandlerError(
 			document.NewMapDocument(document.MObj{
-				FieldOpIntentsType: "uint256",
+				FieldKeyType: "uint256",
 				FieldOpIntentsValue: document.MObj{
 					"constant": 2000,
 				},
@@ -55,7 +55,7 @@ func TestParamUnmarshalResult(t *testing.T) {
 		}, wantErr: false},
 		{name: "good state", args: args{i: sugar.HandlerError(
 			document.NewMapDocument(document.MObj{
-				FieldOpIntentsType: "uint256",
+				FieldKeyType: "uint256",
 				FieldOpIntentsValue: document.MObj{
 					"contract": "c1",
 					"field":    "total",
@@ -69,7 +69,7 @@ func TestParamUnmarshalResult(t *testing.T) {
 		}, wantErr: false},
 		{name: "state without pos", args: args{i: sugar.HandlerError(
 			document.NewMapDocument(document.MObj{
-				FieldOpIntentsType: "uint256",
+				FieldKeyType: "uint256",
 				FieldOpIntentsValue: document.MObj{
 					"contract": "c1",
 					"field":    "total",
@@ -77,7 +77,7 @@ func TestParamUnmarshalResult(t *testing.T) {
 			})).(document.Document)}, wantErr: true, errType: errorn.ErrorTypeInvalidField},
 		{name: "state with bad pos", args: args{i: sugar.HandlerError(
 			document.NewMapDocument(document.MObj{
-				FieldOpIntentsType: "uint256",
+				FieldKeyType: "uint256",
 				FieldOpIntentsValue: document.MObj{
 					"contract": "c1",
 					"field":    "total",
@@ -86,7 +86,7 @@ func TestParamUnmarshalResult(t *testing.T) {
 			})).(document.Document)}, wantErr: true, errType: errorn.ErrorTypeDecodeContractPosError},
 		{name: "state without field", args: args{i: sugar.HandlerError(
 			document.NewMapDocument(document.MObj{
-				FieldOpIntentsType: "uint256",
+				FieldKeyType: "uint256",
 				FieldOpIntentsValue: document.MObj{
 					"contract": "c1",
 					"pos":      "01",
@@ -94,7 +94,7 @@ func TestParamUnmarshalResult(t *testing.T) {
 			})).(document.Document)}, wantErr: true, errType: errorn.ErrorTypeInvalidField},
 		{name: "state without contract name", args: args{i: sugar.HandlerError(
 			document.NewMapDocument(document.MObj{
-				FieldOpIntentsType: "uint256",
+				FieldKeyType: "uint256",
 				FieldOpIntentsValue: document.MObj{
 					"field": "total",
 					"pos":   "01",
@@ -102,7 +102,7 @@ func TestParamUnmarshalResult(t *testing.T) {
 			})).(document.Document)}, wantErr: true, errType: errorn.ErrorTypeInvalidField},
 		{name: "good namespaced state", args: args{i: sugar.HandlerError(
 			document.NewMapDocument(document.MObj{
-				FieldOpIntentsType: "uint256",
+				FieldKeyType: "uint256",
 				FieldOpIntentsValue: document.MObj{
 					"contract": "c1",
 					"domain":   1,
@@ -120,7 +120,7 @@ func TestParamUnmarshalResult(t *testing.T) {
 		}, wantErr: false},
 		{name: "namespaced state without contract name", args: args{i: sugar.HandlerError(
 			document.NewMapDocument(document.MObj{
-				FieldOpIntentsType: "uint256",
+				FieldKeyType: "uint256",
 				FieldOpIntentsValue: document.MObj{
 					"domain": 1,
 					"field":  "total",
@@ -129,7 +129,7 @@ func TestParamUnmarshalResult(t *testing.T) {
 			})).(document.Document)}, wantErr: true, errType: errorn.ErrorTypeInvalidField},
 		{name: "namespaced state without pos", args: args{i: sugar.HandlerError(
 			document.NewMapDocument(document.MObj{
-				FieldOpIntentsType: "uint256",
+				FieldKeyType: "uint256",
 				FieldOpIntentsValue: document.MObj{
 					"contract": "c1",
 					"domain":   1,
@@ -138,7 +138,7 @@ func TestParamUnmarshalResult(t *testing.T) {
 			})).(document.Document)}, wantErr: true, errType: errorn.ErrorTypeInvalidField},
 		{name: "namespaced state without field", args: args{i: sugar.HandlerError(
 			document.NewMapDocument(document.MObj{
-				FieldOpIntentsType: "uint256",
+				FieldKeyType: "uint256",
 				FieldOpIntentsValue: document.MObj{
 					"contract": "c1",
 					"domain":   1,
@@ -176,7 +176,7 @@ func TestParamUnmarshalResult(t *testing.T) {
 //		errType string
 //	}{
 //		{name: "good", args: args{i: sugar.HandlerError(
-//			document.NewMapDocument([]interface{}{document.MObj{FieldOpIntentsType: "t", FieldOpIntentsValue: document.MObj{
+//			document.NewMapDocument([]interface{}{document.MObj{FieldKeyType: "t", FieldOpIntentsValue: document.MObj{
 //				"constant": 2000,
 //			}}})).(document.Document)},
 //			wantErr: false, wantParams: []ParamImpl{{
@@ -192,7 +192,7 @@ func TestParamUnmarshalResult(t *testing.T) {
 //			document.NewMapDocument("")).(document.Document)},
 //			wantErr: true, errType: errorn.ErrorTypeInvalidField},
 //		{name: "invalid parameter", args: args{i: sugar.HandlerError(
-//			document.NewMapDocument([]interface{}{document.MObj{FieldOpIntentsType: "t"}})).(document.Document)},
+//			document.NewMapDocument([]interface{}{document.MObj{FieldKeyType: "t"}})).(document.Document)},
 //			wantErr: true, errType: errorn.ErrorTypeFieldNotFound},
 //	}
 //	for _, tt := range tests {

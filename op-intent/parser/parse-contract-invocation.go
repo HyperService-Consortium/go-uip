@@ -2,6 +2,7 @@ package parser
 
 import (
 	"encoding/hex"
+	"errors"
 	"github.com/HyperService-Consortium/go-uip/const/merkleproof_proposal_type"
 	"github.com/HyperService-Consortium/go-uip/const/trans_type"
 	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
@@ -13,13 +14,22 @@ import (
 
 
 
-func (ier * Parser) parseContractInvocation(rawIntent lexer.Intent) (intents []uip.TxIntentI, err error) {
-	invokeIntent := rawIntent.(*lexer.InvokeIntent)
-	var srcInfo uip.Account
+func (ier * Parser) parseContractInvocation(invokeIntent *lexer.InvokeIntent) (intents []uip.TxIntentI, err error) {
+
+	var srcInfo, dstInfo uip.Account
 	var intent uip.TxIntentI
 	srcInfo, err = ier.queryAccount(invokeIntent.Src)
 	if err != nil {
 		return nil, errorn.NewGetAccountFailed(err).Desc(errorn.AtOpIntentField{Field: "src"})
+	}
+	dstInfo, err = ier.queryContractWCtx(invokeIntent.Dst, srcInfo.GetChainId())
+	if err != nil {
+		return nil, errorn.NewGetAccountFailed(err).Desc(errorn.AtOpIntentField{Field: "dst"})
+	}
+
+	if srcInfo.GetChainId() != dstInfo.GetChainId() {
+		//todo: move error type
+		return nil, errorn.NewInvalidFieldError(errors.New("chain id not matched"))
 	}
 
 	for i := range invokeIntent.Params {
@@ -42,22 +52,14 @@ func (ier * Parser) parseContractInvocation(rawIntent lexer.Intent) (intents []u
 		return nil, err
 	}
 
-	var dstAddr []byte
-	dstAddr, err = ier.decodeHex(invokeIntent.Dst)
-	if err != nil {
-		return
-	}
-
-	intent = new(TxIntentImpl)
-	tx := &TransactionIntent{
+	intent = newIntent(&TransactionIntent{
 		TransType: trans_type.ContractInvoke,
 		Src:       srcInfo.GetAddress(),
-		Dst:       dstAddr,
+		Dst:       dstInfo.GetAddress(),
 		Meta:      b,
 		Amt:       invokeIntent.Amount,
 		ChainID:   srcInfo.GetChainId(),
-	}
-	intent.SetIntent(tx)
+	}, invokeIntent.GetName())
 	proposals, err := ier.parseContractInvokeProof(invokeIntent)
 	if err != nil {
 		return

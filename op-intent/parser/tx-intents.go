@@ -7,16 +7,24 @@ import (
 //transactionIntents []*TransactionIntent, proposals []*MerkleProofProposal
 
 type TxIntentImpl struct {
-	Intent    *TransactionIntent
+	uip.NamedIntent
+	Instruction    uip.Instruction
 	proposals []MerkleProofProposal
 }
 
-func (t *TxIntentImpl) GetIntent() *uip.TransactionIntent {
-	return t.Intent
+func newIntent(instruction uip.Instruction, name string) (impl *TxIntentImpl) {
+	impl = new(TxIntentImpl)
+	impl.Instruction = instruction
+	impl.Name = name
+	return impl
 }
 
-func (t *TxIntentImpl) SetIntent(i *uip.TransactionIntent) {
-	t.Intent = i
+func (t *TxIntentImpl) GetInstruction() uip.Instruction {
+	return t.Instruction
+}
+
+func (t *TxIntentImpl) SetInstruction(i uip.Instruction) {
+	t.Instruction = i
 	return
 }
 

@@ -2,6 +2,7 @@ package lexer
 
 import (
 	"encoding/hex"
+	"github.com/HyperService-Consortium/go-uip/const/sign_type"
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
 	"github.com/HyperService-Consortium/go-uip/op-intent/document"
 	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
@@ -29,15 +30,26 @@ func ParamUnmarshalJSON(b []byte) (r Param, err error) {
 	return ParamUnmarshalResult(c)
 }
 
+func decodeHex(src string) (b []byte, err error) {
+	b, err = hex.DecodeString(src)
+	if err != nil {
+		return nil, errorn.NewDecodeHexError(err)
+	}
+	return b, nil
+}
+
 func DecodeAddress(src string) ([]byte, error) {
 	if strings.HasPrefix(src, "0x") {
-		return hex.DecodeString(src[2:])
+		return decodeHex(src[2:])
 	}
-	return hex.DecodeString(src)
+	return decodeHex(src)
 }
 
 func DecodeContractPos(src string) ([]byte, error) {
-	return hex.DecodeString(src)
+	if strings.HasPrefix(src, "0x") {
+		return decodeHex(src[2:])
+	}
+	return decodeHex(src)
 }
 
 type ConstantVariable struct {
@@ -46,6 +58,7 @@ type ConstantVariable struct {
 }
 
 func (p ConstantVariable) GetConstant() interface{} {
+
 	return p.Const
 }
 
@@ -59,6 +72,24 @@ func (p ConstantVariable) GetType() token.Type {
 
 func (p ConstantVariable) GetParamType() value_type.Type {
 	return p.Type
+}
+
+type LocalStateVariable struct {
+	Type     value_type.Type `json:"type"`
+	Pos      []byte `json:"pos"`
+	Field    []byte `json:"field"`
+}
+
+func (l LocalStateVariable) GetType() token.Type {
+	return token.LocalStateVariable
+}
+
+func (l LocalStateVariable) GetParamType() value_type.Type {
+	return l.Type
+}
+
+func (l LocalStateVariable) Determine(f InstantiateAccountF) (Param, error) {
+	return l, nil
 }
 
 type StateVariable struct {
@@ -97,10 +128,109 @@ func (e StateVariable) Determine(f InstantiateAccountF) (Param, error) {
 	return e, nil
 }
 
+type BinaryExpression struct {
+	Type  value_type.Type `json:"type"`
+	Sign sign_type.Type `json:"sign"`
+	Left Param `json:"left"`
+	Right Param `json:"right"`
+}
+
+func (b BinaryExpression) GetType() token.Type {
+	return token.BinaryExpression
+}
+
+func (b BinaryExpression) GetParamType() value_type.Type {
+	return b.Type
+}
+
+func (b BinaryExpression) Determine(f InstantiateAccountF) (_ Param, err error) {
+	b.Left, err = b.Left.Determine(f)
+	if err != nil {
+		return nil, err
+	}
+
+	b.Right, err = b.Right.Determine(f)
+	if err != nil {
+		return nil, err
+	}
+
+	return b, nil
+}
+
+// Param.type == value_type.Bool
+type UnaryExpression struct {
+	Type  value_type.Type `json:"type"`
+	Sign sign_type.Type `json:"sign"`
+	Left Param `json:"left"`
+}
+
+func (u UnaryExpression) GetType() token.Type {
+	return token.UnaryExpression
+}
+
+func (u UnaryExpression) GetParamType() value_type.Type {
+	return u.Type
+}
+
+func (u UnaryExpression) Determine(f InstantiateAccountF) (_ Param, err error) {
+	u.Left, err = u.Left.Determine(f)
+	if err != nil {
+		return nil, err
+	}
+	return u, nil
+}
+
+//Greater
+
+var SignTable = map[string]sign_type.Type{
+	"Greater": sign_type.GT,
+}
+
+
+
 func ParamUnmarshalResult(content document.Document) (p Param, err error) {
-	v := content.Get(FieldOpIntentsType)
+
+	v := content.Get(FieldOpIntentsSign)
+	if v.Exists() {
+		sign, ok := SignTable[v.String()]
+		if !ok {
+			return nil, errorn.NewSignTypeNotFound(v.String())
+		}
+
+		v = content.Get(FieldKeyLeft)
+		if !v.Exists() {
+			return nil, errorn.NewFieldNotFound(FieldKeyLeft)
+		}
+
+		left, err := ParamUnmarshalResult(content.Get(FieldKeyLeft))
+		if err != nil {
+			return nil, err.(*errorn.ParseError).Desc(errorn.AtOpIntentField{Field:FieldKeyLeft})
+		}
+
+		v = content.Get(FieldKeyRight)
+		if !v.Exists() {
+			return UnaryExpression{Type:left.GetParamType(), Sign: sign, Left:left}, nil
+		}
+
+		right, err := ParamUnmarshalResult(v)
+		if err != nil {
+			return nil, err.(*errorn.ParseError).Desc(errorn.AtOpIntentField{Field:FieldKeyRight})
+		}
+
+		//if left.GetParamType() != right.GetParamType() {
+		//	return nil,
+		//}
+		t := left.GetParamType()
+		if sign_type.IsLogic(sign) {
+			t = value_type.Bool
+		}
+		// todo: determine param type of non-boolean expression
+		return BinaryExpression{Type:t, Sign: sign, Left:left, Right:right}, nil
+	}
+
+	v = content.Get(FieldKeyType)
 	if !v.Exists() {
-		return nil, errorn.NewFieldNotFound(FieldOpIntentsType)
+		return nil, errorn.NewFieldNotFound(FieldKeyType)
 	}
 	var intDesc value_type.Type
 	if intDesc = value_type.FromString(v.String()); intDesc == value_type.Unknown {

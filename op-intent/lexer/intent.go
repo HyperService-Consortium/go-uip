@@ -21,14 +21,14 @@ func (r IntentImpl) GetName() string {
 
 func (r *IntentImpl) UnmarshalDocument(content document.Document) error {
 
-	name, opType := content.Get(FieldOpIntentsName), content.Get(FieldOpIntentsOpType)
+	name, opType := content.Get(FieldOpIntentsName), content.Get(FieldKeyType)
 	if !name.Exists() {
 		return errorn.NewFieldNotFound(FieldOpIntentsName)
 	}
 	r.Name = name.String()
 
 	if !opType.Exists() {
-		return errorn.NewFieldNotFound(FieldOpIntentsOpType)
+		return errorn.NewFieldNotFound(FieldKeyType)
 	}
 
 	switch opType.String() {

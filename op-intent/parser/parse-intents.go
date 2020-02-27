@@ -1,9 +1,9 @@
 package parser
 
 import (
-	"github.com/HyperService-Consortium/go-uip/const/trans_type"
 	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
 	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
+	"github.com/HyperService-Consortium/go-uip/op-intent/token"
 	"github.com/HyperService-Consortium/go-uip/uip"
 )
 
@@ -28,14 +28,24 @@ func (ier * Parser) ParseIntents(rawIntents RawIntentsI) (intents TxIntentsImpl,
 }
 
 func (ier * Parser) ParseIntent(rawIntent lexer.Intent) (intents []uip.TxIntentI, err error) {
-	switch trans_type.Type(rawIntent.GetType()) {
-	case trans_type.Payment:
-		if intents, err = ier.parsePayment(rawIntent); err != nil {
+	switch rawIntent.GetType() {
+	case token.Pay:
+		if intents, err = ier.parsePayment(rawIntent.(*lexer.PaymentIntent)); err != nil {
 			return nil, err
 		}
 
-	case trans_type.ContractInvoke:
-		if intents, err = ier.parseContractInvocation(rawIntent); err != nil {
+	case token.Invoke:
+		if intents, err = ier.parseContractInvocation(rawIntent.(*lexer.InvokeIntent)); err != nil {
+			return nil, err
+		}
+
+	case token.If:
+		if intents, err = ier.parseIf(rawIntent.(*lexer.IfIntent)); err != nil {
+			return nil, err
+		}
+
+	case token.Loop:
+		if intents, err = ier.parseLoop(rawIntent.(*lexer.LoopIntent)); err != nil {
 			return nil, err
 		}
 

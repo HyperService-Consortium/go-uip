@@ -13,9 +13,13 @@ func (l *BaseLexer) checkContractInvocation(intent *InvokeIntent) (i *InvokeInte
 	if intent.Src == nil {
 		return nil, errorn.NewFieldNotFound("src")
 	}
-	if err = standard.CheckValidHexString(intent.Dst); err != nil {
-		return nil, errorn.NewInvalidFieldError(err).Desc(errorn.AtOpIntentField{Field: "dst"})
+
+	if intent.Dst == nil {
+		return nil, errorn.NewFieldNotFound("src")
 	}
+	//if err = standard.CheckValidHexString(intent.Dst); err != nil {
+	//	return nil, errorn.NewInvalidFieldError(err).Desc(errorn.AtOpIntentField{Field: "dst"})
+	//}
 
 	if len(intent.Amount) == 0 {
 		intent.Amount = "00"

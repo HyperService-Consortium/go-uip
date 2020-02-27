@@ -21,12 +21,12 @@ func (r *RawDependency) GetDst() string {
 
 func (r *RawDependency) UnmarshalResult(res document.Document) error {
 	var sub document.Document
-	if sub = res.Get(FieldDependencyLeft); !sub.Exists() {
-		return errorn.NewFieldNotFound(FieldDependencyLeft)
+	if sub = res.Get(FieldKeyLeft); !sub.Exists() {
+		return errorn.NewFieldNotFound(FieldKeyLeft)
 	}
 	r.Src = sub.String()
-	if sub = res.Get(FieldDependencyRight); !sub.Exists() {
-		return errorn.NewFieldNotFound(FieldDependencyRight)
+	if sub = res.Get(FieldKeyRight); !sub.Exists() {
+		return errorn.NewFieldNotFound(FieldKeyRight)
 	}
 	r.Dst = sub.String()
 

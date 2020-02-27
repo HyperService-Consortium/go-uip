@@ -1,12 +1,11 @@
 package lexer
 
-
 const (
-	FieldOpIntents       = "op-intents"
-	FieldOpIntentsName   = "name"
-	FieldOpIntentsOpType = "op_type"
+	FieldOpIntents     = "op-intents"
+	FieldOpIntentsName = "name"
 
 	FieldOpIntentsInvoker      = "invoker"
+	FieldOpIntentsContract = "contract"
 	FieldOpIntentsContractAddr = "contract_addr"
 	FieldOpIntentsContractCode = "contract_code"
 	FieldOpIntentsFunc         = "func"
@@ -22,15 +21,16 @@ const (
 
 	FieldOpIntentsDomain   = "domain"
 	FieldOpIntentsUserName = "user_name"
-	FieldOpIntentsType = "type"
-	FieldOpIntentsValue = "value"
+	FieldKeyType           = "type"
+	FieldOpIntentsSign     = "sign"
+	FieldOpIntentsValue    = "value"
 
-	FieldDependencyLeft = "left"
-	FieldDependencyRight = "right"
+	FieldKeyLeft       = "left"
+	FieldKeyRight      = "right"
 	FieldDependencyDep = "dep"
 
-	FieldContractPos = "pos"
-	FieldContractField = "field"
+	FieldContractPos     = "pos"
+	FieldContractField   = "field"
 	FieldContractAccount = "contract"
 
 	FieldValueConstant = "constant"

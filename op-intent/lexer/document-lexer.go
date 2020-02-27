@@ -19,7 +19,12 @@ func (l *DocumentLexer) InitContents(source document.Document) (r *RootIntents, 
 	if ! rawContents.Exists() {
 		return nil, errorn.NewFieldNotFound(FieldOpIntents)
 	}
-	contents := rawContents.Array()
+
+	return l.InitContents_(rawContents)
+}
+
+func (l *DocumentLexer) InitContents_(source document.Document) (r *RootIntents, err error) {
+	contents := source.Array()
 	r = &RootIntents{}
 
 	r.Infos = make([]Intent, contents.Len())
@@ -111,22 +116,25 @@ func (l *DocumentLexer) initIfStatement(info *IntentImpl, content document.Docum
 
 	var intent = &IfIntent{IntentImpl: info}
 	sub = intent
-	intent.If, err = l.InitContents(content.Get("if"))
+	intent.If, err = l.InitContents_(content.Get("if"))
 	if err != nil {
-		return nil, err.(*errorn.ParseError).Desc(errorn.AtOpIntentField{"if"})
+		return nil, err.(*errorn.ParseError).Desc(errorn.AtOpIntentField{Field: "if"})
 	}
-	intent.Else, err = l.InitContents(content.Get("else"))
+	intent.Else, err = l.InitContents_(content.Get("else"))
 	if err != nil {
-		return nil, err.(*errorn.ParseError).Desc(errorn.AtOpIntentField{"else"})
+		return nil, err.(*errorn.ParseError).Desc(errorn.AtOpIntentField{Field: "else"})
 	}
-	intent.Condition = content.Get("condition")
+	intent.Condition, err = ParamUnmarshalResult(content.Get("condition"))
+	if err != nil {
+		return nil, err.(*errorn.ParseError).Desc(errorn.AtOpIntentField{Field: "condition"})
+	}
 	return
 }
 
 func (l *DocumentLexer) initLoopStatement(info *IntentImpl, content document.Document) (sub Intent, err error) {
 
 	var intent = &LoopIntent{IntentImpl: info}
-	intent.Loop, err = l.InitContents(content.Get("loop"))
+	intent.Loop, err = l.InitContents_(content.Get("loop"))
 	if err != nil {
 		return nil, err.(*errorn.ParseError).Desc(errorn.AtOpIntentField{Field: "loop"})
 	}

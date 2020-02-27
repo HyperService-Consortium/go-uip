@@ -10,6 +10,9 @@ const (
 
 	Constant
 	StateVariable
+	LocalStateVariable
+	BinaryExpression
+	UnaryExpression
 
 	NamespacedNameAccount
 	NameAccount
