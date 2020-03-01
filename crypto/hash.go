@@ -5,6 +5,7 @@ import (
 	"database/sql/driver"
 	"encoding/hex"
 	"fmt"
+	"hash"
 	"math/big"
 	"math/rand"
 	"reflect"
@@ -41,6 +42,14 @@ func Sha256(data ...[]byte) []byte {
 		d.Write(b)
 	}
 	return d.Sum(nil)
+}
+
+func Sha256Hash(data ...[]byte) hash.Hash {
+	d := sha256.New()
+	for _, b := range data {
+		d.Write(b)
+	}
+	return d
 }
 
 // Lengths of hashes and addresses in bytes.

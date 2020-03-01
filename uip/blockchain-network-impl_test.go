@@ -3,6 +3,7 @@ package uip
 import (
 	"errors"
 	"fmt"
+	"github.com/HyperService-Consortium/go-uip/op-intent/parser"
 )
 
 type BlockChainInterfaceTest struct {
@@ -42,7 +43,7 @@ func (bn *BlockChainInterfaceTest) RouteRaw(ChainID, RawTransaction) (Transactio
 }
 
 
-func (bn *BlockChainInterfaceTest) Translate(*TransactionIntent, Storage) (RawTransaction, error) {
+func (bn *BlockChainInterfaceTest) Translate(*parser.TransactionIntent, Storage) (RawTransaction, error) {
 	return nil, errors.New("must impl method Translate(tx, kvs) (rtx, err)")
 }
 

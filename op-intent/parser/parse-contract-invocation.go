@@ -88,7 +88,7 @@ func DecodeContractPos(src string) ([]byte, error) {
 	return hex.DecodeString(src)
 }
 
-func (ier * Parser) parseContractInvokeProof(intent *lexer.InvokeIntent) (proposals []MerkleProofProposal, err error) {
+func (ier * Parser) parseContractInvokeProof(intent *lexer.InvokeIntent) (proposals uip.MerkleProofProposalsImpl, err error) {
 	//var b []byte
 	//var txp transactionProofSourceDescription
 	//txp.ChainID = intent.Src.ChainId
@@ -124,7 +124,7 @@ func (ier * Parser) parseContractInvokeProof(intent *lexer.InvokeIntent) (propos
 //	Pos      []byte `json:"pos"`
 //	Field    []byte `json:"field"`
 //}
-func (ier * Parser) addProposal(param lexer.Param, proposal []MerkleProofProposal) ([]MerkleProofProposal, error) {
+func (ier * Parser) addProposal(param lexer.Param, proposal uip.MerkleProofProposalsImpl) (uip.MerkleProofProposalsImpl, error) {
 
 
 	switch param.GetType() {

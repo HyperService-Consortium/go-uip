@@ -55,12 +55,12 @@ func (r RawGoto) GetType() instruction_type.Type {
 func (ier * Parser) parseIf(rawIntent *lexer.IfIntent) (intents []uip.TxIntentI, err error) {
 	ifName := rawIntent.GetName()
 
-	ifIntents, err := ier.ParseIntents(rawIntent.If)
+	ifIntents, err := ier.parseIntents(rawIntent.If)
 	if err != nil {
 		return nil, err
 	}
 
-	elseIntents, err := ier.ParseIntents(rawIntent.Else)
+	elseIntents, err := ier.parseIntents(rawIntent.Else)
 	if err != nil {
 		return nil, err
 	}

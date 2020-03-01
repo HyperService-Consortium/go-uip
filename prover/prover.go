@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	rlp "github.com/HyperService-Consortium/go-rlp"
-	crypto "github.com/HyperService-Consortium/go-uip/internal/crypto"
+	crypto "github.com/HyperService-Consortium/go-uip/crypto"
 )
 
 const (

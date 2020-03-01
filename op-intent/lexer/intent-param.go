@@ -88,6 +88,14 @@ func (l LocalStateVariable) GetParamType() value_type.Type {
 	return l.Type
 }
 
+func (e LocalStateVariable) GetPos() []byte {
+	return e.Pos
+}
+
+func (e LocalStateVariable) GetField() []byte {
+	return e.Field
+}
+
 func (l LocalStateVariable) Determine(f InstantiateAccountF) (Param, error) {
 	return l, nil
 }
@@ -134,9 +142,20 @@ type BinaryExpression struct {
 	Left Param `json:"left"`
 	Right Param `json:"right"`
 }
-
 func (b BinaryExpression) GetType() token.Type {
 	return token.BinaryExpression
+}
+
+func (b BinaryExpression) GetSign() sign_type.Type {
+	return b.Sign
+}
+
+func (b BinaryExpression) GetLeft() token.Param {
+	return b.Left
+}
+
+func (b BinaryExpression) GetRight() token.Param {
+	return b.Right
 }
 
 func (b BinaryExpression) GetParamType() value_type.Type {
@@ -166,6 +185,14 @@ type UnaryExpression struct {
 
 func (u UnaryExpression) GetType() token.Type {
 	return token.UnaryExpression
+}
+
+func (u UnaryExpression) GetSign() sign_type.Type {
+	return u.Sign
+}
+
+func (u UnaryExpression) GetLeft() token.Param {
+	return u.Left
 }
 
 func (u UnaryExpression) GetParamType() value_type.Type {

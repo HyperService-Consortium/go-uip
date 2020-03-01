@@ -20,7 +20,7 @@ func (b BlockChainNilImpl) RouteWithSigner(signer Signer) (Router, error) {
 	panic("implement me")
 }
 
-func (b BlockChainNilImpl) Translate(intent *TransactionIntent, storage Storage) (rawTransaction RawTransaction, err error) {
+func (b BlockChainNilImpl) Translate(intent TransactionIntent, storage Storage) (rawTransaction RawTransaction, err error) {
 	panic("implement me")
 }
 

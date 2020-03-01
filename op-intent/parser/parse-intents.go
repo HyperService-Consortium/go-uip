@@ -14,6 +14,14 @@ type RawIntentsI interface {
 
 
 func (ier * Parser) ParseIntents(rawIntents RawIntentsI) (intents TxIntentsImpl, err error) {
+	intents, err = ier.parseIntents(rawIntents)
+	if err != nil {
+		return nil, err
+	}
+	return ier.fillIndex(intents)
+}
+
+func (ier * Parser) parseIntents(rawIntents RawIntentsI) (intents TxIntentsImpl, err error) {
 	var addition []uip.TxIntentI
 	intents, addition = make(TxIntentsImpl, 0, rawIntents.Len()), make([]uip.TxIntentI, 0, 1)
 

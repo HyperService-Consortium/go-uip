@@ -59,21 +59,50 @@ func runIntentRTest(t *testing.T, opIntents map[string]interface{}, callback fun
 		fmt.Println(string(sugar.HandlerError(pe.Serialize()).([]byte)))
 		return
 	}
-
+	q := 0
 	for _, intent := range intents.GetTxIntents() {
+		l := len(intent.GetName())
+		if q < l {
+			q = l
+		}
+	}
+
+	for i, intent := range intents.GetTxIntents() {
 		instruction, proposals := intent.GetInstruction(), intent.GetProposals()
-		if instruction.GetType() == instruction_type.Payment || instruction.GetType() == instruction_type.ContractInvoke {
+		fmt.Printf("================================ name ")
+		for j := q - len(intent.GetName()); j > 0; j -- {
+			fmt.Printf(" ")
+		}
+		fmt.Printf("%v, index %4v ===\n", intent.GetName(), i)
+		switch instruction.GetType() {
+		case instruction_type.Payment, instruction_type.ContractInvoke:
 			intent := instruction.(*TransactionIntent)
 			fmt.Println(hex.EncodeToString(intent.Src), hex.EncodeToString(intent.Dst), intent.Amt)
 			fmt.Println(string(intent.Meta))
 			fmt.Println(intent.ChainID, intent.TransType)
-			for _, proposal := range proposals {
-				fmt.Println("qwq..................")
-				fmt.Println(proposal.ValueType, proposal.Tid, proposal.DescriptionType, proposal.MerkleProofType)
-				fmt.Println(string(proposal.SourceDescription))
-				fmt.Println("qwq..................")
+			if proposals, ok := proposals.(uip.MerkleProofProposalsImpl); ok {
+				for _, proposal := range proposals {
+					fmt.Println("qwq..................")
+					fmt.Println(proposal.GetValueType(), proposal.GetMerkleProofProposalType(), proposal.GetMerkleProofType())
+					fmt.Println(string(proposal.GetSourceDescription()))
+					fmt.Println("qwq..................")
+				}
+				fmt.Println("qwq.....................")
 			}
-			fmt.Println("qwq.....................")
+		case instruction_type.ConditionGoto:
+			intent := instruction.(*parser.ConditionGoto)
+			fmt.Println(string(intent.Condition))
+			fmt.Println(intent.Index)
+		case instruction_type.Goto:
+			intent := instruction.(*parser.Goto)
+			fmt.Println(intent.Index)
+		case instruction_type.SetState:
+			intent := instruction.(*parser.SetState)
+			fmt.Println(intent.Type)
+			fmt.Println(string(intent.Target))
+			fmt.Println(string(intent.RightExpression))
+		case instruction_type.ConditionSetState:
+
 		}
 	}
 	callback(intents)
@@ -591,11 +620,14 @@ func TestGenerateInconsistentTransactionIntent(t *testing.T) {
 			fmt.Println(hex.EncodeToString(intent.Src), hex.EncodeToString(intent.Dst), intent.Amt)
 			fmt.Println(string(intent.Meta))
 			fmt.Println(intent.ChainID, intent.TransType)
-			for _, proposal := range proposals {
-				fmt.Println("qwq..................")
-				fmt.Println(proposal.ValueType, proposal.Tid, proposal.DescriptionType, proposal.MerkleProofType)
-				fmt.Println(string(proposal.SourceDescription))
-				fmt.Println("qwq..................")
+			if proposals, ok := proposals.(uip.MerkleProofProposalsImpl); ok {
+				for _, proposal := range proposals {
+					fmt.Println("qwq..................")
+					fmt.Println(proposal.GetValueType(), proposal.GetMerkleProofProposalType(), proposal.GetMerkleProofType())
+					fmt.Println(string(proposal.GetSourceDescription()))
+					fmt.Println("qwq..................")
+				}
+				fmt.Println("qwq.....................")
 			}
 			fmt.Println("qwq.....................")
 		}

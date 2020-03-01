@@ -1,6 +1,7 @@
 package token
 
 import (
+	"github.com/HyperService-Consortium/go-uip/const/sign_type"
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
 	"github.com/HyperService-Consortium/go-uip/uip"
 )
@@ -23,17 +24,43 @@ type Token interface {
 	GetType() Type
 }
 
-type StateVariableI interface {
+type Param interface {
+	Token
 	GetParamType() value_type.Type
-	GetContract() Token
+}
+
+
+type stateVariableI interface {
 	GetPos() []byte
 	GetField() []byte
 }
 
+type StateVariableI interface {
+	GetContract() Token
+	LocalStateVariableI
+}
+
+type LocalStateVariableI interface {
+	Param
+	stateVariableI
+}
+
 type ConstantI interface {
-	GetParamType() value_type.Type
+	Param
 	GetConstant() interface{}
 }
+
+type UnaryExpressionI interface {
+	Param
+	GetSign() sign_type.Type
+	GetLeft() Param
+}
+
+type BinaryExpressionI interface {
+	UnaryExpressionI
+	GetRight() Param
+}
+
 //type StateVariable struct {
 //	Type     value_type.Type `json:"type"`
 //	Contract Account `json:"contract"`

@@ -1,7 +1,9 @@
 package opintent
 
-import types "github.com/HyperService-Consortium/go-uip/uip"
+import (
+	"github.com/HyperService-Consortium/go-uip/op-intent/parser"
+)
 
-type TransactionIntent = types.TransactionIntent
-type MerkleProofProposal = types.MerkleProofProposal
+type TransactionIntent = parser.TransactionIntent
+type MerkleProofProposal = parser.MerkleProofProposal
 

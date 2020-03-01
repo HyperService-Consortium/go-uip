@@ -1,15 +1,13 @@
 package parser
 
-import (
-	"github.com/HyperService-Consortium/go-uip/uip"
-)
+import "github.com/HyperService-Consortium/go-uip/uip"
 
 //transactionIntents []*TransactionIntent, proposals []*MerkleProofProposal
 
 type TxIntentImpl struct {
-	uip.NamedIntent
-	Instruction    uip.Instruction
-	proposals []MerkleProofProposal
+	NamedIntent
+	Instruction uip.Instruction
+	proposals   uip.MerkleProofProposals
 }
 
 func newIntent(instruction uip.Instruction, name string) (impl *TxIntentImpl) {
@@ -28,11 +26,11 @@ func (t *TxIntentImpl) SetInstruction(i uip.Instruction) {
 	return
 }
 
-func (t *TxIntentImpl) GetProposals() []uip.MerkleProofProposal {
+func (t *TxIntentImpl) GetProposals() uip.MerkleProofProposals {
 	return t.proposals
 }
 
-func (t *TxIntentImpl) SetProposals(p []uip.MerkleProofProposal) {
+func (t *TxIntentImpl) SetProposals(p uip.MerkleProofProposals) {
 	t.proposals = p
 	return
 }

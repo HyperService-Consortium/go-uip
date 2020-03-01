@@ -16,11 +16,11 @@ func (bn BlockChainInterfaceImpl) MustWithSigner() bool {
 //
 // }
 
-func Route(newBn BlockChainInterface, intent *TransactionIntent, kvGetter Storage) ([]byte, error) {
+func Route(newBn BlockChainInterface, intent TransactionIntent, kvGetter Storage) ([]byte, error) {
 	// todo
 	onChainTransaction, err := newBn.Translate(intent, kvGetter)
 	if err != nil {
 		return nil, err
 	}
-	return newBn.RouteRaw(intent.ChainID, onChainTransaction)
+	return newBn.RouteRaw(intent.GetChainID(), onChainTransaction)
 }

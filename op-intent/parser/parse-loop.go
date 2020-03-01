@@ -15,7 +15,7 @@ import (
 
 // ->
 
-// loopBegin: goto reset if loopVar < times
+// loopBegin: goto reset if loopVar >= times
 // op1
 // op2
 // ...
@@ -26,7 +26,7 @@ import (
 
 
 type RawSetState struct {
-	Target lexer.Param
+	Target *lexer.LocalStateVariable
 	RightExpression lexer.Param
 }
 
@@ -38,7 +38,7 @@ func (r RawSetState) GetType() instruction_type.Type {
 
 const loopVarType = value_type.Int64
 func (ier *Parser) parseLoop(intent *lexer.LoopIntent) (intents []uip.TxIntentI, _ error) {
-	loopIntents, err := ier.ParseIntents(intent.Loop)
+	loopIntents, err := ier.parseIntents(intent.Loop)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (ier *Parser) parseLoop(intent *lexer.LoopIntent) (intents []uip.TxIntentI,
 		IndexName: resetLoopVar.GetName(),
 		Condition: &lexer.BinaryExpression{
 			Type:  value_type.Bool,
-			Sign:  sign_type.LT,
+			Sign:  sign_type.GE,
 			Left:  loopVar,
 			// todo: convert Times to loopVarType
 			Right: &lexer.ConstantVariable{
