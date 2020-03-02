@@ -20,21 +20,22 @@ const (
 	Int64
 	Int128
 	Int256 // 14
+	Bool
 	SliceUint8
 	SliceUint16
 	SliceUint32
-	SliceUint64
-	SliceUint128 // 19
+	SliceUint64 // 19
+	SliceUint128
 	SliceUint256
 	SliceInt8
 	SliceInt16
-	SliceInt32
-	SliceInt64 // 24
+	SliceInt32 // 24
+	SliceInt64
 	SliceInt128
-	SliceInt256
+	SliceInt256 // 27
 
 	// Slice
-	Bool // 27
+	Length
 )
 
 func FromString(desc string) Type {

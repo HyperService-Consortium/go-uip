@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"github.com/HyperService-Consortium/go-uip/const/sign_type"
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
+	"github.com/HyperService-Consortium/go-uip/isc/gvm"
 	"github.com/HyperService-Consortium/go-uip/op-intent/document"
 	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
 	"github.com/HyperService-Consortium/go-uip/op-intent/token"
@@ -13,8 +14,7 @@ import (
 
 type InstantiateAccountF = func (a Account) (uip.Account, error)
 type Param interface {
-	token.Token
-	GetParamType() value_type.Type
+	token.Param
 	Determine(f InstantiateAccountF) (Param, error)
 }
 
@@ -57,7 +57,19 @@ type ConstantVariable struct {
 	Const interface{} `json:"constant"`
 }
 
-func (p ConstantVariable) GetConstant() interface{} {
+func convGVMTokType(t token.Type) gvm.TokType {
+	return gvm.TokType(t - token.Constant)
+}
+
+func (p ConstantVariable) GetGVMTok() gvm.TokType {
+	return convGVMTokType(token.Constant)
+}
+
+func (p ConstantVariable) GetGVMType() gvm.RefType {
+	return gvm.RefType(p.Type)
+}
+
+func (p ConstantVariable) Unwrap() interface{} {
 
 	return p.Const
 }
@@ -78,6 +90,14 @@ type LocalStateVariable struct {
 	Type     value_type.Type `json:"type"`
 	Pos      []byte `json:"pos"`
 	Field    []byte `json:"field"`
+}
+
+func (p LocalStateVariable) GetGVMTok() gvm.TokType {
+	return convGVMTokType(token.LocalStateVariable)
+}
+
+func (p LocalStateVariable) GetGVMType() gvm.RefType {
+	return gvm.RefType(p.Type)
 }
 
 func (l LocalStateVariable) GetType() token.Type {
@@ -105,6 +125,14 @@ type StateVariable struct {
 	Contract Account `json:"contract"`
 	Pos      []byte `json:"pos"`
 	Field    []byte `json:"field"`
+}
+
+func (p StateVariable) GetGVMTok() gvm.TokType {
+	return convGVMTokType(token.StateVariable)
+}
+
+func (p StateVariable) GetGVMType() gvm.RefType {
+	return gvm.RefType(p.Type)
 }
 
 func (e StateVariable) GetType() token.Type {
@@ -141,6 +169,22 @@ type BinaryExpression struct {
 	Sign sign_type.Type `json:"sign"`
 	Left Param `json:"left"`
 	Right Param `json:"right"`
+}
+
+func (p BinaryExpression) GetLeftTok() gvm.VTok {
+	return p.Left
+}
+
+func (p BinaryExpression) GetRightTok() gvm.VTok {
+	return p.Right
+}
+
+func (p BinaryExpression) GetGVMTok() gvm.TokType {
+	return convGVMTokType(token.BinaryExpression)
+}
+
+func (p BinaryExpression) GetGVMType() gvm.RefType {
+	return gvm.RefType(p.Type)
 }
 func (b BinaryExpression) GetType() token.Type {
 	return token.BinaryExpression
@@ -181,6 +225,14 @@ type UnaryExpression struct {
 	Type  value_type.Type `json:"type"`
 	Sign sign_type.Type `json:"sign"`
 	Left Param `json:"left"`
+}
+
+func (p UnaryExpression) GetGVMTok() gvm.TokType {
+	return convGVMTokType(token.UnaryExpression)
+}
+
+func (p UnaryExpression) GetGVMType() gvm.RefType {
+	return gvm.RefType(p.Type)
 }
 
 func (u UnaryExpression) GetType() token.Type {

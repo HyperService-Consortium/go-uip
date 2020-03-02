@@ -6,9 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/HyperService-Consortium/go-uip/const/instruction_type"
-	"github.com/HyperService-Consortium/go-uip/const/sign_type"
 	TxState "github.com/HyperService-Consortium/go-uip/const/transaction_state_type"
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
+	"github.com/HyperService-Consortium/go-uip/isc/gvm"
 	opintent "github.com/HyperService-Consortium/go-uip/op-intent"
 	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
 	"github.com/HyperService-Consortium/go-uip/op-intent/parser"
@@ -23,8 +23,26 @@ type Context interface {
 }
 
 type ISC struct {
+	gvm.Base
 	Storage Storage
 	Msg     Context
+}
+
+func (isc *ISC) GetTObjI(t gvm.TokType) (gvm.TypePrototype, error) {
+	if err := checkEvaluableTokenType(token.Type(t)); err != nil {
+		return nil, err
+	}
+	return gvm.TObjs[t], nil
+}
+
+func (isc *ISC) GetPObjI(t gvm.RefType) (gvm.PackPrototype, error) {
+	if err := checkValueType(value_type.Type(t)); err != nil {
+		return nil, err
+	}
+	switch t {
+	default:
+		return isc.Base.GetPObjI(t)
+	}
 }
 
 func NewISC(msg Context, storage *storage.VM) *ISC {
@@ -104,12 +122,22 @@ func (isc *ISC) FreezeInfo(tid uint64) Response {
 	return OK
 }
 
+func (isc *ISC) maybeSwitchToStateSettling(pc uint64) Response {
+	if pc >= isc.Storage.Instructions().Length() {
+		isc.Storage.setISCState(StateSettling)
+	} else if pc < 0 {
+		return reportCode(CodePCUnderflow)
+	}
+	return nil
+}
+
 func (isc *ISC) UserAck(fr, signature []byte) Response {
 	assertTrue(isc.IsInitialized(), CodeIsNotInitialized)
 	acknowledged := isc.Storage.UserAcknowledged()
 	if acknowledged.Get(fr) == nil {
 		acknowledged.Set(fr, signature)
 		uac := isc.Storage.getUserAckCount() + 1
+		isc.Storage.setUserAckCount(uac)
 		if uac == isc.Storage.Owners().Length() {
 			pc, err := isc.initPC(0)
 			if err != nil {
@@ -117,8 +145,10 @@ func (isc *ISC) UserAck(fr, signature []byte) Response {
 			}
 			isc.Storage.setPC(pc)
 			isc.Storage.setISCState(StateOpening)
+			if r := isc.maybeSwitchToStateSettling(pc); r != nil {
+				return r
+			}
 		}
-		isc.Storage.setUserAckCount(uac)
 	}
 
 	return OK
@@ -162,10 +192,8 @@ func (isc *ISC) InsuranceClaim(tid, aid uint64) Response {
 			return report(CodeIteratePCError, err)
 		}
 		isc.Storage.setPC(pc)
-		if pc >= isc.Storage.Instructions().Length() {
-			isc.Storage.setISCState(StateSettling)
-		} else if pc < 0 {
-			return reportCode(CodePCUnderflow)
+		if r := isc.maybeSwitchToStateSettling(pc); r != nil {
+			return r
 		}
 	}
 	return OK
@@ -184,9 +212,9 @@ func (isc *ISC) initPC(pc uint64) (uint64, error) {
 	}
 	switch instruction.GetType() {
 	case instruction_type.Payment, instruction_type.ContractInvoke:
-		return 0, nil
-	default:
 		return pc, nil
+	default:
+		return isc._nextPC(pc, instruction)
 	}
 }
 
@@ -206,7 +234,7 @@ func (isc *ISC) _nextPC(pc uint64, instruction opintent.LazyInstruction) (uint64
 			return 0, err
 		}
 		//todo
-		return uint64(i.(*parser.Goto).Index), nil
+		return isc.nextPC(uint64(i.(*parser.Goto).Index))
 	case instruction_type.ConditionGoto:
 		i, err := instruction.Deserialize()
 		if err != nil {
@@ -220,9 +248,9 @@ func (isc *ISC) _nextPC(pc uint64, instruction opintent.LazyInstruction) (uint64
 			return 0, errors.New("not bool value")
 		}
 		if v.GetConstant().(bool) {
-			return uint64(i.(*parser.ConditionGoto).Index), nil
+			return isc.nextPC(uint64(i.(*parser.ConditionGoto).Index))
 		}
-		return pc+1, nil
+		return isc.nextPC(pc + 1)
 	case instruction_type.ConditionSetState:
 		i, err := instruction.Deserialize()
 		if err != nil {
@@ -250,7 +278,7 @@ func (isc *ISC) _nextPC(pc uint64, instruction opintent.LazyInstruction) (uint64
 			isc.Storage.storage.SetBytes(string(inst.Target), x)
 		}
 
-		return pc+1, nil
+		return isc.nextPC(pc + 1)
 	case instruction_type.SetState:
 		i, err := instruction.Deserialize()
 		if err != nil {
@@ -267,13 +295,13 @@ func (isc *ISC) _nextPC(pc uint64, instruction opintent.LazyInstruction) (uint64
 			return 0, err
 		}
 		isc.Storage.storage.SetBytes(string(inst.Target), x)
-		return pc+1, nil
+		return isc.nextPC(pc + 1)
 	default:
-		return pc+1, nil
+		return isc.nextPC(pc + 1)
 	}
 }
 
-func (isc *ISC) evalBytes(variable []byte) (token.ConstantI, error) {
+func (isc *ISC) evalBytes(variable []byte) (gvm.Ref, error) {
 	v, err := lexer.ParamUnmarshalJSON(variable)
 	if err != nil {
 		return nil, err
@@ -281,72 +309,28 @@ func (isc *ISC) evalBytes(variable []byte) (token.ConstantI, error) {
 	return isc.eval(v)
 }
 
-func (isc *ISC) eval(v token.Param) (token.ConstantI, error) {
-	switch v.GetType(){
-	case token.Constant:
-		return v.(token.ConstantI), nil
-	case token.LocalStateVariable:
-		v := v.(token.LocalStateVariableI)
-		return isc.load(v.GetField(), v.GetParamType())
-	case token.BinaryExpression:
-		v := v.(token.BinaryExpressionI)
-		l, err := isc.eval(v.GetLeft())
-		if err != nil {
-			return nil, err
-		}
-		r, err := isc.eval(v.GetRight())
-		if err != nil {
-			return nil, err
-		}
-		switch v.GetSign() {
-		case sign_type.EQ:
-			return eq(l, r)
-		case sign_type.LE:
-			return le(l, r)
-		case sign_type.LT:
-			return lt(l, r)
-		case sign_type.GE:
-			return ge(l, r)
-		case sign_type.GT:
-			return gt(l, r)
-		case sign_type.LAnd:
-			return land(l, r)
-		case sign_type.LOr:
-			return lor(l, r)
-		case sign_type.ADD:
-			return add(l, r)
-		case sign_type.SUB:
-			return sub(l, r)
-		case sign_type.MUL:
-			return mul(l, r)
-		case sign_type.QUO:
-			return quo(l, r)
-		case sign_type.REM:
-			return rem(l, r)
-		default:
-			return nil, fmt.Errorf("unknown sign_type: %v", v.GetSign())
-		}
-	case token.UnaryExpression:
-		v := v.(token.BinaryExpressionI)
-		l, err := isc.eval(v.GetLeft())
-		if err != nil {
-			return nil, err
-		}
-		switch v.GetSign() {
-		case sign_type.LNot:
-			return lnot(l)
-		}
-	case token.StateVariable:
-		//v := v.(token.StateVariableI)
-		return nil, errors.New("todo")
+func (isc *ISC) eval(v token.Param) (gvm.Ref, error) {
+	return gvm.EvalG(isc, v)
+}
+
+func (isc *ISC) save(variable gvm.Ref) ([]byte, error) {
+	return gvm.Encode(variable)
+}
+
+func (isc *ISC) Load(field []byte, t gvm.RefType) (gvm.Ref, error) {
+	return gvm.Decode(isc.Storage.storage.GetBytes(string(field)), t)
+}
+
+func checkValueType(t value_type.Type) error {
+	if t >= value_type.Length || t <= value_type.Unknown {
+		return fmt.Errorf("unknown value_type: %v", t)
 	}
-	return nil, errors.New("param type not found")
+	return nil
 }
 
-func (isc *ISC) save(variable token.ConstantI) ([]byte, error) {
-	return storage.Encode(variable)
-}
-
-func (isc *ISC) load(field []byte, t value_type.Type) (token.ConstantI, error) {
-	return storage.Decode(isc.Storage.storage.GetBytes(string(field)), t)
+func checkEvaluableTokenType(t token.Type) error {
+	if !token.IsEvaluable(t) {
+		return fmt.Errorf("token type %v is not evaluable", t)
+	}
+	return nil
 }

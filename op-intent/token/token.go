@@ -18,5 +18,10 @@ const (
 	NameAccount
 	NamespacedRawAccount
 	RawAccount
+
+	Length
 )
 
+func IsEvaluable(t Type) bool {
+	return t <= UnaryExpression && t >= Constant
+}
