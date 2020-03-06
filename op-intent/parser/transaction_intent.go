@@ -2,10 +2,12 @@ package parser
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/HyperService-Consortium/go-uip/const/instruction_type"
 	"github.com/HyperService-Consortium/go-uip/const/trans_type"
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
 	"github.com/HyperService-Consortium/go-uip/isc/gvm"
+	"github.com/HyperService-Consortium/go-uip/isc/gvm/libgvm"
 	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
 	"github.com/HyperService-Consortium/go-uip/uip"
 )
@@ -41,7 +43,7 @@ func (tx *TransactionIntent) GetType() instruction_type.Type {
 
 type Goto struct {
 	Type  instruction_type.Type `json:"itype"`
-	Index uint64                   `json:"goto"`
+	Index uint64                `json:"goto"`
 }
 
 func (tx *Goto) GetGotoIndexGVMI() uint64 {
@@ -61,7 +63,7 @@ func (tx *Goto) GetType() instruction_type.Type {
 
 type ConditionGoto struct {
 	Type      instruction_type.Type `json:"itype"`
-	Index     uint64                   `json:"goto"`
+	Index     uint64                `json:"goto"`
 	Condition json.RawMessage       `json:"condition"`
 }
 
@@ -84,16 +86,32 @@ func (tx *ConditionGoto) Convert() (g *GVMConditionGoto, err error) {
 
 type GVMConditionGoto struct {
 	Type      instruction_type.Type `json:"itype"`
-	Index     uint64                   `json:"goto"`
+	Index     uint64                `json:"goto"`
 	Condition gvm.VTok              `json:"condition"`
 }
 
-func (tx *GVMConditionGoto) GetGotoIndexGVMI() uint64 {
-	return tx.Index
+func (inst *GVMConditionGoto) Exec(g *gvm.ExecCtx) error {
+	v, err := libgvm.EvalG(g, inst.GetGotoConditionGVMI())
+	if err != nil {
+		return err
+	}
+	if v.GetGVMType() != libgvm.RefBool {
+		return fmt.Errorf("type error: not bool value, is %v", v.GetGVMType())
+	}
+	if v.Unwrap().(bool) {
+		g.PC = uint64(inst.GetGotoIndexGVMI())
+		return nil
+	}
+	g.PC++
+	return nil
 }
 
-func (tx *GVMConditionGoto) GetGotoConditionGVMI() gvm.VTok {
-	return tx.Condition
+func (inst *GVMConditionGoto) GetGotoIndexGVMI() uint64 {
+	return inst.Index
+}
+
+func (inst *GVMConditionGoto) GetGotoConditionGVMI() gvm.VTok {
+	return inst.Condition
 }
 
 func (tx *ConditionGoto) GetType() instruction_type.Type {
@@ -123,12 +141,18 @@ type GVMSetState struct {
 	RightExpression gvm.VTok              `json:"expression"`
 }
 
-func convToBaseGVMIType(i instruction_type.Type) gvm.InstructionType {
-	return i - instruction_type.Goto
-}
+func (G GVMSetState) Exec(g *gvm.ExecCtx) error {
+	k, err := libgvm.EvalG(g, G.GetRightHandStatementGVMI())
+	if err != nil {
+		return err
+	}
+	err = g.Save(G.GetRefNameGVMI(), k)
+	if err != nil {
+		return err
+	}
 
-func (G GVMSetState) GetGVMIType() gvm.InstructionType {
-	return convToBaseGVMIType(G.IType)
+	g.PC++
+	return nil
 }
 
 func (G GVMSetState) GetRefNameGVMI() string {
@@ -141,9 +165,9 @@ func (G GVMSetState) GetRightHandStatementGVMI() gvm.VTok {
 
 func (tx *SetState) Convert() (g *GVMSetState, err error) {
 	g = &GVMSetState{
-		IType:           tx.IType,
-		Type:            tx.Type,
-		Target:          string(tx.Target),
+		IType:  tx.IType,
+		Type:   tx.Type,
+		Target: string(tx.Target),
 	}
 	g.RightExpression, err = lexer.ParamUnmarshalJSON(tx.RightExpression)
 	return
@@ -165,15 +189,15 @@ type GVMConditionSetState struct {
 	IType           instruction_type.Type `json:"itype"`
 	Type            value_type.Type       `json:"value_type"`
 	Target          string                `json:"target"`
-	RightExpression gvm.VTok       `json:"expression"`
-	Condition       gvm.VTok       `json:"condition"`
+	RightExpression gvm.VTok              `json:"expression"`
+	Condition       gvm.VTok              `json:"condition"`
 }
 
 func (tx *ConditionSetState) Convert() (g *GVMConditionSetState, err error) {
 	g = &GVMConditionSetState{
-		IType:           tx.IType,
-		Type:            tx.Type,
-		Target:          string(tx.Target),
+		IType:  tx.IType,
+		Type:   tx.Type,
+		Target: string(tx.Target),
 	}
 	g.RightExpression, err = lexer.ParamUnmarshalJSON(tx.RightExpression)
 	if err != nil {
@@ -181,6 +205,30 @@ func (tx *ConditionSetState) Convert() (g *GVMConditionSetState, err error) {
 	}
 	g.Condition, err = lexer.ParamUnmarshalJSON(tx.Condition)
 	return
+}
+
+func (inst *GVMConditionSetState) Exec(g *gvm.ExecCtx) error {
+	v, err := libgvm.EvalG(g, inst.GetGotoConditionGVMI())
+	if err != nil {
+		return err
+	}
+	if v.GetGVMType() != libgvm.RefBool {
+		return fmt.Errorf("type error: not bool value, is %v", v.GetGVMType())
+	}
+
+	if v.Unwrap().(bool) {
+		k, err := libgvm.EvalG(g, inst.GetRightHandStatementGVMI())
+		if err != nil {
+			return err
+		}
+		err = g.Save(inst.GetRefNameGVMI(), k)
+		if err != nil {
+			return err
+		}
+	}
+
+	g.PC++
+	return nil
 }
 
 func (G GVMConditionSetState) GetGotoConditionGVMI() gvm.VTok {
@@ -194,7 +242,6 @@ func (G GVMConditionSetState) GetRefNameGVMI() string {
 func (G GVMConditionSetState) GetRightHandStatementGVMI() gvm.VTok {
 	return G.RightExpression
 }
-
 
 func NewConditionSetState(t value_type.Type, target []byte, rhs, cond json.RawMessage) *ConditionSetState {
 	return &ConditionSetState{

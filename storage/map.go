@@ -2,6 +2,7 @@ package storage
 
 import (
 	"github.com/HyperService-Consortium/go-uip/isc/gvm"
+	"github.com/HyperService-Consortium/go-uip/isc/gvm/libgvm"
 )
 
 type MappingUint8ToBytes struct {
@@ -12,7 +13,7 @@ func (v *VM) NewMappingUint8ToBytes(arrName string) *MappingUint8ToBytes {
 	p := &MappingUint8ToBytes{&GeneralMap{
 		name: arrName,
 		merk: v.ArrangeSlot(arrName),
-		k:    gvm.Uint8, v: gvm.Bytes,
+		k:    libgvm.Uint8, v: libgvm.Bytes,
 	}}
 	return p
 }
@@ -22,7 +23,7 @@ func (m *MappingUint8ToBytes) Set(k uint8, v []byte) {
 }
 
 func (m *MappingUint8ToBytes) Get(k uint8) []byte {
-	return gvm.Bytes.Wrap(m.g.Get(k))
+	return libgvm.Bytes.Wrap(m.g.Get(k))
 
 }
 
@@ -38,7 +39,7 @@ func (v *VM) NewMappingUint16ToBytes(arrName string) *MappingUint16ToBytes {
 	p := &MappingUint16ToBytes{&GeneralMap{
 		name: arrName,
 		merk: v.ArrangeSlot(arrName),
-		k:    gvm.Uint16, v: gvm.Bytes,
+		k:    libgvm.Uint16, v: libgvm.Bytes,
 	}}
 	return p
 }
@@ -48,7 +49,7 @@ func (m *MappingUint16ToBytes) Set(k uint16, v []byte) {
 }
 
 func (m *MappingUint16ToBytes) Get(k uint16) []byte {
-	return gvm.Bytes.Wrap(m.g.Get(k))
+	return libgvm.Bytes.Wrap(m.g.Get(k))
 
 }
 
@@ -64,7 +65,7 @@ func (v *VM) NewMappingUint32ToBytes(arrName string) *MappingUint32ToBytes {
 	p := &MappingUint32ToBytes{&GeneralMap{
 		name: arrName,
 		merk: v.ArrangeSlot(arrName),
-		k:    gvm.Uint32, v: gvm.Bytes,
+		k:    libgvm.Uint32, v: libgvm.Bytes,
 	}}
 	return p
 }
@@ -74,7 +75,7 @@ func (m *MappingUint32ToBytes) Set(k uint32, v []byte) {
 }
 
 func (m *MappingUint32ToBytes) Get(k uint32) []byte {
-	return gvm.Bytes.Wrap(m.g.Get(k))
+	return libgvm.Bytes.Wrap(m.g.Get(k))
 
 }
 
@@ -90,7 +91,7 @@ func (v *VM) NewMappingUint64ToBytes(arrName string) *MappingUint64ToBytes {
 	p := &MappingUint64ToBytes{&GeneralMap{
 		name: arrName,
 		merk: v.ArrangeSlot(arrName),
-		k:    gvm.Uint64, v: gvm.Bytes,
+		k:    libgvm.Uint64, v: libgvm.Bytes,
 	}}
 	return p
 }
@@ -100,7 +101,7 @@ func (m *MappingUint64ToBytes) Set(k uint64, v []byte) {
 }
 
 func (m *MappingUint64ToBytes) Get(k uint64) []byte {
-	return gvm.Bytes.Wrap(m.g.Get(k))
+	return libgvm.Bytes.Wrap(m.g.Get(k))
 
 }
 
@@ -116,7 +117,7 @@ func (v *VM) NewMappingUintToBytes(arrName string) *MappingUintToBytes {
 	p := &MappingUintToBytes{&GeneralMap{
 		name: arrName,
 		merk: v.ArrangeSlot(arrName),
-		k:    gvm.Uint, v: gvm.Bytes,
+		k:    gvm.Uint, v: libgvm.Bytes,
 	}}
 	return p
 }
@@ -126,7 +127,7 @@ func (m *MappingUintToBytes) Set(k uint, v []byte) {
 }
 
 func (m *MappingUintToBytes) Get(k uint) []byte {
-	return gvm.Bytes.Wrap(m.g.Get(k))
+	return libgvm.Bytes.Wrap(m.g.Get(k))
 
 }
 
@@ -142,7 +143,7 @@ func (v *VM) NewMappingBytesToUint64(arrName string) *MappingBytesToUint64 {
 	p := &MappingBytesToUint64{&GeneralMap{
 		name: arrName,
 		merk: v.ArrangeSlot(arrName),
-		k:    gvm.Bytes, v: gvm.Uint64,
+		k:    libgvm.Bytes, v: libgvm.Uint64,
 	}}
 	return p
 }
@@ -152,7 +153,7 @@ func (m *MappingBytesToUint64) Set(k []byte, v uint64) {
 }
 
 func (m *MappingBytesToUint64) Get(k []byte) uint64 {
-	return gvm.Uint64.Wrap(m.g.Get(k))
+	return libgvm.Uint64.Wrap(m.g.Get(k))
 
 }
 
@@ -168,7 +169,7 @@ func (v *VM) NewMappingBytesToUint32(arrName string) *MappingBytesToUint32 {
 	p := &MappingBytesToUint32{&GeneralMap{
 		name: arrName,
 		merk: v.ArrangeSlot(arrName),
-		k:    gvm.Bytes, v: gvm.Uint32,
+		k:    libgvm.Bytes, v: libgvm.Uint32,
 	}}
 	return p
 }
@@ -178,7 +179,7 @@ func (m *MappingBytesToUint32) Set(k []byte, v uint32) {
 }
 
 func (m *MappingBytesToUint32) Get(k []byte) uint32 {
-	return gvm.Uint32.Wrap(m.g.Get(k))
+	return libgvm.Uint32.Wrap(m.g.Get(k))
 
 }
 
@@ -194,7 +195,7 @@ func (v *VM) NewMappingBytesToBytes(arrName string) *MappingBytesToBytes {
 	p := &MappingBytesToBytes{&GeneralMap{
 		name: arrName,
 		merk: v.ArrangeSlot(arrName),
-		k:    gvm.Bytes, v: gvm.Bytes,
+		k:    libgvm.Bytes, v: libgvm.Bytes,
 	}}
 	return p
 }
@@ -204,7 +205,7 @@ func (m *MappingBytesToBytes) Set(k []byte, v []byte) {
 }
 
 func (m *MappingBytesToBytes) Get(k []byte) []byte {
-	return gvm.Bytes.Wrap(m.g.Get(k))
+	return libgvm.Bytes.Wrap(m.g.Get(k))
 
 }
 
@@ -220,7 +221,7 @@ func (v *VM) NewMappingBytesToBool(arrName string) *MappingBytesToBool {
 	p := &MappingBytesToBool{&GeneralMap{
 		name: arrName,
 		merk: v.ArrangeSlot(arrName),
-		k:    gvm.Bytes, v: gvm.Bool,
+		k:    libgvm.Bytes, v: libgvm.Bool,
 	}}
 	return p
 }
@@ -230,7 +231,7 @@ func (m *MappingBytesToBool) Set(k []byte, v bool) {
 }
 
 func (m *MappingBytesToBool) Get(k []byte) bool {
-	return gvm.Bool.Wrap(m.g.Get(k))
+	return libgvm.Bool.Wrap(m.g.Get(k))
 
 }
 
@@ -246,7 +247,7 @@ func (v *VM) NewMappingUint64ToUint64(arrName string) *MappingUint64ToUint64 {
 	p := &MappingUint64ToUint64{&GeneralMap{
 		name: arrName,
 		merk: v.ArrangeSlot(arrName),
-		k:    gvm.Uint64, v: gvm.Uint64,
+		k:    libgvm.Uint64, v: libgvm.Uint64,
 	}}
 	return p
 }
@@ -256,7 +257,7 @@ func (m *MappingUint64ToUint64) Set(k uint64, v uint64) {
 }
 
 func (m *MappingUint64ToUint64) Get(k uint64) uint64 {
-	return gvm.Uint64.Wrap(m.g.Get(k))
+	return libgvm.Uint64.Wrap(m.g.Get(k))
 }
 
 func (m *MappingUint64ToUint64) Delete(k uint64) {

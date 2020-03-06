@@ -1,0 +1,105 @@
+package libgvm
+
+import (
+	"fmt"
+	"github.com/HyperService-Consortium/go-uip/isc/gvm/internal/abstraction"
+	"github.com/Myriad-Dreamin/minimum-lib/sugar"
+	"github.com/stretchr/testify/assert"
+	"testing"
+)
+
+type gotoImpl struct{}
+
+func (g gotoImpl) Exec(c *abstraction.ExecCtx) error {
+	c.PC = uint64(g.GetGotoIndexGVMI())
+	return nil
+}
+
+func (g gotoImpl) GetGotoIndexGVMI() uint64 {
+	return 2
+}
+
+func Test__Goto_Exec(t *testing.T) {
+	type args struct {
+		g *abstraction.ExecCtx
+		i abstraction.Instruction
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{"easy", args{&abstraction.ExecCtx{
+			GVM:      nil,
+			Function: nil,
+			PC:       1,
+		}, gotoImpl{}}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := tt.args.i.Exec(tt.args.g); (err != nil) != tt.wantErr {
+				t.Fatalf("Exec() error = %v, wantErr %v", err, tt.wantErr)
+			} else if err != nil {
+				return
+			}
+
+			if uint64(tt.args.i.(gotoImpl).GetGotoIndexGVMI()) != tt.args.g.PC {
+				t.Errorf("Exec() get pc = %v, want: %v", tt.args.g.PC, tt.args.i.(gotoImpl).GetGotoIndexGVMI())
+			}
+		})
+	}
+}
+func Benchmark_serializeMapSR(b *testing.B) {
+	var mp = map[string]abstraction.Ref{
+		"a":          Bool(true),
+		"bbbb":       Bool(true),
+		"ccccccc":    Bool(true),
+		"dddddddddd": Bool(true),
+	}
+	g := sugar.HandlerError(NewGVM()).(*ImplX)
+	b.ResetTimer()
+	for i := 0; i < b.N ; i++ {
+		sugar.HandlerError0(saveLocals(g, 0, mp))
+	}
+}
+func Benchmark_deserializeMapSR(b *testing.B) {
+	var mp = map[string]abstraction.Ref{
+		"a": Bool(true),
+	}
+	g := sugar.HandlerError(NewGVM()).(*ImplX)
+	sugar.HandlerError0(saveLocals(g, 0, mp))
+	b.ResetTimer()
+	for i := 0; i < b.N ; i++ {
+		_ = sugar.HandlerError(loadLocal(g, 0)).(map[string]abstraction.Ref)
+	}
+}
+
+func Test_serializeMapSR(t *testing.T) {
+	var mp = map[string]abstraction.Ref{
+		"a": Bool(true),
+		"b": String("123132124"),
+	}
+
+	g := sugar.HandlerError(NewGVM()).(*ImplX)
+
+	sugar.HandlerError0(saveLocals(g, 0, mp))
+	fmt.Println(g.g.Context)
+	fmt.Println(len(g.g.Context["_gvm_locals_0"].Unwrap().([]byte)))
+	mp2 := sugar.HandlerError(loadLocal(g, 0)).(map[string]abstraction.Ref)
+
+	assert.EqualValues(t, mp, mp2)
+	fmt.Println(mp2)
+
+	mp = map[string]abstraction.Ref{
+		"a": Bool(true),
+		"b": Bool(true),
+	}
+
+	sugar.HandlerError0(saveLocals(g, 0, mp))
+	fmt.Println(g.g.Context)
+	fmt.Println(len(g.g.Context["_gvm_locals_0"].Unwrap().([]byte)))
+	mp2 = sugar.HandlerError(loadLocal(g, 0)).(map[string]abstraction.Ref)
+
+	assert.EqualValues(t, mp, mp2)
+	fmt.Println(mp2)
+}

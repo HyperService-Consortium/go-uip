@@ -1,4 +1,4 @@
-package builtin
+package gvm_builtin
 
 import (
 	"bytes"

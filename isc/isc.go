@@ -3,15 +3,9 @@ package isc
 import (
 	"bytes"
 	"encoding/hex"
-	"errors"
 	"fmt"
-	"github.com/HyperService-Consortium/go-uip/const/instruction_type"
 	TxState "github.com/HyperService-Consortium/go-uip/const/transaction_state_type"
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
-	"github.com/HyperService-Consortium/go-uip/isc/gvm"
-	opintent "github.com/HyperService-Consortium/go-uip/op-intent"
-	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
-	"github.com/HyperService-Consortium/go-uip/op-intent/parser"
 	"github.com/HyperService-Consortium/go-uip/op-intent/token"
 	"github.com/HyperService-Consortium/go-uip/storage"
 	"github.com/HyperService-Consortium/go-uip/uip"
@@ -23,26 +17,8 @@ type Context interface {
 }
 
 type ISC struct {
-	gvm.Base
 	Storage Storage
 	Msg     Context
-}
-
-func (isc *ISC) GetTObjI(t gvm.TokType) (gvm.TypePrototype, error) {
-	if err := checkEvaluableTokenType(token.Type(t)); err != nil {
-		return nil, err
-	}
-	return gvm.TObjs[t], nil
-}
-
-func (isc *ISC) GetPObjI(t gvm.RefType) (gvm.PackPrototype, error) {
-	if err := checkValueType(value_type.Type(t)); err != nil {
-		return nil, err
-	}
-	switch t {
-	default:
-		return isc.Base.GetPObjI(t)
-	}
 }
 
 func NewISC(msg Context, storage *storage.VM) *ISC {
@@ -206,119 +182,11 @@ func (isc *ISC) SettleContract() Response {
 }
 
 func (isc *ISC) initPC(pc uint64) (uint64, error) {
-	instruction, err := opintent.HandleInstruction(isc.Storage.Instructions().Get(pc))
-	if err != nil {
-		return 0, err
-	}
-	switch instruction.GetType() {
-	case instruction_type.Payment, instruction_type.ContractInvoke:
-		return pc, nil
-	default:
-		return isc._nextPC(pc, instruction)
-	}
+	panic("")
 }
 
 func (isc *ISC) nextPC(pc uint64) (uint64, error) {
-	instruction, err := opintent.HandleInstruction(isc.Storage.Instructions().Get(pc))
-	if err != nil {
-		return 0, err
-	}
-	return isc._nextPC(pc, instruction)
-}
-
-func (isc *ISC) _nextPC(pc uint64, instruction opintent.LazyInstruction) (uint64, error) {
-	switch instruction.GetType() {
-	case instruction_type.Goto:
-		i, err := instruction.Deserialize()
-		if err != nil {
-			return 0, err
-		}
-		//todo
-		return isc.nextPC(uint64(i.(*parser.Goto).Index))
-	case instruction_type.ConditionGoto:
-		i, err := instruction.Deserialize()
-		if err != nil {
-			return 0, err
-		}
-		v, err := isc.evalBytes(i.(*parser.ConditionGoto).Condition)
-		if err != nil {
-			return 0, err
-		}
-		if v.GetParamType() != value_type.Bool {
-			return 0, errors.New("not bool value")
-		}
-		if v.GetConstant().(bool) {
-			return isc.nextPC(uint64(i.(*parser.ConditionGoto).Index))
-		}
-		return isc.nextPC(pc + 1)
-	case instruction_type.ConditionSetState:
-		i, err := instruction.Deserialize()
-		if err != nil {
-			return 0, err
-		}
-		inst := i.(*parser.ConditionSetState)
-
-		v, err := isc.evalBytes(inst.Condition)
-		if err != nil {
-			return 0, err
-		}
-		if v.GetParamType() != value_type.Bool {
-			return 0, errors.New("not bool value")
-		}
-
-		if v.GetConstant().(bool) {
-			k, err := isc.evalBytes(inst.RightExpression)
-			if err != nil {
-				return 0, err
-			}
-			x, err := isc.save(k)
-			if err != nil {
-				return 0, err
-			}
-			isc.Storage.storage.SetBytes(string(inst.Target), x)
-		}
-
-		return isc.nextPC(pc + 1)
-	case instruction_type.SetState:
-		i, err := instruction.Deserialize()
-		if err != nil {
-			return 0, err
-		}
-		inst := i.(*parser.SetState)
-
-		k, err := isc.evalBytes(inst.RightExpression)
-		if err != nil {
-			return 0, err
-		}
-		x, err := isc.save(k)
-		if err != nil {
-			return 0, err
-		}
-		isc.Storage.storage.SetBytes(string(inst.Target), x)
-		return isc.nextPC(pc + 1)
-	default:
-		return isc.nextPC(pc + 1)
-	}
-}
-
-func (isc *ISC) evalBytes(variable []byte) (gvm.Ref, error) {
-	v, err := lexer.ParamUnmarshalJSON(variable)
-	if err != nil {
-		return nil, err
-	}
-	return isc.eval(v)
-}
-
-func (isc *ISC) eval(v token.Param) (gvm.Ref, error) {
-	return gvm.EvalG(isc, v)
-}
-
-func (isc *ISC) save(variable gvm.Ref) ([]byte, error) {
-	return gvm.Encode(variable)
-}
-
-func (isc *ISC) Load(field []byte, t gvm.RefType) (gvm.Ref, error) {
-	return gvm.Decode(isc.Storage.storage.GetBytes(string(field)), t)
+	panic("")
 }
 
 func checkValueType(t value_type.Type) error {

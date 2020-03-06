@@ -1,6 +1,8 @@
-package gvm
+package abstraction
 
-import "github.com/HyperService-Consortium/go-uip/const/sign_type"
+import (
+	"github.com/HyperService-Consortium/go-uip/const/sign_type"
+)
 
 type TokType = uint64
 
@@ -10,7 +12,6 @@ const (
 	TokLocalStateVariable
 	TokBinaryExpression
 	TokUnaryExpression
-
 )
 
 type Tok interface {
@@ -38,4 +39,5 @@ type BinaryExpression interface {
 	UnaryExpression
 	GetRightTok() VTok
 }
+
 //

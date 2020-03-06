@@ -2,9 +2,11 @@ package lexer
 
 import (
 	"encoding/hex"
+	"fmt"
 	"github.com/HyperService-Consortium/go-uip/const/sign_type"
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
 	"github.com/HyperService-Consortium/go-uip/isc/gvm"
+	"github.com/HyperService-Consortium/go-uip/isc/gvm/libgvm"
 	"github.com/HyperService-Consortium/go-uip/op-intent/document"
 	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
 	"github.com/HyperService-Consortium/go-uip/op-intent/token"
@@ -12,7 +14,7 @@ import (
 	"strings"
 )
 
-type InstantiateAccountF = func (a Account) (uip.Account, error)
+type InstantiateAccountF = func(a Account) (uip.Account, error)
 type Param interface {
 	token.Param
 	Determine(f InstantiateAccountF) (Param, error)
@@ -54,7 +56,11 @@ func DecodeContractPos(src string) ([]byte, error) {
 
 type ConstantVariable struct {
 	Type  value_type.Type `json:"type"`
-	Const interface{} `json:"constant"`
+	Const interface{}     `json:"constant"`
+}
+
+func (p ConstantVariable) Encode() ([]byte, error) {
+	panic("todo")
 }
 
 func convGVMTokType(t token.Type) gvm.TokType {
@@ -67,6 +73,10 @@ func (p ConstantVariable) GetGVMTok() gvm.TokType {
 
 func (p ConstantVariable) GetGVMType() gvm.RefType {
 	return gvm.RefType(p.Type)
+}
+
+func (p ConstantVariable) Eval(_ gvm.GVM) (gvm.Ref, error) {
+	return p, nil
 }
 
 func (p ConstantVariable) Unwrap() interface{} {
@@ -87,13 +97,17 @@ func (p ConstantVariable) GetParamType() value_type.Type {
 }
 
 type LocalStateVariable struct {
-	Type     value_type.Type `json:"type"`
-	Pos      []byte `json:"pos"`
-	Field    []byte `json:"field"`
+	Type  value_type.Type `json:"type"`
+	Pos   []byte          `json:"pos"`
+	Field []byte          `json:"field"`
 }
 
 func (p LocalStateVariable) GetGVMTok() gvm.TokType {
 	return convGVMTokType(token.LocalStateVariable)
+}
+
+func (p LocalStateVariable) Eval(g gvm.GVM) (gvm.Ref, error) {
+	return g.Load(string(p.Field), p.GetGVMType())
 }
 
 func (p LocalStateVariable) GetGVMType() gvm.RefType {
@@ -122,13 +136,19 @@ func (l LocalStateVariable) Determine(f InstantiateAccountF) (Param, error) {
 
 type StateVariable struct {
 	Type     value_type.Type `json:"type"`
-	Contract Account `json:"contract"`
-	Pos      []byte `json:"pos"`
-	Field    []byte `json:"field"`
+	Contract Account         `json:"contract"`
+	Pos      []byte          `json:"pos"`
+	Field    []byte          `json:"field"`
 }
 
 func (p StateVariable) GetGVMTok() gvm.TokType {
 	return convGVMTokType(token.StateVariable)
+}
+
+func (p StateVariable) Eval(g gvm.GVM) (gvm.Ref, error) {
+	//return g.Load(string(p.Field), p.GetGVMType())
+	// todo
+	panic("todo")
 }
 
 func (p StateVariable) GetGVMType() gvm.RefType {
@@ -157,7 +177,7 @@ func (e StateVariable) GetField() []byte {
 
 func (e StateVariable) Determine(f InstantiateAccountF) (Param, error) {
 	a, err := f(e.Contract)
-	if err!= nil {
+	if err != nil {
 		return nil, err
 	}
 	e.Contract = NewNamespacedRawAccount(a)
@@ -166,13 +186,52 @@ func (e StateVariable) Determine(f InstantiateAccountF) (Param, error) {
 
 type BinaryExpression struct {
 	Type  value_type.Type `json:"type"`
-	Sign sign_type.Type `json:"sign"`
-	Left Param `json:"left"`
-	Right Param `json:"right"`
+	Sign  sign_type.Type  `json:"sign"`
+	Left  Param           `json:"left"`
+	Right Param           `json:"right"`
 }
 
 func (p BinaryExpression) GetLeftTok() gvm.VTok {
 	return p.Left
+}
+
+func (p BinaryExpression) Eval(g gvm.GVM) (gvm.Ref, error) {
+	l, err := libgvm.EvalG(g, p.GetLeftTok())
+	if err != nil {
+		return nil, err
+	}
+	r, err := libgvm.EvalG(g, p.GetRightTok())
+	if err != nil {
+		return nil, err
+	}
+	switch p.GetSign() {
+	case sign_type.EQ:
+		return libgvm.EQ(l, r)
+	case sign_type.LE:
+		return libgvm.LE(l, r)
+	case sign_type.LT:
+		return libgvm.LT(l, r)
+	case sign_type.GE:
+		return libgvm.GE(l, r)
+	case sign_type.GT:
+		return libgvm.GT(l, r)
+	case sign_type.LAnd:
+		return libgvm.LAnd(l, r)
+	case sign_type.LOr:
+		return libgvm.LOr(l, r)
+	case sign_type.ADD:
+		return libgvm.Add(l, r)
+	case sign_type.SUB:
+		return libgvm.Sub(l, r)
+	case sign_type.MUL:
+		return libgvm.Mul(l, r)
+	case sign_type.QUO:
+		return libgvm.Quo(l, r)
+	case sign_type.REM:
+		return libgvm.Rem(l, r)
+	default:
+		return nil, fmt.Errorf("unknown sign_type: %v", p.GetSign())
+	}
 }
 
 func (p BinaryExpression) GetRightTok() gvm.VTok {
@@ -222,13 +281,26 @@ func (b BinaryExpression) Determine(f InstantiateAccountF) (_ Param, err error) 
 
 // Param.type == value_type.Bool
 type UnaryExpression struct {
-	Type  value_type.Type `json:"type"`
-	Sign sign_type.Type `json:"sign"`
-	Left Param `json:"left"`
+	Type value_type.Type `json:"type"`
+	Sign sign_type.Type  `json:"sign"`
+	Left Param           `json:"left"`
 }
 
 func (p UnaryExpression) GetGVMTok() gvm.TokType {
 	return convGVMTokType(token.UnaryExpression)
+}
+
+func (p UnaryExpression) Eval(g gvm.GVM) (gvm.Ref, error) {
+	l, err := libgvm.EvalG(g, p.Left)
+	if err != nil {
+		return nil, err
+	}
+	switch p.GetSign() {
+	case sign_type.LNot:
+		return libgvm.LNot(l)
+	default:
+		return nil, fmt.Errorf("unknown sign_type: %v", p.GetSign())
+	}
 }
 
 func (p UnaryExpression) GetGVMType() gvm.RefType {
@@ -265,8 +337,6 @@ var SignTable = map[string]sign_type.Type{
 	"Greater": sign_type.GT,
 }
 
-
-
 func ParamUnmarshalResult(content document.Document) (p Param, err error) {
 
 	v := content.Get(FieldOpIntentsSign)
@@ -283,17 +353,17 @@ func ParamUnmarshalResult(content document.Document) (p Param, err error) {
 
 		left, err := ParamUnmarshalResult(content.Get(FieldKeyLeft))
 		if err != nil {
-			return nil, err.(*errorn.ParseError).Desc(errorn.AtOpIntentField{Field:FieldKeyLeft})
+			return nil, err.(*errorn.ParseError).Desc(errorn.AtOpIntentField{Field: FieldKeyLeft})
 		}
 
 		v = content.Get(FieldKeyRight)
 		if !v.Exists() {
-			return UnaryExpression{Type:left.GetParamType(), Sign: sign, Left:left}, nil
+			return UnaryExpression{Type: left.GetParamType(), Sign: sign, Left: left}, nil
 		}
 
 		right, err := ParamUnmarshalResult(v)
 		if err != nil {
-			return nil, err.(*errorn.ParseError).Desc(errorn.AtOpIntentField{Field:FieldKeyRight})
+			return nil, err.(*errorn.ParseError).Desc(errorn.AtOpIntentField{Field: FieldKeyRight})
 		}
 
 		//if left.GetParamType() != right.GetParamType() {
@@ -304,7 +374,7 @@ func ParamUnmarshalResult(content document.Document) (p Param, err error) {
 			t = value_type.Bool
 		}
 		// todo: determine param type of non-boolean expression
-		return BinaryExpression{Type:t, Sign: sign, Left:left, Right:right}, nil
+		return BinaryExpression{Type: t, Sign: sign, Left: left, Right: right}, nil
 	}
 
 	v = content.Get(FieldKeyType)
