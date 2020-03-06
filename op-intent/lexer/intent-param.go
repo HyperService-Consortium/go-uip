@@ -196,11 +196,11 @@ func (p BinaryExpression) GetLeftTok() gvm.VTok {
 }
 
 func (p BinaryExpression) Eval(g gvm.GVM) (gvm.Ref, error) {
-	l, err := libgvm.EvalG(g, p.GetLeftTok())
+	l, err := p.GetLeftTok().Eval(g)
 	if err != nil {
 		return nil, err
 	}
-	r, err := libgvm.EvalG(g, p.GetRightTok())
+	r, err := p.GetRightTok().Eval(g)
 	if err != nil {
 		return nil, err
 	}
@@ -291,7 +291,7 @@ func (p UnaryExpression) GetGVMTok() gvm.TokType {
 }
 
 func (p UnaryExpression) Eval(g gvm.GVM) (gvm.Ref, error) {
-	l, err := libgvm.EvalG(g, p.Left)
+	l, err := p.Left.Eval(g)
 	if err != nil {
 		return nil, err
 	}

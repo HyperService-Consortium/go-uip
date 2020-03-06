@@ -91,7 +91,7 @@ type GVMConditionGoto struct {
 }
 
 func (inst *GVMConditionGoto) Exec(g *gvm.ExecCtx) error {
-	v, err := libgvm.EvalG(g, inst.GetGotoConditionGVMI())
+	v, err := inst.GetGotoConditionGVMI().Eval(g)
 	if err != nil {
 		return err
 	}
@@ -142,7 +142,7 @@ type GVMSetState struct {
 }
 
 func (G GVMSetState) Exec(g *gvm.ExecCtx) error {
-	k, err := libgvm.EvalG(g, G.GetRightHandStatementGVMI())
+	k, err := G.GetRightHandStatementGVMI().Eval(g)
 	if err != nil {
 		return err
 	}
@@ -208,7 +208,7 @@ func (tx *ConditionSetState) Convert() (g *GVMConditionSetState, err error) {
 }
 
 func (inst *GVMConditionSetState) Exec(g *gvm.ExecCtx) error {
-	v, err := libgvm.EvalG(g, inst.GetGotoConditionGVMI())
+	v, err := inst.GetGotoConditionGVMI().Eval(g)
 	if err != nil {
 		return err
 	}
@@ -217,7 +217,7 @@ func (inst *GVMConditionSetState) Exec(g *gvm.ExecCtx) error {
 	}
 
 	if v.Unwrap().(bool) {
-		k, err := libgvm.EvalG(g, inst.GetRightHandStatementGVMI())
+		k, err := inst.GetRightHandStatementGVMI().Eval(g)
 		if err != nil {
 			return err
 		}

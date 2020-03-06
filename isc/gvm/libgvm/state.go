@@ -81,3 +81,16 @@ func setCurrentFN(g abstraction.GVM, fn string) error {
 func setCurrentDepth(g abstraction.GVM, dep uint64) error {
 	return g.Save(fDepth, Uint64(dep))
 }
+
+func fetch(g abstraction.GVM, mainFunc string, pc uint64) (f abstraction.Function, inst abstraction.Instruction, err error) {
+
+	f, err = g.GetFunction(mainFunc)
+	if err != nil {
+		return nil, nil, err
+	}
+	inst, err = f.Fetch(pc)
+	if err != nil {
+		return nil, nil, err
+	}
+	return
+}

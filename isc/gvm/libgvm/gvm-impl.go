@@ -8,10 +8,6 @@ type Impl struct {
 	abstraction.GVM
 }
 
-func (i *Impl) Eval(p abstraction.VTok) (abstraction.Ref, error) {
-	return EvalG(i.GVM, p)
-}
-
 func (i *Impl) Decode(x []byte, t abstraction.RefType) (abstraction.Ref, error) {
 	return i.GVM.DecodeRef(t, x)
 }
