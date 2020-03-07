@@ -204,9 +204,7 @@ func deserializeMapSR(g abstraction.Machine, rb []byte) (mp map[string]abstracti
 		if cap(x) < int(dataLen) {
 			x = make([]byte, dataLen, dataLen+50)
 		}
-		if len(x) < int(dataLen) {
-			x = x[:dataLen]
-		}
+		x = x[:dataLen]
 
 		_, err = b.Read(x)
 		if err != nil {
@@ -225,9 +223,7 @@ func deserializeMapSR(g abstraction.Machine, rb []byte) (mp map[string]abstracti
 		if cap(x) < int(dataLen) {
 			x = append(x, make([]byte, int(dataLen)-cap(x))...)
 		}
-		if len(x) < int(dataLen) {
-			x = x[:dataLen]
-		}
+		x = x[:dataLen]
 		_, err = b.Read(x)
 		if err != nil {
 			return

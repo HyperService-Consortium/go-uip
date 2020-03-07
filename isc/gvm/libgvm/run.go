@@ -39,7 +39,7 @@ func _Continue(g *abstraction.ExecCtx) (err error) {
 	return err
 }
 
-//TrapCallFunc
+//trapCallFunc
 func Run(g abstraction.Machine, fn string) (err error) {
 
 	var c = &abstraction.ExecCtx{Machine: g, Depth: 0, This: make(abstraction.Locals)}

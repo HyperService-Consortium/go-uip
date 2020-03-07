@@ -2,6 +2,7 @@ package libgvm
 
 import (
 	"github.com/HyperService-Consortium/go-uip/isc/gvm/internal/abstraction"
+	"github.com/Myriad-Dreamin/minimum-lib/sugar"
 	"testing"
 )
 
@@ -44,5 +45,27 @@ func Test__Goto_Exec(t *testing.T) {
 				t.Errorf("Exec() get pc = %v, want: %v", tt.args.g.PC, tt.args.i.(gotoImpl).GetGotoIndexGVMI())
 			}
 		})
+	}
+}
+
+type donothing struct {
+}
+
+func (d donothing) Exec(g *abstraction.ExecCtx) error {
+	g.PC++
+	return nil
+}
+
+func BenchmarkContinue(b *testing.B) {
+	g := sugar.HandlerError(NewGVM()).(*GVMeX)
+	sugar.HandlerError0(g.AddFunction("main", []abstraction.Instruction{
+		donothing{},
+	}))
+	var c = &abstraction.ExecCtx{Machine: g, Depth: 0, This: make(abstraction.Locals)}
+	sugar.HandlerError0(pushFrame(c, "main"))
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		c0 := *c
+		_ = _Continue(&c0)
 	}
 }

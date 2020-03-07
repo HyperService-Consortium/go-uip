@@ -1,11 +1,5 @@
 package abstraction
 
-type VTok interface {
-	Tok
-	GetGVMType() RefType
-	Eval(g Machine) (Ref, error)
-}
-
 type Function interface {
 	Fetch(pc uint64) (Instruction, error)
 	Len() int
