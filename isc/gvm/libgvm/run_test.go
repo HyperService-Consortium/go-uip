@@ -1,10 +1,7 @@
 package libgvm
 
 import (
-	"fmt"
 	"github.com/HyperService-Consortium/go-uip/isc/gvm/internal/abstraction"
-	"github.com/Myriad-Dreamin/minimum-lib/sugar"
-	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -48,58 +45,4 @@ func Test__Goto_Exec(t *testing.T) {
 			}
 		})
 	}
-}
-func Benchmark_serializeMapSR(b *testing.B) {
-	var mp = map[string]abstraction.Ref{
-		"a":          Bool(true),
-		"bbbb":       Bool(true),
-		"ccccccc":    Bool(true),
-		"dddddddddd": Bool(true),
-	}
-	g := sugar.HandlerError(NewGVM()).(*GVMeX)
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		sugar.HandlerError0(saveLocals(g, 0, mp))
-	}
-}
-func Benchmark_deserializeMapSR(b *testing.B) {
-	var mp = map[string]abstraction.Ref{
-		"a": Bool(true),
-	}
-	g := sugar.HandlerError(NewGVM()).(*GVMeX)
-	sugar.HandlerError0(saveLocals(g, 0, mp))
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_ = sugar.HandlerError(loadLocal(g, 0)).(map[string]abstraction.Ref)
-	}
-}
-
-func Test_serializeMapSR(t *testing.T) {
-	var mp = map[string]abstraction.Ref{
-		"a": Bool(true),
-		"b": String("123132124"),
-	}
-
-	g := sugar.HandlerError(NewGVM()).(*GVMeX)
-
-	sugar.HandlerError0(saveLocals(g, 0, mp))
-	fmt.Println(g.g.Context)
-	fmt.Println(len(g.g.Context["_gvm_locals_0"].Unwrap().([]byte)))
-	mp2 := sugar.HandlerError(loadLocal(g, 0)).(map[string]abstraction.Ref)
-
-	assert.EqualValues(t, mp, mp2)
-	fmt.Println(mp2)
-
-	mp = map[string]abstraction.Ref{
-		"a": Bool(true),
-		"b": Bool(true),
-	}
-
-	sugar.HandlerError0(saveLocals(g, 0, mp))
-	fmt.Println(g.g.Context)
-	fmt.Println(len(g.g.Context["_gvm_locals_0"].Unwrap().([]byte)))
-	mp2 = sugar.HandlerError(loadLocal(g, 0)).(map[string]abstraction.Ref)
-
-	assert.EqualValues(t, mp, mp2)
-	fmt.Println(mp2)
 }

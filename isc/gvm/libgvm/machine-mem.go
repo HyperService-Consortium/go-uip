@@ -7,16 +7,9 @@ import (
 )
 
 type Mem struct {
+	MachineBase
 	Context map[string]abstraction.Ref
 	InstSet map[string]abstraction.Function
-}
-
-func (g *Mem) CreateRef(t abstraction.RefType, v interface{}) abstraction.Ref {
-	return CreateRef(t, v)
-}
-
-func (g *Mem) DecodeRef(t abstraction.RefType, r []byte) (abstraction.Ref, error) {
-	return DecodeRef(t, r)
 }
 
 func NewMem() (*Mem, error) {
@@ -29,6 +22,11 @@ func (g *Mem) Save(field string, k abstraction.Ref) error {
 	}
 
 	g.Context[field] = k
+	return nil
+}
+
+func (g *Mem) Delete(field string) error {
+	delete(g.Context, field)
 	return nil
 }
 

@@ -1,15 +1,22 @@
 package libgvm
 
-import "github.com/HyperService-Consortium/go-uip/isc/gvm/internal/abstraction"
+import (
+	"fmt"
+	"github.com/HyperService-Consortium/go-uip/isc/gvm/internal/abstraction"
+)
 
 type Trap interface {
-	DoTrap(g abstraction.Machine, fn *string, pc *uint64) error
+	DoTrap(g *abstraction.ExecCtx) error
 }
 
 type TrapCallFunc struct {
-	newFn string
+	NewFn string
 }
 
-func (c TrapCallFunc) DoTrap(g abstraction.Machine, fn *string, pc *uint64) {
+func (c TrapCallFunc) Error() string {
+	return fmt.Sprintf("trap calling: %v", c.NewFn)
+}
 
+func (c TrapCallFunc) DoTrap(g *abstraction.ExecCtx) error {
+	return pushFrame(g, c.NewFn)
 }

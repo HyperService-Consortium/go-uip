@@ -3,7 +3,6 @@ package libgvm
 import (
 	"bytes"
 	"encoding/binary"
-	"errors"
 	"github.com/HyperService-Consortium/go-uip/isc/gvm/internal/abstraction"
 	"strconv"
 )
@@ -33,7 +32,7 @@ func GetPC(g abstraction.Machine, dep uint64) (uint64, error) {
 func GetCurrentPC(g abstraction.Machine) (uint64, error) {
 	r, err := g.Load(fCurrentPC, RefUint64)
 	if err != nil {
-		return 0, nil
+		return 0, err
 	}
 	return r.Unwrap().(uint64), nil
 }
@@ -51,7 +50,7 @@ func GetFN(g abstraction.Machine, dep uint64) (string, error) {
 func GetCurrentFN(g abstraction.Machine) (string, error) {
 	r, err := g.Load(fCurrentFN, RefString)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	return r.Unwrap().(string), nil
 }
@@ -60,6 +59,9 @@ func GetCurrentFN(g abstraction.Machine) (string, error) {
 func GetCurrentDepth(g abstraction.Machine) (uint64, error) {
 	r, err := g.Load(fDepth, RefUint64)
 	if err != nil {
+		return 0, err
+	}
+	if r == Undefined {
 		return 0, nil
 	}
 	return r.Unwrap().(uint64), nil
@@ -67,6 +69,10 @@ func GetCurrentDepth(g abstraction.Machine) (uint64, error) {
 
 func setPC(g abstraction.Machine, dep, pc uint64) error {
 	return g.Save(fPCPrefix+formatUintSuffix(dep), Uint64(pc))
+}
+
+func deletePC(g abstraction.Machine, dep uint64) error {
+	return g.Delete(fPCPrefix + formatUintSuffix(dep))
 }
 
 func setCurrentPC(g abstraction.Machine, pc uint64) error {
@@ -77,6 +83,10 @@ func setFN(g abstraction.Machine, dep uint64, fn string) error {
 	return g.Save(fFNPrefix+formatUintSuffix(dep), String(fn))
 }
 
+func deleteFN(g abstraction.Machine, dep uint64) error {
+	return g.Delete(fFNPrefix + formatUintSuffix(dep))
+}
+
 func setCurrentFN(g abstraction.Machine, fn string) error {
 	return g.Save(fCurrentFN, String(fn))
 }
@@ -85,20 +95,24 @@ func setCurrentDepth(g abstraction.Machine, dep uint64) error {
 	return g.Save(fDepth, Uint64(dep))
 }
 
-func fetch(g abstraction.Machine, mainFunc string, pc uint64) (f abstraction.Function, inst abstraction.Instruction, err error) {
-
-	f, err = g.GetFunction(mainFunc)
+func setCurrentState(g *abstraction.ExecCtx) error {
+	err := setCurrentDepth(g, g.Depth)
 	if err != nil {
-		return nil, nil, err
+		return err
 	}
-	inst, err = f.Fetch(pc)
+	err = setCurrentFN(g, g.FN)
 	if err != nil {
-		return nil, nil, err
+		return err
 	}
-	return
+	err = setCurrentPC(g, g.PC)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func loadLocal(g abstraction.Machine, d uint64) (map[string]abstraction.Ref, error) {
+func loadLocals(g abstraction.Machine, d uint64) (abstraction.Locals, error) {
+
 	r, err := g.Load("_gvm_locals_"+strconv.FormatUint(d, 16), RefBytes)
 	if err != nil {
 		return nil, err
@@ -106,7 +120,12 @@ func loadLocal(g abstraction.Machine, d uint64) (map[string]abstraction.Ref, err
 	return deserializeMapSR(g, r.Unwrap().([]byte))
 }
 
-func saveLocals(g abstraction.Machine, d uint64, locals map[string]abstraction.Ref) error {
+func deleteLocals(g abstraction.Machine, d uint64) error {
+
+	return g.Delete("_gvm_locals_" + strconv.FormatUint(d, 16))
+}
+
+func saveLocals(g abstraction.Machine, d uint64, locals abstraction.Locals) error {
 	b, err := serializeMapSR(g, locals)
 	if err != nil {
 		return err
@@ -116,75 +135,6 @@ func saveLocals(g abstraction.Machine, d uint64, locals map[string]abstraction.R
 		return err
 	}
 	return nil
-}
-
-func pushFrame(g abstraction.Machine, fn string) error {
-	d, err := GetCurrentDepth(g)
-	if err != nil {
-		return err
-	}
-	err = setCurrentDepth(g, d+1)
-	if err != nil {
-		return err
-	}
-	pc, err := GetCurrentPC(g)
-	if err != nil {
-		return err
-	}
-	ofn, err := GetCurrentFN(g)
-	if err != nil {
-		return err
-	}
-	err = setPC(g, d, pc)
-	if err != nil {
-		return err
-	}
-	err = setFN(g, d, ofn)
-	if err != nil {
-		return err
-	}
-	err = setCurrentFN(g, fn)
-	if err != nil {
-		return err
-	}
-	err = setCurrentPC(g, 0)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func popFrame(g abstraction.Machine) (uint64, string, error) {
-	d, err := GetCurrentDepth(g)
-	if err != nil {
-		return 0, "", err
-	}
-	if d == 0 {
-		return 0, "", errors.New("depth underflow")
-	}
-	d--
-	err = setCurrentDepth(g, d)
-	if err != nil {
-		return 0, "", err
-	}
-	pc, err := GetPC(g, d)
-	if err != nil {
-		return 0, "", err
-	}
-	fn, err := GetFN(g, d)
-	if err != nil {
-		return 0, "", err
-	}
-	err = setCurrentFN(g, fn)
-	if err != nil {
-		return 0, "", err
-	}
-	err = setCurrentPC(g, pc)
-	if err != nil {
-		return 0, "", err
-	}
-	return pc, fn, nil
 }
 
 func serializeMapSR(g abstraction.Machine, mp map[string]abstraction.Ref) (_ []byte, err error) {

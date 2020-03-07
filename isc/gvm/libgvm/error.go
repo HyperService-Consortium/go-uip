@@ -19,3 +19,5 @@ func InvalidTypeError(k abstraction.Ref) error {
 }
 
 var OutOfRange = errors.New("gvm stopped")
+
+var StopUnderFlow = errors.New("depth underflow")

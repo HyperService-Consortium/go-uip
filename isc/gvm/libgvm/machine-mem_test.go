@@ -18,14 +18,12 @@ import (
 func runMemoryGVM(callback func(g *libgvm.GVMeX), instructions []abstraction.Instruction) {
 	g := sugar.HandlerError(libgvm.NewGVM()).(*libgvm.GVMeX)
 	sugar.HandlerError0(g.AddFunction("main", instructions))
-	var pc uint64
+	sugar.HandlerError0(g.AddFunction("setA", funcSetA()))
 	var err error
-	for pc, err = g.Continue("main", pc); err == nil; {
-		pc, err = g.Continue("main", pc)
+	for err = g.Run("main"); err == nil; {
+		err = g.Run("main")
 		time.Sleep(time.Second)
 	}
-
-	_ = pc
 	callback(g)
 }
 
@@ -86,6 +84,34 @@ func setStateTestCase() []abstraction.Instruction {
 	}
 }
 
+type callFunc struct {
+}
+
+func (callFunc) Exec(g *abstraction.ExecCtx) error {
+	g.PC++
+	return libgvm.TrapCallFunc{NewFn: "setA"}
+}
+
+func funcSetA() []abstraction.Instruction {
+	return []abstraction.Instruction{
+		parser.GVMSetState{
+			IType:  instruction_type.SetState,
+			Type:   value_type.Bool,
+			Target: "a",
+			RightExpression: lexer.ConstantVariable{
+				Type:  value_type.Bool,
+				Const: true,
+			},
+		},
+	}
+}
+
+func callSetBoolFuncTestCase() []abstraction.Instruction {
+	return []abstraction.Instruction{
+		callFunc{},
+	}
+}
+
 func BenchmarkBase(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		runMemoryGVM(func(g *libgvm.GVMeX) {}, setStateTestCase())
@@ -97,10 +123,9 @@ func BenchmarkPureBase(b *testing.B) {
 	sugar.HandlerError0(g.AddFunction("main", setStateTestCase()))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		var pc uint64
 		var err error
-		for pc, err = g.Continue("main", pc); err == nil; {
-			pc, err = g.Continue("main", pc)
+		for err = g.Run("main"); err == nil; {
+			err = g.Run("main")
 			time.Sleep(time.Second)
 		}
 	}
@@ -121,10 +146,9 @@ func BenchmarkPureSetStatus(b *testing.B) {
 	}))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		var pc uint64
 		var err error
-		for pc, err = g.Continue("main", pc); err == nil; {
-			pc, err = g.Continue("main", pc)
+		for err = g.Run("main"); err == nil; {
+			err = g.Run("main")
 			time.Sleep(time.Second)
 		}
 	}
@@ -152,7 +176,7 @@ func TestBase(t *testing.T) {
 	})
 	t.Run("call function", func(t *testing.T) {
 		runMemoryGVM(func(g *libgvm.GVMeX) {
-
-		}, nil)
+			assert.EqualValues(t, true, g.Machine.(*libgvm.Mem).Context["a"].Unwrap())
+		}, callSetBoolFuncTestCase())
 	})
 }

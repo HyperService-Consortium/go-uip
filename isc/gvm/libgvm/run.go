@@ -2,43 +2,61 @@ package libgvm
 
 import (
 	"github.com/HyperService-Consortium/go-uip/isc/gvm/internal/abstraction"
+	"github.com/Myriad-Dreamin/minimum-lib/sugar"
 )
 
-func Step(g abstraction.Machine, fn string, pc uint64) (uint64, error) {
-	f, inst, err := fetch(g, fn, pc)
+func Step(g abstraction.Machine) error {
+
+	d, err := GetCurrentDepth(g)
 	if err != nil {
-		return 0, err
+		return err
 	}
-	c := abstraction.ExecCtx{Machine: g, Function: f, PC: pc}
-	return c.PC, inst.Exec(&c)
+	c := abstraction.ExecCtx{Machine: g, Depth: d}
+	if err = loadFrame(&c); err != nil {
+		return err
+	}
+
+	return Iter(&c)
 }
 
-func Continue(g abstraction.Machine, fn string, pc uint64) (uint64, error) {
-	f, err := g.GetFunction(fn)
-	c := abstraction.ExecCtx{Machine: g, Function: f, PC: pc}
-	for ; err == nil; err = Iter(&c) {
+func Continue(g abstraction.Machine) error {
+	d, err := GetCurrentDepth(g)
+	if err != nil {
+		return err
+	}
+	c := abstraction.ExecCtx{Machine: g, Depth: d}
+	if err = loadFrame(&c); err != nil {
+		return err
 	}
 
-	return c.PC, err
+	return _Continue(&c)
+}
+
+func _Continue(g *abstraction.ExecCtx) (err error) {
+	for ; err == nil; err = Iter(g) {
+	}
+
+	return err
 }
 
 //TrapCallFunc
-func Run(g abstraction.Machine, fn string) (uint64, error) {
-	err := pushFrame(g, fn)
-	var pc uint64 = 0
+func Run(g abstraction.Machine, fn string) (err error) {
+
+	var c = &abstraction.ExecCtx{Machine: g, Depth: 0, This: make(abstraction.Locals)}
+	err = pushFrame(c, fn)
 	for err == nil {
-		pc, err = Continue(g, fn, pc)
-		if err != nil {
-			return 0, err
-		}
+		err = _Continue(c)
 
 		if err == OutOfRange {
-			pc, fn, err = popFrame(g)
+			err = popFrame(c)
 		} else if trap, ok := err.(Trap); ok {
-			err = trap.DoTrap(g, &fn, &pc)
+			err = trap.DoTrap(c)
 		}
 	}
-	return pc, err
+	if err != StopUnderFlow {
+		sugar.HandlerError0(saveFrame(c))
+	}
+	return err
 }
 
 func Iter(g *abstraction.ExecCtx) (err error) {
