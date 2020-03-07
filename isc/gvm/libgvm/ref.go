@@ -21,7 +21,8 @@ const (
 	RefInt128
 	RefInt256 // 14
 
-	// Slice
 	RefBool // 15
+
+	// Slice
 	Length
 )

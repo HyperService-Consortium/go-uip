@@ -1,6 +1,7 @@
 package libgvm
 
 import (
+	"errors"
 	"fmt"
 	"github.com/HyperService-Consortium/go-uip/isc/gvm/internal/abstraction"
 )
@@ -16,3 +17,5 @@ func ConvertUnsignedError(k abstraction.Ref) error {
 func InvalidTypeError(k abstraction.Ref) error {
 	return fmt.Errorf("invalid type: %v", ExplainGVMType(k.GetGVMType()))
 }
+
+var OutOfRange = errors.New("gvm stopped")

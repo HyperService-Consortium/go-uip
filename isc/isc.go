@@ -190,6 +190,7 @@ func (isc *ISC) nextPC(pc uint64) (uint64, error) {
 }
 
 func checkValueType(t value_type.Type) error {
+
 	if t >= value_type.Length || t <= value_type.Unknown {
 		return fmt.Errorf("unknown value_type: %v", t)
 	}

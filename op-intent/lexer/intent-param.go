@@ -75,7 +75,7 @@ func (p ConstantVariable) GetGVMType() gvm.RefType {
 	return gvm.RefType(p.Type)
 }
 
-func (p ConstantVariable) Eval(_ gvm.GVM) (gvm.Ref, error) {
+func (p ConstantVariable) Eval(_ gvm.Machine) (gvm.Ref, error) {
 	return p, nil
 }
 
@@ -106,7 +106,7 @@ func (p LocalStateVariable) GetGVMTok() gvm.TokType {
 	return convGVMTokType(token.LocalStateVariable)
 }
 
-func (p LocalStateVariable) Eval(g gvm.GVM) (gvm.Ref, error) {
+func (p LocalStateVariable) Eval(g gvm.Machine) (gvm.Ref, error) {
 	return g.Load(string(p.Field), p.GetGVMType())
 }
 
@@ -145,7 +145,7 @@ func (p StateVariable) GetGVMTok() gvm.TokType {
 	return convGVMTokType(token.StateVariable)
 }
 
-func (p StateVariable) Eval(g gvm.GVM) (gvm.Ref, error) {
+func (p StateVariable) Eval(g gvm.Machine) (gvm.Ref, error) {
 	//return g.Load(string(p.Field), p.GetGVMType())
 	// todo
 	panic("todo")
@@ -195,7 +195,7 @@ func (p BinaryExpression) GetLeftTok() gvm.VTok {
 	return p.Left
 }
 
-func (p BinaryExpression) Eval(g gvm.GVM) (gvm.Ref, error) {
+func (p BinaryExpression) Eval(g gvm.Machine) (gvm.Ref, error) {
 	l, err := p.GetLeftTok().Eval(g)
 	if err != nil {
 		return nil, err
@@ -290,7 +290,7 @@ func (p UnaryExpression) GetGVMTok() gvm.TokType {
 	return convGVMTokType(token.UnaryExpression)
 }
 
-func (p UnaryExpression) Eval(g gvm.GVM) (gvm.Ref, error) {
+func (p UnaryExpression) Eval(g gvm.Machine) (gvm.Ref, error) {
 	l, err := p.Left.Eval(g)
 	if err != nil {
 		return nil, err

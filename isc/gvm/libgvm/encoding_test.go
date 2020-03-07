@@ -36,10 +36,10 @@ func TestGoodEDecode(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			v := sugar.HandlerError(
 				tt.variable.(interface {
-					Decode([]byte) (interface{}, error)
+					Decode([]byte) (abstraction.Ref, error)
 				}).Decode(sugar.HandlerError(tt.variable.Encode()).([]byte)))
-			if !assert.EqualValues(t, tt.variable.Unwrap(), v) {
-				t.Errorf("got = %v, want = %v", v, tt.variable.Unwrap())
+			if !assert.EqualValues(t, tt.variable, v) {
+				t.Errorf("got = %v, want = %v", v, tt.variable)
 			}
 		})
 	}

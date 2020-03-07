@@ -3,7 +3,7 @@ package abstraction
 type VTok interface {
 	Tok
 	GetGVMType() RefType
-	Eval(g GVM) (Ref, error)
+	Eval(g Machine) (Ref, error)
 }
 
 type Function interface {
@@ -11,7 +11,7 @@ type Function interface {
 	Len() int
 }
 
-type GVM interface {
+type Machine interface {
 	CreateRef(t RefType, v interface{}) Ref
 	DecodeRef(t RefType, b []byte) (Ref, error)
 
@@ -23,7 +23,7 @@ type GVM interface {
 }
 
 type ExecCtx struct {
-	GVM
+	Machine
 	Function
 	PC uint64
 }

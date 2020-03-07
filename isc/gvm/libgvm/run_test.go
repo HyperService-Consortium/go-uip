@@ -30,7 +30,7 @@ func Test__Goto_Exec(t *testing.T) {
 		wantErr bool
 	}{
 		{"easy", args{&abstraction.ExecCtx{
-			GVM:      nil,
+			Machine:  nil,
 			Function: nil,
 			PC:       1,
 		}, gotoImpl{}}, false},
@@ -56,9 +56,9 @@ func Benchmark_serializeMapSR(b *testing.B) {
 		"ccccccc":    Bool(true),
 		"dddddddddd": Bool(true),
 	}
-	g := sugar.HandlerError(NewGVM()).(*ImplX)
+	g := sugar.HandlerError(NewGVM()).(*GVMeX)
 	b.ResetTimer()
-	for i := 0; i < b.N ; i++ {
+	for i := 0; i < b.N; i++ {
 		sugar.HandlerError0(saveLocals(g, 0, mp))
 	}
 }
@@ -66,10 +66,10 @@ func Benchmark_deserializeMapSR(b *testing.B) {
 	var mp = map[string]abstraction.Ref{
 		"a": Bool(true),
 	}
-	g := sugar.HandlerError(NewGVM()).(*ImplX)
+	g := sugar.HandlerError(NewGVM()).(*GVMeX)
 	sugar.HandlerError0(saveLocals(g, 0, mp))
 	b.ResetTimer()
-	for i := 0; i < b.N ; i++ {
+	for i := 0; i < b.N; i++ {
 		_ = sugar.HandlerError(loadLocal(g, 0)).(map[string]abstraction.Ref)
 	}
 }
@@ -80,7 +80,7 @@ func Test_serializeMapSR(t *testing.T) {
 		"b": String("123132124"),
 	}
 
-	g := sugar.HandlerError(NewGVM()).(*ImplX)
+	g := sugar.HandlerError(NewGVM()).(*GVMeX)
 
 	sugar.HandlerError0(saveLocals(g, 0, mp))
 	fmt.Println(g.g.Context)

@@ -15,8 +15,8 @@ import (
 	"time"
 )
 
-func runMemoryGVM(callback func(g *libgvm.ImplX), instructions []abstraction.Instruction) {
-	g := sugar.HandlerError(libgvm.NewGVM()).(*libgvm.ImplX)
+func runMemoryGVM(callback func(g *libgvm.GVMeX), instructions []abstraction.Instruction) {
+	g := sugar.HandlerError(libgvm.NewGVM()).(*libgvm.GVMeX)
 	sugar.HandlerError0(g.AddFunction("main", instructions))
 	var pc uint64
 	var err error
@@ -88,12 +88,12 @@ func setStateTestCase() []abstraction.Instruction {
 
 func BenchmarkBase(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		runMemoryGVM(func(g *libgvm.ImplX) {}, setStateTestCase())
+		runMemoryGVM(func(g *libgvm.GVMeX) {}, setStateTestCase())
 	}
 }
 
 func BenchmarkPureBase(b *testing.B) {
-	g := sugar.HandlerError(libgvm.NewGVM()).(*libgvm.ImplX)
+	g := sugar.HandlerError(libgvm.NewGVM()).(*libgvm.GVMeX)
 	sugar.HandlerError0(g.AddFunction("main", setStateTestCase()))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -107,7 +107,7 @@ func BenchmarkPureBase(b *testing.B) {
 }
 
 func BenchmarkPureSetStatus(b *testing.B) {
-	g := sugar.HandlerError(libgvm.NewGVM()).(*libgvm.ImplX)
+	g := sugar.HandlerError(libgvm.NewGVM()).(*libgvm.GVMeX)
 	sugar.HandlerError0(g.AddFunction("main", []abstraction.Instruction{
 		parser.GVMSetState{
 			IType:  instruction_type.SetState,
@@ -132,26 +132,26 @@ func BenchmarkPureSetStatus(b *testing.B) {
 
 func TestBase(t *testing.T) {
 	t.Run("set state", func(t *testing.T) {
-		runMemoryGVM(func(g *libgvm.ImplX) {
-			fmt.Println(g.GVM.(*libgvm.Mem).Context)
-			assert.EqualValues(t, true, g.GVM.(*libgvm.Mem).Context["a"].Unwrap())
-			assert.EqualValues(t, false, g.GVM.(*libgvm.Mem).Context["b"].Unwrap())
-			assert.EqualValues(t, false, g.GVM.(*libgvm.Mem).Context["c"].Unwrap())
-			assert.EqualValues(t, true, g.GVM.(*libgvm.Mem).Context["d"].Unwrap())
+		runMemoryGVM(func(g *libgvm.GVMeX) {
+			fmt.Println(g.Machine.(*libgvm.Mem).Context)
+			assert.EqualValues(t, true, g.Machine.(*libgvm.Mem).Context["a"].Unwrap())
+			assert.EqualValues(t, false, g.Machine.(*libgvm.Mem).Context["b"].Unwrap())
+			assert.EqualValues(t, false, g.Machine.(*libgvm.Mem).Context["c"].Unwrap())
+			assert.EqualValues(t, true, g.Machine.(*libgvm.Mem).Context["d"].Unwrap())
 		}, setStateTestCase())
 	})
 	t.Run("branch condition", func(t *testing.T) {
-		runMemoryGVM(func(g *libgvm.ImplX) {
+		runMemoryGVM(func(g *libgvm.GVMeX) {
 
 		}, nil)
 	})
 	t.Run("get local state", func(t *testing.T) {
-		runMemoryGVM(func(g *libgvm.ImplX) {
+		runMemoryGVM(func(g *libgvm.GVMeX) {
 
 		}, nil)
 	})
 	t.Run("call function", func(t *testing.T) {
-		runMemoryGVM(func(g *libgvm.ImplX) {
+		runMemoryGVM(func(g *libgvm.GVMeX) {
 
 		}, nil)
 	})
