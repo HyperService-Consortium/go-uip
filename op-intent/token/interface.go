@@ -3,7 +3,7 @@ package token
 import (
 	"github.com/HyperService-Consortium/go-uip/const/sign_type"
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
-	"github.com/HyperService-Consortium/go-uip/isc/gvm"
+	"github.com/Myriad-Dreamin/gvm"
 	"github.com/HyperService-Consortium/go-uip/uip"
 )
 

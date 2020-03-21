@@ -6,10 +6,10 @@ import (
 	"github.com/HyperService-Consortium/go-uip/const/instruction_type"
 	"github.com/HyperService-Consortium/go-uip/const/trans_type"
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
-	"github.com/HyperService-Consortium/go-uip/isc/gvm"
-	"github.com/HyperService-Consortium/go-uip/isc/gvm/libgvm"
 	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
 	"github.com/HyperService-Consortium/go-uip/uip"
+	"github.com/Myriad-Dreamin/gvm"
+	gvm_type "github.com/Myriad-Dreamin/gvm/libgvm/gvm-type"
 )
 
 type hexstring = string
@@ -95,7 +95,7 @@ func (inst *GVMConditionGoto) Exec(g *gvm.ExecCtx) error {
 	if err != nil {
 		return err
 	}
-	if v.GetGVMType() != libgvm.RefBool {
+	if v.GetGVMType() != gvm_type.RefBool {
 		return fmt.Errorf("type error: not bool value, is %v", v.GetGVMType())
 	}
 	if v.Unwrap().(bool) {
@@ -212,7 +212,7 @@ func (inst *GVMConditionSetState) Exec(g *gvm.ExecCtx) error {
 	if err != nil {
 		return err
 	}
-	if v.GetGVMType() != libgvm.RefBool {
+	if v.GetGVMType() != gvm_type.RefBool {
 		return fmt.Errorf("type error: not bool value, is %v", v.GetGVMType())
 	}
 

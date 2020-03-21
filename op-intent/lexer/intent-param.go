@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"github.com/HyperService-Consortium/go-uip/const/sign_type"
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
-	"github.com/HyperService-Consortium/go-uip/isc/gvm"
-	"github.com/HyperService-Consortium/go-uip/isc/gvm/libgvm"
 	"github.com/HyperService-Consortium/go-uip/op-intent/document"
 	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
 	"github.com/HyperService-Consortium/go-uip/op-intent/token"
 	"github.com/HyperService-Consortium/go-uip/uip"
+	"github.com/Myriad-Dreamin/gvm"
+	gvm_type "github.com/Myriad-Dreamin/gvm/libgvm/gvm-type"
 	"strings"
 )
 
@@ -102,16 +102,16 @@ type LocalStateVariable struct {
 	Field []byte          `json:"field"`
 }
 
-func (p LocalStateVariable) GetGVMTok() gvm.TokType {
+func (l LocalStateVariable) GetGVMTok() gvm.TokType {
 	return convGVMTokType(token.LocalStateVariable)
 }
 
-func (p LocalStateVariable) Eval(g *gvm.ExecCtx) (gvm.Ref, error) {
-	return g.Load(string(p.Field), p.GetGVMType())
+func (l LocalStateVariable) Eval(g *gvm.ExecCtx) (gvm.Ref, error) {
+	return g.Load(string(l.Field), l.GetGVMType())
 }
 
-func (p LocalStateVariable) GetGVMType() gvm.RefType {
-	return gvm.RefType(p.Type)
+func (l LocalStateVariable) GetGVMType() gvm.RefType {
+	return gvm.RefType(l.Type)
 }
 
 func (l LocalStateVariable) GetType() token.Type {
@@ -122,12 +122,12 @@ func (l LocalStateVariable) GetParamType() value_type.Type {
 	return l.Type
 }
 
-func (e LocalStateVariable) GetPos() []byte {
-	return e.Pos
+func (l LocalStateVariable) GetPos() []byte {
+	return l.Pos
 }
 
-func (e LocalStateVariable) GetField() []byte {
-	return e.Field
+func (l LocalStateVariable) GetField() []byte {
+	return l.Field
 }
 
 func (l LocalStateVariable) Determine(f InstantiateAccountF) (Param, error) {
@@ -141,47 +141,47 @@ type StateVariable struct {
 	Field    []byte          `json:"field"`
 }
 
-func (p StateVariable) GetGVMTok() gvm.TokType {
+func (s StateVariable) GetGVMTok() gvm.TokType {
 	return convGVMTokType(token.StateVariable)
 }
 
-func (p StateVariable) Eval(g *gvm.ExecCtx) (gvm.Ref, error) {
+func (s StateVariable) Eval(g *gvm.ExecCtx) (gvm.Ref, error) {
 	//return g.Load(string(p.Field), p.GetGVMType())
 	// todo
 	panic("todo")
 }
 
-func (p StateVariable) GetGVMType() gvm.RefType {
-	return gvm.RefType(p.Type)
+func (s StateVariable) GetGVMType() gvm.RefType {
+	return gvm.RefType(s.Type)
 }
 
-func (e StateVariable) GetType() token.Type {
+func (s StateVariable) GetType() token.Type {
 	return token.StateVariable
 }
 
-func (e StateVariable) GetParamType() value_type.Type {
-	return e.Type
+func (s StateVariable) GetParamType() value_type.Type {
+	return s.Type
 }
 
-func (e StateVariable) GetContract() token.Token {
-	return e.Contract
+func (s StateVariable) GetContract() token.Token {
+	return s.Contract
 }
 
-func (e StateVariable) GetPos() []byte {
-	return e.Pos
+func (s StateVariable) GetPos() []byte {
+	return s.Pos
 }
 
-func (e StateVariable) GetField() []byte {
-	return e.Field
+func (s StateVariable) GetField() []byte {
+	return s.Field
 }
 
-func (e StateVariable) Determine(f InstantiateAccountF) (Param, error) {
-	a, err := f(e.Contract)
+func (s StateVariable) Determine(f InstantiateAccountF) (Param, error) {
+	a, err := f(s.Contract)
 	if err != nil {
 		return nil, err
 	}
-	e.Contract = NewNamespacedRawAccount(a)
-	return e, nil
+	s.Contract = NewNamespacedRawAccount(a)
+	return s, nil
 }
 
 type BinaryExpression struct {
@@ -191,59 +191,32 @@ type BinaryExpression struct {
 	Right Param           `json:"right"`
 }
 
-func (p BinaryExpression) GetLeftTok() gvm.VTok {
-	return p.Left
+func (b BinaryExpression) GetLeftTok() gvm.VTok {
+	return b.Left
 }
 
-func (p BinaryExpression) Eval(g *gvm.ExecCtx) (gvm.Ref, error) {
-	l, err := p.GetLeftTok().Eval(g)
+func (b BinaryExpression) Eval(g *gvm.ExecCtx) (gvm.Ref, error) {
+	l, err := b.GetLeftTok().Eval(g)
 	if err != nil {
 		return nil, err
 	}
-	r, err := p.GetRightTok().Eval(g)
+	r, err := b.GetRightTok().Eval(g)
 	if err != nil {
 		return nil, err
 	}
-	switch p.GetSign() {
-	case sign_type.EQ:
-		return libgvm.EQ(l, r)
-	case sign_type.LE:
-		return libgvm.LE(l, r)
-	case sign_type.LT:
-		return libgvm.LT(l, r)
-	case sign_type.GE:
-		return libgvm.GE(l, r)
-	case sign_type.GT:
-		return libgvm.GT(l, r)
-	case sign_type.LAnd:
-		return libgvm.LAnd(l, r)
-	case sign_type.LOr:
-		return libgvm.LOr(l, r)
-	case sign_type.ADD:
-		return libgvm.Add(l, r)
-	case sign_type.SUB:
-		return libgvm.Sub(l, r)
-	case sign_type.MUL:
-		return libgvm.Mul(l, r)
-	case sign_type.QUO:
-		return libgvm.Quo(l, r)
-	case sign_type.REM:
-		return libgvm.Rem(l, r)
-	default:
-		return nil, fmt.Errorf("unknown sign_type: %v", p.GetSign())
-	}
+	return gvm_type.BiCalc(l, r, gvm_type.SignType(b.Sign))
 }
 
-func (p BinaryExpression) GetRightTok() gvm.VTok {
-	return p.Right
+func (b BinaryExpression) GetRightTok() gvm.VTok {
+	return b.Right
 }
 
-func (p BinaryExpression) GetGVMTok() gvm.TokType {
+func (b BinaryExpression) GetGVMTok() gvm.TokType {
 	return convGVMTokType(token.BinaryExpression)
 }
 
-func (p BinaryExpression) GetGVMType() gvm.RefType {
-	return gvm.RefType(p.Type)
+func (b BinaryExpression) GetGVMType() gvm.RefType {
+	return gvm.RefType(b.Type)
 }
 func (b BinaryExpression) GetType() token.Type {
 	return token.BinaryExpression
@@ -286,25 +259,25 @@ type UnaryExpression struct {
 	Left Param           `json:"left"`
 }
 
-func (p UnaryExpression) GetGVMTok() gvm.TokType {
+func (u UnaryExpression) GetGVMTok() gvm.TokType {
 	return convGVMTokType(token.UnaryExpression)
 }
 
-func (p UnaryExpression) Eval(g *gvm.ExecCtx) (gvm.Ref, error) {
-	l, err := p.Left.Eval(g)
+func (u UnaryExpression) Eval(g *gvm.ExecCtx) (gvm.Ref, error) {
+	l, err := u.Left.Eval(g)
 	if err != nil {
 		return nil, err
 	}
-	switch p.GetSign() {
+	switch u.GetSign() {
 	case sign_type.LNot:
-		return libgvm.LNot(l)
+		return gvm_type.LNot(l)
 	default:
-		return nil, fmt.Errorf("unknown sign_type: %v", p.GetSign())
+		return nil, fmt.Errorf("unknown sign_type: %v", u.GetSign())
 	}
 }
 
-func (p UnaryExpression) GetGVMType() gvm.RefType {
-	return gvm.RefType(p.Type)
+func (u UnaryExpression) GetGVMType() gvm.RefType {
+	return gvm.RefType(u.Type)
 }
 
 func (u UnaryExpression) GetType() token.Type {
