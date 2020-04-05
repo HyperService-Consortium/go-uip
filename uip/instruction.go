@@ -4,11 +4,26 @@ import (
 	"github.com/HyperService-Consortium/go-uip/const/instruction_type"
 	"github.com/HyperService-Consortium/go-uip/const/trans_type"
 	"github.com/Myriad-Dreamin/gvm"
+	"io"
 )
 
+type Serializable interface {
+	Marshal(w io.Writer, err *error)
+}
+
 type Instruction interface {
+	Serializable
 	gvm.Instruction
 	GetType() instruction_type.Type
+
+	Unmarshal(r io.Reader, i *Instruction, err *error)
+}
+
+type VTok interface {
+	Serializable
+	gvm.VTok
+
+	Unmarshal(r io.Reader, i *VTok, err *error)
 }
 
 //todo
