@@ -1,20 +1,24 @@
 package storage
 
 import (
-	"github.com/HyperService-Consortium/go-uip/isc/gvm/libgvm"
 	"github.com/pkg/errors"
 )
 
 type LFunc func(interface{}) ([]byte, error)
 type RFunc func([]byte) (interface{}, error)
 
+type Object interface {
+	Encode(interface{}) ([]byte, error)
+	Decode([]byte) (interface{}, error)
+}
+
 type GeneralMap struct {
 	name string
 	merk MerkMap
-	k, v libgvm.PackPrototype
+	k, v Object
 }
 
-func (v *VM) NewGeneralMap(arrName string, key, value libgvm.PackPrototype) *GeneralMap {
+func (v *VM) NewGeneralMap(arrName string, key, value Object) *GeneralMap {
 	barr := &GeneralMap{
 		name: arrName,
 		merk: v.ArrangeSlot(arrName),

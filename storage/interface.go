@@ -15,4 +15,5 @@ type MerkMap interface {
 
 type LocalStorage interface {
 	ArrangeSlot(newSlot string) MerkMap
+	Commit() error
 }

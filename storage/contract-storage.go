@@ -1,7 +1,5 @@
 package storage
 
-
-
 type VM struct {
 	l          LocalStorage
 	varStorage MerkMap
@@ -22,6 +20,13 @@ func (v *VM) ArrangeSlot(newSlot string) MerkMap {
 		return nil
 	}
 	return v.l.ArrangeSlot(newSlot)
+}
+
+func (v *VM) Commit() error {
+	if err := v.l.Commit(); err != nil {
+		return err
+	}
+	return v.Callback()
 }
 
 func (v *VM) Callback() (err error) {

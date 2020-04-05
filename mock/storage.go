@@ -53,6 +53,6 @@ func (l *LocalStorage) ArrangeSlot(newSlot string) storage.MerkMap {
 	return m
 }
 
-func (l LocalStorage) Commit() {
-
+func (l LocalStorage) Commit() error {
+	return nil
 }

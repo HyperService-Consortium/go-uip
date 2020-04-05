@@ -3,9 +3,11 @@ package uip
 import (
 	"github.com/HyperService-Consortium/go-uip/const/instruction_type"
 	"github.com/HyperService-Consortium/go-uip/const/trans_type"
+	"github.com/Myriad-Dreamin/gvm"
 )
 
 type Instruction interface {
+	gvm.Instruction
 	GetType() instruction_type.Type
 }
 
@@ -25,7 +27,6 @@ type MerkleProofProposal interface {
 type BaseSlice interface {
 	Len() int
 	Cap() int
-
 }
 
 type MerkleProofProposals interface {
