@@ -6,12 +6,12 @@ import (
 	"github.com/HyperService-Consortium/go-uip/op-intent/document"
 	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
 	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
+	"github.com/HyperService-Consortium/go-uip/op-intent/parser/instruction"
 	"github.com/HyperService-Consortium/go-uip/op-intent/token"
 	"github.com/HyperService-Consortium/go-uip/uip"
 )
 
-
-func (ier * Parser) _queryAccount(m lexer.AccountMap, a lexer.Account, contextChainID uip.ChainIDUnderlyingType) (uip.Account, error) {
+func (ier *Parser) _queryAccount(m lexer.AccountMap, a lexer.Account, contextChainID uip.ChainIDUnderlyingType) (uip.Account, error) {
 	switch a.GetType() {
 	case token.NamespacedNameAccount:
 		a := a.(token.NamespacedNameAccountI)
@@ -55,25 +55,23 @@ func (ier * Parser) _queryAccount(m lexer.AccountMap, a lexer.Account, contextCh
 	}
 }
 
-func (ier * Parser) queryAccount(a lexer.Account) (uip.Account, error) {
+func (ier *Parser) queryAccount(a lexer.Account) (uip.Account, error) {
 	return ier._queryAccount(ier.Program.AccountMapping, a, 0)
 }
 
-
-func (ier * Parser) queryContract(a lexer.Account) (uip.Account, error) {
+func (ier *Parser) queryContract(a lexer.Account) (uip.Account, error) {
 	return ier._queryAccount(ier.Program.ContractMapping, a, 0)
 }
 
-func (ier * Parser) queryAccountWCtx(a lexer.Account, contextChainID uip.ChainIDUnderlyingType) (uip.Account, error) {
+func (ier *Parser) queryAccountWCtx(a lexer.Account, contextChainID uip.ChainIDUnderlyingType) (uip.Account, error) {
 	return ier._queryAccount(ier.Program.AccountMapping, a, contextChainID)
 }
 
-
-func (ier * Parser) queryContractWCtx(a lexer.Account, contextChainID uip.ChainIDUnderlyingType) (uip.Account, error) {
+func (ier *Parser) queryContractWCtx(a lexer.Account, contextChainID uip.ChainIDUnderlyingType) (uip.Account, error) {
 	return ier._queryAccount(ier.Program.ContractMapping, a, contextChainID)
 }
 
-func (ier * Parser) parsePayment(paymentIntent *lexer.PaymentIntent) (intents []uip.TxIntentI, err error) {
+func (ier *Parser) parsePayment(paymentIntent *lexer.PaymentIntent) (intents []uip.TxIntentI, err error) {
 
 	var srcInfo, dstInfo uip.Account
 	var intent uip.TxIntentI
@@ -89,12 +87,12 @@ func (ier * Parser) parsePayment(paymentIntent *lexer.PaymentIntent) (intents []
 	}
 
 	if intent, err = ier.genPayment(
-		paymentIntent.GetName() + ".cna", srcInfo, nil, paymentIntent.Amount, paymentIntent.Meta, paymentIntent.Unit); err != nil {
+		paymentIntent.GetName()+".cna", srcInfo, nil, paymentIntent.Amount, paymentIntent.Meta, paymentIntent.Unit); err != nil {
 		return nil, errorn.NewGenPaymentError(err).Desc(errorn.AtOpIntentField{Field: "src"})
 	}
 	intents = append(intents, intent)
 	if intent, err = ier.genPayment(
-		paymentIntent.GetName() + ".cnb", nil, dstInfo, paymentIntent.Amount, paymentIntent.Meta, paymentIntent.Unit); err != nil {
+		paymentIntent.GetName()+".cnb", nil, dstInfo, paymentIntent.Amount, paymentIntent.Meta, paymentIntent.Unit); err != nil {
 		return nil, errorn.NewGenPaymentError(err).Desc(errorn.AtOpIntentField{Field: "dst"})
 	}
 	intents = append(intents, intent)
@@ -112,7 +110,7 @@ type transactionProofSourceDescription struct {
 	ChainID uint64 `json:"chain_id"`
 }
 
-func (ier * Parser) genPayment(
+func (ier *Parser) genPayment(
 	name string, src uip.Account, dst uip.Account, amt string, meta document.Document, ut UnitType.Type,
 ) (tx uip.TxIntentI, err error) {
 	if src == nil {
@@ -125,12 +123,12 @@ func (ier * Parser) genPayment(
 		}
 	}
 
-	m ,err := meta.RawBytes()
+	m, err := meta.RawBytes()
 	if err != nil {
 		return nil, err
 	}
 
-	tx = newIntent(&TransactionIntent{
+	tx = newIntent(&instruction.TransactionIntent{
 		Src:       src.GetAddress(),
 		Dst:       dst.GetAddress(),
 		TransType: trans_type.Payment,

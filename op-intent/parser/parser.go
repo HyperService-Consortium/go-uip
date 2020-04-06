@@ -8,6 +8,7 @@ import (
 	"github.com/HyperService-Consortium/go-uip/const/instruction_type"
 	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
 	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
+	"github.com/HyperService-Consortium/go-uip/op-intent/parser/instruction"
 	"github.com/HyperService-Consortium/go-uip/uip"
 )
 
@@ -48,7 +49,7 @@ func (ier *Parser) fillIndex(intents TxIntentsImpl) (TxIntentsImpl, error) {
 		inst := intents[i].GetInstruction()
 		switch inst.GetType() {
 		case instruction_type.RawConditionGoto:
-			ri := inst.(*RawConditionGoto)
+			ri := inst.(*instruction.RawConditionGoto)
 			cond, err := ier.marshal(ri.Condition)
 			if err != nil {
 				return nil, err
@@ -58,24 +59,24 @@ func (ier *Parser) fillIndex(intents TxIntentsImpl) (TxIntentsImpl, error) {
 				//todo
 				return nil, errorn.NewInvalidFieldError(errors.New("index negative"))
 			}
-			intents[i].SetInstruction(NewConditionGoto(uint64(index), cond))
+			intents[i].SetInstruction(instruction.NewConditionGoto(uint64(index), cond))
 		case instruction_type.RawGoto:
-			ri := inst.(*RawGoto)
+			ri := inst.(*instruction.RawGoto)
 			index := nameMap[ri.IndexName] + ri.Offset
 			if index < 0 {
 				//todo
 				return nil, errorn.NewInvalidFieldError(errors.New("index negative"))
 			}
-			intents[i].SetInstruction(NewGoto(uint64(index)))
+			intents[i].SetInstruction(instruction.NewGoto(uint64(index)))
 		case instruction_type.RawConditionSetState:
 			//ri := inst.(*RawGoto)
 		case instruction_type.RawSetState:
-			ri := inst.(*RawSetState)
+			ri := inst.(*instruction.RawSetState)
 			rhs, err := ier.marshal(ri.RightExpression)
 			if err != nil {
 				return nil, err
 			}
-			intents[i].SetInstruction(NewSetState(ri.Target.Type, ri.Target.Field, rhs))
+			intents[i].SetInstruction(instruction.NewSetState(ri.Target.Type, ri.Target.Field, rhs))
 		}
 	}
 	return intents, nil

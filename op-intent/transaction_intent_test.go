@@ -9,6 +9,7 @@ import (
 	error2 "github.com/HyperService-Consortium/go-uip/op-intent/errorn"
 	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
 	"github.com/HyperService-Consortium/go-uip/op-intent/parser"
+	instruction2 "github.com/HyperService-Consortium/go-uip/op-intent/parser/instruction"
 	"github.com/HyperService-Consortium/go-uip/uip"
 	"github.com/Myriad-Dreamin/minimum-lib/sugar"
 	"testing"
@@ -37,8 +38,7 @@ func (m *_opIntents) GetDependencies() [][]byte {
 	return nil
 }
 
-
-func runIntentRTest(t *testing.T, opIntents map[string]interface{}, callback func (intents parser.TxIntents)) {
+func runIntentRTest(t *testing.T, opIntents map[string]interface{}, callback func(intents parser.TxIntents)) {
 	var intents parser.TxIntents
 
 	ier, err := NewInitializer(uip.BlockChainGetterNilImpl{}, mAccountProvider{})
@@ -70,7 +70,7 @@ func runIntentRTest(t *testing.T, opIntents map[string]interface{}, callback fun
 	for i, intent := range intents.GetTxIntents() {
 		instruction, proposals := intent.GetInstruction(), intent.GetProposals()
 		fmt.Printf("================================ name ")
-		for j := q - len(intent.GetName()); j > 0; j -- {
+		for j := q - len(intent.GetName()); j > 0; j-- {
 			fmt.Printf(" ")
 		}
 		fmt.Printf("%v, index %4v ===\n", intent.GetName(), i)
@@ -90,14 +90,14 @@ func runIntentRTest(t *testing.T, opIntents map[string]interface{}, callback fun
 				fmt.Println("qwq.....................")
 			}
 		case instruction_type.ConditionGoto:
-			intent := instruction.(*parser.ConditionGoto)
+			intent := instruction.(*instruction2.ConditionGoto)
 			fmt.Println(string(intent.Condition))
 			fmt.Println(intent.Index)
 		case instruction_type.Goto:
-			intent := instruction.(*parser.Goto)
+			intent := instruction.(*instruction2.Goto)
 			fmt.Println(intent.Index)
 		case instruction_type.SetState:
-			intent := instruction.(*parser.SetState)
+			intent := instruction.(*instruction2.SetState)
 			fmt.Println(intent.Type)
 			fmt.Println(string(intent.Target))
 			fmt.Println(string(intent.RightExpression))
@@ -107,7 +107,6 @@ func runIntentRTest(t *testing.T, opIntents map[string]interface{}, callback fun
 	}
 	callback(intents)
 }
-
 
 //{
 //      "name": "op1",
@@ -144,12 +143,12 @@ func TestGenerateIfLoopIntentR(t *testing.T) {
 				"unit":   "ether",
 			},
 			{
-				"name": "op2",
-				"type": "ContractInvocation",
+				"name":    "op2",
+				"type":    "ContractInvocation",
 				"invoker": "a2",
-				"func": "vote",
+				"func":    "vote",
 				"contract": obj{
-					"domain": 2,
+					"domain":  2,
 					"address": "0x3723261b2a5a62b778b5c74318534d7fdf8db38c",
 				},
 				"parameters": []obj{},
@@ -159,10 +158,10 @@ func TestGenerateIfLoopIntentR(t *testing.T) {
 				"type": "IfStatement",
 				"if": []obj{
 					{
-						"name": "op3",
-						"type": "ContractInvocation",
+						"name":    "op3",
+						"type":    "ContractInvocation",
 						"invoker": "a2",
-						"func": "vote",
+						"func":    "vote",
 						"contract": obj{
 							"address": "0x3723261b2a5a62b778b5c74318d34d7fdbadb38e",
 						},
@@ -172,25 +171,25 @@ func TestGenerateIfLoopIntentR(t *testing.T) {
 						"name": "op4",
 						"type": "Payment",
 						"src": obj{
-							"domain": 1,
+							"domain":    1,
 							"user_name": "a1",
 						},
 						"dst": obj{
-							"domain": 2,
+							"domain":    2,
 							"user_name": "a2",
 						},
 						"amount": "aa",
-						"unit": "ether",
+						"unit":   "ether",
 					},
 				},
 				"else": []obj{
 					{
-						"name": "op5",
-						"type": "ContractInvocation",
+						"name":    "op5",
+						"type":    "ContractInvocation",
 						"invoker": "a2",
-						"func": "vote",
+						"func":    "vote",
 						"contract": obj{
-							"domain": 2,
+							"domain":  2,
 							"address": "0x3723261b2a5a62b778b5c74318534d7fdf8db38c",
 						},
 						"parameters": []obj{},
@@ -201,16 +200,16 @@ func TestGenerateIfLoopIntentR(t *testing.T) {
 						"type": "uint256",
 						"value": obj{
 							"contract": "c2",
-							"field": "num_count",
-							"pos": "00",
+							"field":    "num_count",
+							"pos":      "00",
 						},
 					},
 					"right": obj{
 						"type": "uint256",
 						"value": obj{
 							"contract": "c2",
-							"field": "totalVotes",
-							"pos": "01",
+							"field":    "totalVotes",
+							"pos":      "01",
 						},
 					},
 					"sign": "Greater",
@@ -220,17 +219,17 @@ func TestGenerateIfLoopIntentR(t *testing.T) {
 				"name": "loop",
 				"type": "loopFunction",
 				"loop": []obj{
-				{
-					"name": "op6",
-					"type": "ContractInvocation",
-					"invoker": "a2",
-					"func": "vote",
-					"contract": obj{
-						"domain": 2,
-						"address": "0x3723261b2a5a62b778b5c74318534d7fdf8db38c",
+					{
+						"name":    "op6",
+						"type":    "ContractInvocation",
+						"invoker": "a2",
+						"func":    "vote",
+						"contract": obj{
+							"domain":  2,
+							"address": "0x3723261b2a5a62b778b5c74318534d7fdf8db38c",
+						},
+						"parameters": []obj{},
 					},
-					"parameters": []obj{},
-				},
 				},
 				"loopTime": "5",
 			},
@@ -281,7 +280,7 @@ func TestGenerateIfLoopIntentR(t *testing.T) {
 func TestGenerateTransactionIntentRev(t *testing.T) {
 	var err error
 	var opintent = obj{
-		"name":    "Op1",
+		"name": "Op1",
 		"type": "Payment",
 		"src": obj{
 			"domain":    2,
@@ -513,7 +512,7 @@ func TestGenerateInvokeTransactionIntent(t *testing.T) {
 func TestGenerateInconsistentTransactionIntent(t *testing.T) {
 	var err error
 	var opintent = obj{
-		"name":    "Op1",
+		"name": "Op1",
 		"type": "ContractInvocation",
 		"invoker": obj{
 			"domain":    6,
@@ -521,9 +520,9 @@ func TestGenerateInconsistentTransactionIntent(t *testing.T) {
 		},
 		"contract": obj{
 			"address": "263fef3fe76fd4075ac16271d5115d01206d3674",
-			"domain": 6,
+			"domain":  6,
 		},
-		"func":          "updateStake",
+		"func": "updateStake",
 		"parameters": []obj{
 			{
 				"type": "uint256",
@@ -549,7 +548,7 @@ func TestGenerateInconsistentTransactionIntent(t *testing.T) {
 	}
 
 	opintent = obj{
-		"name":    "Op2",
+		"name": "Op2",
 		"type": "Payment",
 		"src": obj{
 			"domain":    1,
@@ -637,7 +636,7 @@ func TestGenerateInconsistentTransactionIntent(t *testing.T) {
 func genIntentsR(t testing.TB) map[string]interface{} {
 	t.Helper()
 	var opintent = obj{
-		"name":    "Op1",
+		"name": "Op1",
 		"type": "ContractInvocation",
 		"invoker": obj{
 			"domain":    6,
@@ -645,9 +644,9 @@ func genIntentsR(t testing.TB) map[string]interface{} {
 		},
 		"contract": obj{
 			"address": "263fef3fe76fd4075ac16271d5115d01206d3674",
-			"domain": 6,
+			"domain":  6,
 		},
-		"func":          "updateStake",
+		"func": "updateStake",
 		"parameters": []interface{}{
 			obj{
 				"type": "uint256",
@@ -666,7 +665,7 @@ func genIntentsR(t testing.TB) map[string]interface{} {
 	}
 
 	var opintent2 = obj{
-		"name":    "Op2",
+		"name": "Op2",
 		"type": "Payment",
 		"src": obj{
 			"domain":    1,

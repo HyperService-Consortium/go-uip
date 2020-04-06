@@ -7,14 +7,12 @@ import (
 	"github.com/HyperService-Consortium/go-uip/const/trans_type"
 	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
 	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
+	"github.com/HyperService-Consortium/go-uip/op-intent/parser/instruction"
 	"github.com/HyperService-Consortium/go-uip/op-intent/token"
 	"github.com/HyperService-Consortium/go-uip/uip"
 )
 
-
-
-
-func (ier * Parser) parseContractInvocation(invokeIntent *lexer.InvokeIntent) (intents []uip.TxIntentI, err error) {
+func (ier *Parser) parseContractInvocation(invokeIntent *lexer.InvokeIntent) (intents []uip.TxIntentI, err error) {
 
 	var srcInfo, dstInfo uip.Account
 	var intent uip.TxIntentI
@@ -52,7 +50,7 @@ func (ier * Parser) parseContractInvocation(invokeIntent *lexer.InvokeIntent) (i
 		return nil, err
 	}
 
-	intent = newIntent(&TransactionIntent{
+	intent = newIntent(&instruction.TransactionIntent{
 		TransType: trans_type.ContractInvoke,
 		Src:       srcInfo.GetAddress(),
 		Dst:       dstInfo.GetAddress(),
@@ -88,7 +86,7 @@ func DecodeContractPos(src string) ([]byte, error) {
 	return hex.DecodeString(src)
 }
 
-func (ier * Parser) parseContractInvokeProof(intent *lexer.InvokeIntent) (proposals uip.MerkleProofProposalsImpl, err error) {
+func (ier *Parser) parseContractInvokeProof(intent *lexer.InvokeIntent) (proposals uip.MerkleProofProposalsImpl, err error) {
 	//var b []byte
 	//var txp transactionProofSourceDescription
 	//txp.ChainID = intent.Src.ChainId
@@ -117,6 +115,7 @@ func (ier * Parser) parseContractInvokeProof(intent *lexer.InvokeIntent) (propos
 	}
 	return
 }
+
 //
 //type StateVariable struct {
 //	Type     value_type.Type `json:"type"`
@@ -124,8 +123,7 @@ func (ier * Parser) parseContractInvokeProof(intent *lexer.InvokeIntent) (propos
 //	Pos      []byte `json:"pos"`
 //	Field    []byte `json:"field"`
 //}
-func (ier * Parser) addProposal(param lexer.Param, proposal uip.MerkleProofProposalsImpl) (uip.MerkleProofProposalsImpl, error) {
-
+func (ier *Parser) addProposal(param lexer.Param, proposal uip.MerkleProofProposalsImpl) (uip.MerkleProofProposalsImpl, error) {
 
 	switch param.GetType() {
 	case token.Constant:
@@ -151,7 +149,6 @@ func (ier * Parser) addProposal(param lexer.Param, proposal uip.MerkleProofPropo
 			})
 		}
 	}
-
 
 	return proposal, nil
 }

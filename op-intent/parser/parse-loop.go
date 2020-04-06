@@ -1,12 +1,13 @@
 package parser
 
 import (
-	"github.com/HyperService-Consortium/go-uip/const/instruction_type"
 	"github.com/HyperService-Consortium/go-uip/const/sign_type"
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
 	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
+	"github.com/HyperService-Consortium/go-uip/op-intent/parser/instruction"
 	"github.com/HyperService-Consortium/go-uip/uip"
 )
+
 // loop times
 //    op1
 //    op2
@@ -24,19 +25,10 @@ import (
 // loopEnd: goto loopBegin if true
 // reset: loopVar := 0
 
-
-type RawSetState struct {
-	Target *lexer.LocalStateVariable
-	RightExpression lexer.Param
-}
-
-func (r RawSetState) GetType() instruction_type.Type {
-	return instruction_type.RawSetState
-}
-
 // WARNING: will lead to a wrong result if using function
 
 const loopVarType = value_type.Int64
+
 func (ier *Parser) parseLoop(intent *lexer.LoopIntent) (intents []uip.TxIntentI, _ error) {
 	loopIntents, err := ier.parseIntents(intent.Loop)
 	if err != nil {
@@ -49,8 +41,8 @@ func (ier *Parser) parseLoop(intent *lexer.LoopIntent) (intents []uip.TxIntentI,
 		Field: []byte(intent.GetName() + ".loopVar"),
 	}
 
-	addOpLoopVar := newIntent(&RawSetState{
-		Target:          loopVar,
+	addOpLoopVar := newIntent(&instruction.RawSetState{
+		Target: loopVar,
 		RightExpression: &lexer.BinaryExpression{
 			Type: loopVarType,
 			Sign: sign_type.ADD,
@@ -60,36 +52,35 @@ func (ier *Parser) parseLoop(intent *lexer.LoopIntent) (intents []uip.TxIntentI,
 				Const: 1,
 			},
 		},
-	}, intent.GetName() + ".addLoopVar")
+	}, intent.GetName()+".addLoopVar")
 
-	resetLoopVar := newIntent(&RawSetState{
-		Target:          loopVar,
+	resetLoopVar := newIntent(&instruction.RawSetState{
+		Target: loopVar,
 		RightExpression: &lexer.ConstantVariable{
 			Type:  loopVarType,
 			Const: 0,
 		},
-	}, intent.GetName() + ".resetLoopVar")
+	}, intent.GetName()+".resetLoopVar")
 
-	loopBegin := newIntent(&RawConditionGoto{
+	loopBegin := newIntent(&instruction.RawConditionGoto{
 		IndexName: resetLoopVar.GetName(),
 		Condition: &lexer.BinaryExpression{
-			Type:  value_type.Bool,
-			Sign:  sign_type.GE,
-			Left:  loopVar,
+			Type: value_type.Bool,
+			Sign: sign_type.GE,
+			Left: loopVar,
 			// todo: convert Times to loopVarType
 			Right: &lexer.ConstantVariable{
 				Type:  loopVarType,
 				Const: int64(intent.Times),
 			},
 		},
-		Offset:    0,
-	}, intent.GetName() + ".loopBegin")
+		Offset: 0,
+	}, intent.GetName()+".loopBegin")
 
-	loopEnd := newIntent(&RawGoto{
+	loopEnd := newIntent(&instruction.RawGoto{
 		IndexName: loopBegin.GetName(),
 		Offset:    0,
-	}, intent.GetName() + ".loopEnd")
-
+	}, intent.GetName()+".loopEnd")
 
 	// loopBegin: goto reset if loopVar < times
 	intents = append(intents, loopBegin)

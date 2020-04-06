@@ -1,11 +1,14 @@
 package parser
 
-import "github.com/HyperService-Consortium/go-uip/uip"
+import (
+	"github.com/HyperService-Consortium/go-uip/op-intent/parser/instruction"
+	"github.com/HyperService-Consortium/go-uip/uip"
+)
 
 //transactionIntents []*TransactionIntent, proposals []*MerkleProofProposal
 
 type TxIntentImpl struct {
-	NamedIntent
+	instruction.NamedIntent
 	Instruction uip.Instruction
 	proposals   uip.MerkleProofProposals
 }

@@ -1,8 +1,8 @@
 package parser
 
 import (
-	"github.com/HyperService-Consortium/go-uip/const/instruction_type"
 	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
+	"github.com/HyperService-Consortium/go-uip/op-intent/parser/instruction"
 	"github.com/HyperService-Consortium/go-uip/uip"
 )
 
@@ -31,28 +31,7 @@ import (
 // opk
 //
 
-
-type RawConditionGoto struct {
-	IndexName     string
-	Condition  lexer.Param
-	Offset int
-}
-
-func (r RawConditionGoto) GetType() instruction_type.Type {
-	return instruction_type.RawConditionGoto
-}
-
-type RawGoto struct {
-	IndexName     string
-	Offset int
-}
-
-func (r RawGoto) GetType() instruction_type.Type {
-	return instruction_type.RawGoto
-}
-
-
-func (ier * Parser) parseIf(rawIntent *lexer.IfIntent) (intents []uip.TxIntentI, err error) {
+func (ier *Parser) parseIf(rawIntent *lexer.IfIntent) (intents []uip.TxIntentI, err error) {
 	ifName := rawIntent.GetName()
 
 	ifIntents, err := ier.parseIntents(rawIntent.If)
@@ -66,19 +45,18 @@ func (ier * Parser) parseIf(rawIntent *lexer.IfIntent) (intents []uip.TxIntentI,
 	}
 
 	// goto index(op1) if cond
-	gotoOp1IfCond := &RawConditionGoto{
+	gotoOp1IfCond := &instruction.RawConditionGoto{
 		IndexName: "",
 		Condition: rawIntent.Condition,
 		Offset:    0,
 	}
-	txGotoOp1IfCond := newIntent(gotoOp1IfCond, ifName + ".goto.if")
+	txGotoOp1IfCond := newIntent(gotoOp1IfCond, ifName+".goto.if")
 	// goto index(opk)+1
-	gotoOpkP1 := &RawGoto{
+	gotoOpkP1 := &instruction.RawGoto{
 		IndexName: "",
-		Offset:      0,
+		Offset:    0,
 	}
-	txGotoIndexOpkP1 := newIntent(gotoOpkP1, ifName + ".goto.else")
-
+	txGotoIndexOpkP1 := newIntent(gotoOpkP1, ifName+".goto.else")
 
 	if ifIntents.Len() != 0 {
 		op1 := ifIntents.GetTxIntents()[0]
@@ -89,7 +67,7 @@ func (ier * Parser) parseIf(rawIntent *lexer.IfIntent) (intents []uip.TxIntentI,
 	}
 
 	if ifIntents.Len() != 0 {
-		opk := ifIntents.GetTxIntents()[ifIntents.Len() - 1]
+		opk := ifIntents.GetTxIntents()[ifIntents.Len()-1]
 		gotoOpkP1.IndexName = opk.GetName()
 		gotoOpkP1.Offset = 1
 	} else {
