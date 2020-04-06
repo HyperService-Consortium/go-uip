@@ -3,7 +3,9 @@ package internal
 import (
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
 	"github.com/HyperService-Consortium/go-uip/op-intent/token"
+	"github.com/HyperService-Consortium/go-uip/uip"
 	"github.com/Myriad-Dreamin/gvm"
+	"io"
 )
 
 type StateVariable struct {
@@ -13,8 +15,16 @@ type StateVariable struct {
 	Field    []byte          `json:"field"`
 }
 
+func (s StateVariable) Marshal(w io.Writer, err *error) {
+	panic("implement me")
+}
+
+func (s StateVariable) Unmarshal(r io.Reader, i *uip.VTok, err *error) {
+	panic("implement me")
+}
+
 func (s StateVariable) GetGVMTok() gvm.TokType {
-	return convGVMTokType(token.StateVariable)
+	return convertGVMTokType(token.StateVariable)
 }
 
 func (s StateVariable) Eval(g *gvm.ExecCtx) (gvm.Ref, error) {

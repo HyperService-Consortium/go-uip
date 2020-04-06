@@ -4,8 +4,10 @@ import (
 	"github.com/HyperService-Consortium/go-uip/const/sign_type"
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
 	"github.com/HyperService-Consortium/go-uip/op-intent/token"
+	"github.com/HyperService-Consortium/go-uip/uip"
 	"github.com/Myriad-Dreamin/gvm"
 	gvm_type "github.com/Myriad-Dreamin/gvm/libgvm/gvm-type"
+	"io"
 )
 
 type BinaryExpression struct {
@@ -13,6 +15,14 @@ type BinaryExpression struct {
 	Sign  sign_type.Type  `json:"sign"`
 	Left  Param           `json:"left"`
 	Right Param           `json:"right"`
+}
+
+func (b BinaryExpression) Marshal(w io.Writer, err *error) {
+	panic("implement me")
+}
+
+func (b BinaryExpression) Unmarshal(r io.Reader, i *uip.VTok, err *error) {
+	panic("implement me")
 }
 
 func (b BinaryExpression) GetLeftTok() gvm.VTok {
@@ -36,7 +46,7 @@ func (b BinaryExpression) GetRightTok() gvm.VTok {
 }
 
 func (b BinaryExpression) GetGVMTok() gvm.TokType {
-	return convGVMTokType(token.BinaryExpression)
+	return convertGVMTokType(token.BinaryExpression)
 }
 
 func (b BinaryExpression) GetGVMType() gvm.RefType {

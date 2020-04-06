@@ -3,7 +3,9 @@ package internal
 import (
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
 	"github.com/HyperService-Consortium/go-uip/op-intent/token"
+	"github.com/HyperService-Consortium/go-uip/uip"
 	"github.com/Myriad-Dreamin/gvm"
+	"io"
 )
 
 type LocalStateVariable struct {
@@ -12,8 +14,16 @@ type LocalStateVariable struct {
 	Field []byte          `json:"field"`
 }
 
+func (l LocalStateVariable) Marshal(w io.Writer, err *error) {
+	panic("implement me")
+}
+
+func (l LocalStateVariable) Unmarshal(r io.Reader, i *uip.VTok, err *error) {
+	panic("implement me")
+}
+
 func (l LocalStateVariable) GetGVMTok() gvm.TokType {
-	return convGVMTokType(token.LocalStateVariable)
+	return convertGVMTokType(token.LocalStateVariable)
 }
 
 func (l LocalStateVariable) Eval(g *gvm.ExecCtx) (gvm.Ref, error) {

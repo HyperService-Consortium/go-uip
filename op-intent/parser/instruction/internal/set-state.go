@@ -5,6 +5,7 @@ import (
 	"github.com/HyperService-Consortium/go-uip/const/instruction_type"
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
 	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
+	"github.com/HyperService-Consortium/go-uip/serial"
 	"github.com/HyperService-Consortium/go-uip/uip"
 	"github.com/Myriad-Dreamin/gvm"
 	"io"
@@ -38,27 +39,43 @@ func NewSetState(t value_type.Type, target []byte, rhs json.RawMessage) *SetStat
 	}
 }
 
-func (g GVMSetState) Marshal(w io.Writer, err *error) {
-	panic("implement me")
+func (G *GVMSetState) Marshal(w io.Writer, err *error) {
+	if *err != nil {
+		return
+	}
+	serial.Write(w, G.Target, err)
+	lexer.EncodeVTok(w, G.RightExpression, err)
 }
 
-func (g GVMSetState) Unmarshal(r io.Reader, i *uip.Instruction, err *error) {
-	panic("implement me")
+func (G *GVMSetState) Unmarshal(r io.Reader, i *uip.Instruction, err *error) {
+	if *err != nil {
+		return
+	}
+	serial.Read(r, &G.Target, err)
+	lexer.DecodeVTok(r, &G.RightExpression, err)
+	*i = G
 }
 
 type GVMSetState struct {
-	IType           instruction_type.Type `json:"itype"`
-	Type            value_type.Type       `json:"value_type"`
-	Target          string                `json:"target"`
-	RightExpression gvm.VTok              `json:"expression"`
+	Type            value_type.Type `json:"value_type"`
+	Target          string          `json:"target"`
+	RightExpression uip.VTok        `json:"expression"`
+}
+
+func (G *GVMSetState) GetType() instruction_type.Type {
+	return instruction_type.SetState
 }
 
 func (G GVMSetState) Exec(g *gvm.ExecCtx) error {
-	k, err := G.GetRightHandStatementGVMI().Eval(g)
+	return execSetState(g, G.Target, G.RightExpression)
+}
+
+func execSetState(g *gvm.ExecCtx, target string, rhs gvm.VTok) error {
+	k, err := rhs.Eval(g)
 	if err != nil {
 		return err
 	}
-	err = g.Save(G.GetRefNameGVMI(), k)
+	err = g.Save(target, k)
 	if err != nil {
 		return err
 	}
@@ -77,7 +94,6 @@ func (G GVMSetState) GetRightHandStatementGVMI() gvm.VTok {
 
 func (tx *SetState) Convert() (g *GVMSetState, err error) {
 	g = &GVMSetState{
-		IType:  tx.IType,
 		Type:   tx.Type,
 		Target: string(tx.Target),
 	}

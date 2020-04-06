@@ -4,6 +4,8 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/HyperService-Consortium/go-uip/mock"
+	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
+	"github.com/HyperService-Consortium/go-uip/op-intent/parser/instruction"
 	"github.com/HyperService-Consortium/go-uip/storage"
 	"github.com/HyperService-Consortium/go-uip/uip"
 	"github.com/Myriad-Dreamin/gvm"
@@ -17,15 +19,15 @@ var user0 = []byte{1}
 
 func funcSetA() []uip.Instruction {
 	return []uip.Instruction{
-		&SetState{
+		&instruction.GVMSetState{
 			Target:          "a",
-			RightExpression: Bool(true),
+			RightExpression: lexer.Bool(true),
 		},
 	}
 }
 
 func encodeInstructions(is []uip.Instruction) (bs [][]byte) {
-	return sugar.HandlerError(EncodeInstructions(is)).([][]byte)
+	return sugar.HandlerError(instruction.EncodeInstructions(is)).([][]byte)
 }
 
 type ContextImpl struct {

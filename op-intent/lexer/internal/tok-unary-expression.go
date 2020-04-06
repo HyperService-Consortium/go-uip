@@ -5,8 +5,10 @@ import (
 	"github.com/HyperService-Consortium/go-uip/const/sign_type"
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
 	"github.com/HyperService-Consortium/go-uip/op-intent/token"
+	"github.com/HyperService-Consortium/go-uip/uip"
 	"github.com/Myriad-Dreamin/gvm"
 	gvm_type "github.com/Myriad-Dreamin/gvm/libgvm/gvm-type"
+	"io"
 )
 
 // Param.type == value_type.Bool
@@ -17,7 +19,15 @@ type UnaryExpression struct {
 }
 
 func (u UnaryExpression) GetGVMTok() gvm.TokType {
-	return convGVMTokType(token.UnaryExpression)
+	return convertGVMTokType(token.UnaryExpression)
+}
+
+func (u UnaryExpression) Marshal(w io.Writer, err *error) {
+	panic("implement me")
+}
+
+func (u UnaryExpression) Unmarshal(r io.Reader, i *uip.VTok, err *error) {
+	panic("implement me")
 }
 
 func (u UnaryExpression) Eval(g *gvm.ExecCtx) (gvm.Ref, error) {

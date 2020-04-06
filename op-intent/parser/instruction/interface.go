@@ -17,6 +17,7 @@ type ConditionGoto = internal.ConditionGoto
 type RawConditionGoto = internal.RawConditionGoto
 
 type SetState = internal.SetState
+type GVMSetState = internal.GVMSetState
 type RawSetState = internal.RawSetState
 type ConditionSetState = internal.ConditionSetState
 

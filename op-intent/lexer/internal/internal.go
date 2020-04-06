@@ -5,6 +5,6 @@ import (
 	"github.com/Myriad-Dreamin/gvm"
 )
 
-func convGVMTokType(t token.Type) gvm.TokType {
+func convertGVMTokType(t token.Type) gvm.TokType {
 	return gvm.TokType(t - token.Constant)
 }
