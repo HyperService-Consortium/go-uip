@@ -3,77 +3,21 @@ package lexer
 import (
 	"github.com/HyperService-Consortium/go-uip/op-intent/document"
 	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
-	"github.com/HyperService-Consortium/go-uip/op-intent/token"
+	"github.com/HyperService-Consortium/go-uip/op-intent/lexer/internal"
 	"github.com/HyperService-Consortium/go-uip/uip"
 	"strconv"
 	"strings"
 )
 
-type Account = token.Token
+type Account = internal.Account
 
-type NamespacedAccount struct {
-	Name string `json:"name"`
-	ChainID uip.ChainIDUnderlyingType `json:"chain_id"`
-}
-
-func (n NamespacedAccount) GetName() string {
-	return n.Name
-}
-
-func (n NamespacedAccount) GetChainID() uip.ChainIDUnderlyingType {
-	return n.ChainID
-}
-
-func (n NamespacedAccount) GetType() token.Type {
-	return token.NamespacedNameAccount
-}
-
-type NameAccount struct {
-	Name string `json:"name"`
-}
-
-func (n NameAccount) GetName() string {
-	return n.Name
-}
-
-func (n NameAccount) GetType() token.Type {
-	return token.NameAccount
-}
-
-type NamespacedRawAccount struct {
-	Address []byte `json:"address"`
-	ChainID uip.ChainIDUnderlyingType `json:"chain_id"`
-}
-
-func (n NamespacedRawAccount) GetChainId() uip.ChainID {
-	return n.ChainID
-}
-
-func (n NamespacedRawAccount) GetAddress() uip.Address {
-	return n.Address
-}
+type RawAccount = internal.RawAccount
+type NameAccount = internal.NameAccount
+type NamespacedAccount = internal.NamespacedAccount
+type NamespacedRawAccount = internal.NamespacedRawAccount
 
 func NewNamespacedRawAccount(a uip.Account) Account {
-	return &NamespacedRawAccount{
-		Address: a.GetAddress(),
-		ChainID: a.GetChainId(),
-	}
-}
-
-func (n NamespacedRawAccount) GetType() token.Type {
-	return token.NamespacedRawAccount
-}
-
-type RawAccount struct {
-	Address []byte `json:"address"`
-}
-
-func (n RawAccount) GetAddress() []byte {
-	return n.Address
-}
-
-func (n RawAccount) GetType() token.Type {
-	return token.RawAccount
+	return internal.NewNamespacedRawAccount(a)
 }
 
 func AccountUnmarshalResult(entityKey string, content document.Document) (_ Account, err error) {
@@ -87,9 +31,9 @@ func AccountUnmarshalResult(entityKey string, content document.Document) (_ Acco
 			if err != nil {
 				return nil, errorn.NewDecodeAddressError(err)
 			}
-			return &RawAccount{Address:b}, nil
+			return &RawAccount{Address: b}, nil
 		}
-		return &NameAccount{Name:x}, nil
+		return &NameAccount{Name: x}, nil
 	}
 	var domain uip.ChainIDUnderlyingType
 	v := content.Get(FieldOpIntentsDomain)
@@ -127,4 +71,3 @@ func AccountUnmarshalResult(entityKey string, content document.Document) (_ Acco
 
 	return nil, errorn.NewInvalidFieldError(errorn.UnknownAccount)
 }
-

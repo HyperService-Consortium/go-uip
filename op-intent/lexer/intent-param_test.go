@@ -4,6 +4,7 @@ import (
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
 	"github.com/HyperService-Consortium/go-uip/op-intent/document"
 	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
+	"github.com/HyperService-Consortium/go-uip/op-intent/lexer/internal"
 	"github.com/Myriad-Dreamin/minimum-lib/sugar"
 	"github.com/stretchr/testify/assert"
 	"reflect"
@@ -28,7 +29,7 @@ func TestParamUnmarshalResult(t *testing.T) {
 		args    args
 		wantErr bool
 		errType string
-		want    Param
+		want    internal.Param
 	}{
 		{name: "type-absent", args: args{i: sugar.HandlerError(
 			document.NewMapDocument(document.MObj{FieldOpIntentsValue: document.MObj{
@@ -62,10 +63,10 @@ func TestParamUnmarshalResult(t *testing.T) {
 					"pos":      "01",
 				},
 			})).(document.Document)}, want: &StateVariable{
-			Type:  value_type.Uint256,
-			Contract:  &NameAccount{Name: "c1"},
-			Pos:   []byte{1},
-			Field: []byte("total"),
+			Type:     value_type.Uint256,
+			Contract: &NameAccount{Name: "c1"},
+			Pos:      []byte{1},
+			Field:    []byte("total"),
 		}, wantErr: false},
 		{name: "state without pos", args: args{i: sugar.HandlerError(
 			document.NewMapDocument(document.MObj{

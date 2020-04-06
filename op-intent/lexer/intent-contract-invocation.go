@@ -4,15 +4,16 @@ import (
 	"encoding/base64"
 	"github.com/HyperService-Consortium/go-uip/op-intent/document"
 	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
+	"github.com/HyperService-Consortium/go-uip/op-intent/lexer/internal"
 )
 
 type InvokeIntent struct {
 	*IntentImpl
 	Src      Account           `json:"invoker"`       // key
-	Dst      Account            `json:"contract_addr"` // key
+	Dst      Account           `json:"contract_addr"` // key
 	Code     []byte            `json:"contract_code"` // key
 	FuncName string            `json:"func"`
-	Params   []Param           `json:"parameters"`
+	Params   []internal.Param  `json:"parameters"`
 	Amount   string            `json:"amount"` // option
 	Meta     document.Document `json:"meta"`
 }
@@ -43,7 +44,7 @@ func (intent *InvokeIntent) UnmarshalDocument(content document.Document) (err er
 		if err != nil {
 			return err
 		}
-		intent.Dst = RawAccount{Address:b}
+		intent.Dst = RawAccount{Address: b}
 	}
 	contractCode := content.Get(FieldOpIntentsContractCode)
 	fn := content.Get(FieldOpIntentsFunc)
@@ -79,4 +80,3 @@ func (intent *InvokeIntent) UnmarshalDocument(content document.Document) (err er
 
 	return
 }
-
