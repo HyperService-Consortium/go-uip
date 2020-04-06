@@ -4,9 +4,9 @@ import (
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
 	"github.com/HyperService-Consortium/go-uip/op-intent/document"
 	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
-	"github.com/HyperService-Consortium/go-uip/op-intent/lexer/internal"
 	"github.com/Myriad-Dreamin/minimum-lib/sugar"
 	"github.com/stretchr/testify/assert"
+	"math/big"
 	"reflect"
 	"testing"
 )
@@ -29,7 +29,7 @@ func TestParamUnmarshalResult(t *testing.T) {
 		args    args
 		wantErr bool
 		errType string
-		want    internal.Param
+		want    Param
 	}{
 		{name: "type-absent", args: args{i: sugar.HandlerError(
 			document.NewMapDocument(document.MObj{FieldOpIntentsValue: document.MObj{
@@ -50,10 +50,7 @@ func TestParamUnmarshalResult(t *testing.T) {
 				FieldOpIntentsValue: document.MObj{
 					"constant": 2000,
 				},
-			})).(document.Document)}, want: &ConstantVariable{
-			Type:  value_type.Uint256,
-			Const: 2000,
-		}, wantErr: false},
+			})).(document.Document)}, want: (*Uint256)(big.NewInt(2000)), wantErr: false},
 		{name: "good state", args: args{i: sugar.HandlerError(
 			document.NewMapDocument(document.MObj{
 				FieldKeyType: "uint256",

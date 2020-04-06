@@ -5,6 +5,7 @@ import (
 	"github.com/HyperService-Consortium/go-uip/const/sign_type"
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
 	"github.com/HyperService-Consortium/go-uip/op-intent/token"
+	"github.com/HyperService-Consortium/go-uip/serial"
 	"github.com/HyperService-Consortium/go-uip/uip"
 	"github.com/Myriad-Dreamin/gvm"
 	gvm_type "github.com/Myriad-Dreamin/gvm/libgvm/gvm-type"
@@ -18,6 +19,10 @@ type UnaryExpression struct {
 	Left Param           `json:"left"`
 }
 
+func (u UnaryExpression) GetGVMType() gvm.RefType {
+	return gvm.RefType(u.Type)
+}
+
 type DeterminedUnaryExpression struct {
 	Type value_type.Type `json:"type"`
 	Sign sign_type.Type  `json:"sign"`
@@ -29,11 +34,19 @@ func (u DeterminedUnaryExpression) GetGVMTok() gvm.TokType {
 }
 
 func (u DeterminedUnaryExpression) Marshal(w io.Writer, err *error) {
-	panic("implement me")
+	if *err != nil {
+		return
+	}
+	serial.Write(w, u.Type, err)
+	serial.Write(w, u.Sign, err)
+	EncodeVTok(w, u.Left, err)
 }
 
 func (u DeterminedUnaryExpression) Unmarshal(r io.Reader, i *uip.VTok, err *error) {
-	panic("implement me")
+	serial.Read(r, &u.Type, err)
+	serial.Read(r, &u.Sign, err)
+	DecodeVTok(r, &u.Left, err)
+	*i = u
 }
 
 func (u DeterminedUnaryExpression) Eval(g *gvm.ExecCtx) (gvm.Ref, error) {

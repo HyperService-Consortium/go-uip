@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"errors"
 	"github.com/HyperService-Consortium/go-uip/const/sign_type"
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
 	"github.com/HyperService-Consortium/go-uip/op-intent/token"
@@ -16,6 +17,25 @@ type BinaryExpression struct {
 	Sign  sign_type.Type  `json:"sign"`
 	Left  Param           `json:"left"`
 	Right Param           `json:"right"`
+}
+
+func (b BinaryExpression) GetGVMType() gvm.RefType {
+	return gvm.RefType(b.Type)
+}
+
+func (b BinaryExpression) Determine(f InstantiateAccountF) (_ token.Param, err error) {
+	var db DeterminedBinaryExpression
+	db.Left, err = b.Left.Determine(f)
+	if err != nil {
+		return nil, err
+	}
+
+	db.Right, err = b.Right.Determine(f)
+	if err != nil {
+		return nil, err
+	}
+
+	return &db, nil
 }
 
 type DeterminedBinaryExpression struct {
@@ -39,26 +59,20 @@ func (b DeterminedBinaryExpression) Unmarshal(r io.Reader, i *uip.VTok, err *err
 	serial.Read(r, &b.Type, err)
 	serial.Read(r, &b.Sign, err)
 	DecodeVTok(r, &b.Left, err)
-}
-
-func (b DeterminedBinaryExpression) GetLeftTok() gvm.VTok {
-	return b.Left
+	DecodeVTok(r, &b.Right, err)
+	*i = b
 }
 
 func (b DeterminedBinaryExpression) Eval(g *gvm.ExecCtx) (gvm.Ref, error) {
-	l, err := b.GetLeftTok().Eval(g)
+	l, err := b.Left.Eval(g)
 	if err != nil {
 		return nil, err
 	}
-	r, err := b.GetRightTok().Eval(g)
+	r, err := b.Right.Eval(g)
 	if err != nil {
 		return nil, err
 	}
-	return gvm_type.BiCalc(l, r, gvm_type.SignType(b.Sign))
-}
-
-func (b DeterminedBinaryExpression) GetRightTok() gvm.VTok {
-	return b.Right
+	return BiCalc(l, r, gvm_type.SignType(b.Sign))
 }
 
 func (b DeterminedBinaryExpression) GetGVMTok() gvm.TokType {
@@ -68,41 +82,14 @@ func (b DeterminedBinaryExpression) GetGVMTok() gvm.TokType {
 func (b DeterminedBinaryExpression) GetGVMType() gvm.RefType {
 	return gvm.RefType(b.Type)
 }
-func (b DeterminedBinaryExpression) GetType() token.Type {
-	return token.BinaryExpression
-}
 
-func (b DeterminedBinaryExpression) GetSign() sign_type.Type {
-	return b.Sign
-}
-
-func (b DeterminedBinaryExpression) GetLeft() token.Param {
-	return b.Left
-}
-
-func (b DeterminedBinaryExpression) GetRight() token.Param {
-	return b.Right
-}
-
-func (b DeterminedBinaryExpression) GetParamType() value_type.Type {
-	return b.Type
-}
-
-func (b BinaryExpression) GetParamType() value_type.Type {
-	return b.Type
-}
-
-func (b BinaryExpression) Determine(f InstantiateAccountF) (_ token.Param, err error) {
-	var db DeterminedBinaryExpression
-	db.Left, err = b.Left.Determine(f)
-	if err != nil {
-		return nil, err
+func BiCalc(l gvm.Ref, r gvm.Ref, signType gvm_type.SignType) (gvm.Ref, error) {
+	if IsGVMNative(l) && IsGVMNative(r) {
+		return gvm_type.BiCalc(l, r, signType)
 	}
+	return nil, errors.New("todo")
+}
 
-	db.Right, err = b.Right.Determine(f)
-	if err != nil {
-		return nil, err
-	}
-
-	return &db, nil
+func IsGVMNative(l gvm.Ref) bool {
+	return gvm_type.IsStandardRefType(l.GetGVMType()) || l.GetGVMType() == gvm_type.RefUnknown
 }

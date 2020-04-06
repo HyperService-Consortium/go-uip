@@ -19,8 +19,9 @@ func (v *Uint128) Encode() ([]byte, error) { return serial.EncodeBigInt((*big.In
 func (v *Uint128) Decode(b []byte) (gvm.Ref, error) {
 	return (*Uint128)(big.NewInt(0).SetBytes(b)), nil
 }
-func (v *Uint128) GetGVMTok() gvm.TokType               { return token.Constant }
-func (v *Uint128) Eval(_ *gvm.ExecCtx) (gvm.Ref, error) { return v, nil }
+func (v *Uint128) Determine(_ InstantiateAccountF) (token.Param, error) { return v, nil }
+func (v *Uint128) GetGVMTok() gvm.TokType                               { return token.Constant }
+func (v *Uint128) Eval(_ *gvm.ExecCtx) (gvm.Ref, error)                 { return v, nil }
 
 type Uint256 big.Int
 
@@ -30,8 +31,9 @@ func (v *Uint256) Encode() ([]byte, error) { return serial.EncodeBigInt((*big.In
 func (v *Uint256) Decode(b []byte) (gvm.Ref, error) {
 	return (*Uint256)(big.NewInt(0).SetBytes(b)), nil
 }
-func (v *Uint256) GetGVMTok() gvm.TokType               { return token.Constant }
-func (v *Uint256) Eval(_ *gvm.ExecCtx) (gvm.Ref, error) { return v, nil }
+func (v *Uint256) Determine(_ InstantiateAccountF) (token.Param, error) { return v, nil }
+func (v *Uint256) GetGVMTok() gvm.TokType                               { return token.Constant }
+func (v *Uint256) Eval(_ *gvm.ExecCtx) (gvm.Ref, error)                 { return v, nil }
 
 type Int128 big.Int
 
@@ -41,8 +43,9 @@ func (v *Int128) Encode() ([]byte, error) { return serial.EncodeBigInt((*big.Int
 func (v *Int128) Decode(b []byte) (gvm.Ref, error) {
 	return (*Int128)(big.NewInt(0).SetBytes(b)), nil
 }
-func (v *Int128) GetGVMTok() gvm.TokType               { return token.Constant }
-func (v *Int128) Eval(_ *gvm.ExecCtx) (gvm.Ref, error) { return v, nil }
+func (v *Int128) Determine(_ InstantiateAccountF) (token.Param, error) { return v, nil }
+func (v *Int128) GetGVMTok() gvm.TokType                               { return token.Constant }
+func (v *Int128) Eval(_ *gvm.ExecCtx) (gvm.Ref, error)                 { return v, nil }
 
 type Int256 big.Int
 
@@ -52,8 +55,9 @@ func (v *Int256) Encode() ([]byte, error) { return serial.EncodeBigInt((*big.Int
 func (v *Int256) Decode(b []byte) (gvm.Ref, error) {
 	return (*Int256)(big.NewInt(0).SetBytes(b)), nil
 }
-func (v *Int256) GetGVMTok() gvm.TokType               { return token.Constant }
-func (v *Int256) Eval(_ *gvm.ExecCtx) (gvm.Ref, error) { return v, nil }
+func (v *Int256) Determine(_ InstantiateAccountF) (token.Param, error) { return v, nil }
+func (v *Int256) GetGVMTok() gvm.TokType                               { return token.Constant }
+func (v *Int256) Eval(_ *gvm.ExecCtx) (gvm.Ref, error)                 { return v, nil }
 
 func (v *Int256) Unmarshal(r io.Reader, pv *uip.VTok, err *error) {
 	serial.ReadBigInt(r, (*big.Int)(v), err)
@@ -155,14 +159,15 @@ func (v Int32) Unmarshal(r io.Reader, pv *uip.VTok, err *error) { serial.Read(r,
 
 type Int64 int64
 
-func (v Int64) GetGVMType() gvm.RefType                         { return gvm.RefType(value_type.Int64) }
-func (v Int64) Unwrap() interface{}                             { return int64(v) }
-func (v Int64) Encode() ([]byte, error)                         { return util.Int64ToBytes(int64(v)), nil }
-func (v Int64) Decode(b []byte) (gvm.Ref, error)                { return Int64(util.BytesToInt64(b)), nil }
-func (v Int64) GetGVMTok() gvm.TokType                          { return token.Constant }
-func (v Int64) Eval(_ *gvm.ExecCtx) (gvm.Ref, error)            { return v, nil }
-func (v Int64) Marshal(w io.Writer, err *error)                 { serial.Write(w, v, err) }
-func (v Int64) Unmarshal(r io.Reader, pv *uip.VTok, err *error) { serial.Read(r, &v, err); *pv = v }
+func (v Int64) GetGVMType() gvm.RefType                              { return gvm.RefType(value_type.Int64) }
+func (v Int64) Unwrap() interface{}                                  { return int64(v) }
+func (v Int64) Encode() ([]byte, error)                              { return util.Int64ToBytes(int64(v)), nil }
+func (v Int64) Decode(b []byte) (gvm.Ref, error)                     { return Int64(util.BytesToInt64(b)), nil }
+func (v Int64) GetGVMTok() gvm.TokType                               { return token.Constant }
+func (v Int64) Determine(_ InstantiateAccountF) (token.Param, error) { return v, nil }
+func (v Int64) Eval(_ *gvm.ExecCtx) (gvm.Ref, error)                 { return v, nil }
+func (v Int64) Marshal(w io.Writer, err *error)                      { serial.Write(w, v, err) }
+func (v Int64) Unmarshal(r io.Reader, pv *uip.VTok, err *error)      { serial.Read(r, &v, err); *pv = v }
 
 type Bytes []byte
 

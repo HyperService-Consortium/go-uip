@@ -44,35 +44,25 @@ func (ier *Parser) parseLoop(intent *lexer.LoopIntent) (intents []uip.TxIntentI,
 	addOpLoopVar := newIntent(&instruction.RawSetState{
 		Target: loopVar,
 		RightExpression: &lexer.BinaryExpression{
-			Type: loopVarType,
-			Sign: sign_type.ADD,
-			Left: loopVar,
-			Right: &lexer.ConstantVariable{
-				Type:  loopVarType,
-				Const: 1,
-			},
+			Type:  loopVarType,
+			Sign:  sign_type.ADD,
+			Left:  loopVar,
+			Right: lexer.Int64(1),
 		},
 	}, intent.GetName()+".addLoopVar")
 
 	resetLoopVar := newIntent(&instruction.RawSetState{
-		Target: loopVar,
-		RightExpression: &lexer.ConstantVariable{
-			Type:  loopVarType,
-			Const: 0,
-		},
+		Target:          loopVar,
+		RightExpression: lexer.Int64(0),
 	}, intent.GetName()+".resetLoopVar")
 
 	loopBegin := newIntent(&instruction.RawConditionGoto{
 		IndexName: resetLoopVar.GetName(),
 		Condition: &lexer.BinaryExpression{
-			Type: value_type.Bool,
-			Sign: sign_type.GE,
-			Left: loopVar,
-			// todo: convert Times to loopVarType
-			Right: &lexer.ConstantVariable{
-				Type:  loopVarType,
-				Const: int64(intent.Times),
-			},
+			Type:  value_type.Bool,
+			Sign:  sign_type.GE,
+			Left:  loopVar,
+			Right: lexer.Int64(intent.Times),
 		},
 		Offset: 0,
 	}, intent.GetName()+".loopBegin")

@@ -7,6 +7,7 @@ import (
 	"github.com/HyperService-Consortium/go-uip/op-intent/document"
 	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
 	"github.com/HyperService-Consortium/go-uip/op-intent/lexer/internal"
+	"math/big"
 	"strings"
 )
 
@@ -14,18 +15,28 @@ type Param = internal.Param
 
 type LocalStateVariable = internal.LocalStateVariable
 type StateVariable = internal.StateVariable
-type ConstantVariable = internal.ConstantVariable
+
+//type ConstantVariable = internal.ConstantVariable
 type BinaryExpression = internal.BinaryExpression
 type UnaryExpression = internal.UnaryExpression
 type DeterminedBinaryExpression = internal.DeterminedBinaryExpression
 type DeterminedUnaryExpression = internal.DeterminedUnaryExpression
 
+//noinspection GoUnusedExportedFunction
 func ParamUnmarshalJSON(b []byte) (r Param, err error) {
 	c, err := document.NewGJSONDocument(b)
 	if err != nil {
 		return
 	}
 	return ParamUnmarshalResult(c)
+}
+
+func CreateConstantFromJSON(t value_type.Type, v document.Document) internal.DeterminedParam {
+	switch t {
+	case value_type.Uint256:
+		return (*Uint256)(big.NewInt(v.Int()))
+	}
+	panic("implement me")
 }
 
 func decodeHex(src string) (b []byte, err error) {
@@ -77,7 +88,7 @@ func ParamUnmarshalResult(content document.Document) (p Param, err error) {
 
 		v = content.Get(FieldKeyRight)
 		if !v.Exists() {
-			return UnaryExpression{Type: left.GetParamType(), Sign: sign, Left: left}, nil
+			return UnaryExpression{Type: value_type.Type(left.GetGVMType()), Sign: sign, Left: left}, nil
 		}
 
 		right, err := ParamUnmarshalResult(v)
@@ -88,7 +99,7 @@ func ParamUnmarshalResult(content document.Document) (p Param, err error) {
 		//if left.GetParamType() != right.GetParamType() {
 		//	return nil,
 		//}
-		t := left.GetParamType()
+		t := value_type.Type(left.GetGVMType())
 		if sign_type.IsLogic(sign) {
 			t = value_type.Bool
 		}
@@ -112,7 +123,7 @@ func ParamUnmarshalResult(content document.Document) (p Param, err error) {
 	v = content.Get(FieldValueConstant)
 	if v.Exists() {
 		//todo v.Value() -> intDesc
-		return &ConstantVariable{Type: intDesc, Const: v.Value()}, nil
+		return CreateConstantFromJSON(intDesc, v), nil
 	} else if content.Get(FieldContractPos).Exists() &&
 		content.Get(FieldContractField).Exists() {
 		//if err != nil {
