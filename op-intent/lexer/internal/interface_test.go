@@ -10,3 +10,4 @@ var _ Param = LocalStateVariable{}
 var _ token.Param = &StateVariable{}
 var _ token.Param = &DeterminedBinaryExpression{}
 var _ token.Param = &DeterminedUnaryExpression{}
+var _ token.Param = &LocalStateVariable{}

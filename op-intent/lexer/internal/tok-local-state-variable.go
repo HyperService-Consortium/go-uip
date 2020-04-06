@@ -46,22 +46,6 @@ func (l LocalStateVariable) GetGVMType() gvm.RefType {
 	return gvm.RefType(l.Type)
 }
 
-func (l LocalStateVariable) GetType() token.Type {
-	return token.LocalStateVariable
-}
-
-func (l LocalStateVariable) GetParamType() value_type.Type {
-	return l.Type
-}
-
-func (l LocalStateVariable) GetPos() []byte {
-	return l.Pos
-}
-
-func (l LocalStateVariable) GetField() []byte {
-	return l.Field
-}
-
-func (l LocalStateVariable) Determine(f InstantiateAccountF) (token.Param, error) {
+func (l LocalStateVariable) Determine(_ InstantiateAccountF) (token.Param, error) {
 	return l, nil
 }

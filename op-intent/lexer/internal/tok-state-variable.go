@@ -41,34 +41,14 @@ func (s StateVariable) GetGVMTok() gvm.TokType {
 	return token.StateVariable
 }
 
-func (s StateVariable) Eval(g *gvm.ExecCtx) (gvm.Ref, error) {
-	//return g.Load(string(p.Field), p.GetGVMType())
-	// todo
-	panic("todo")
-}
-
 func (s StateVariable) GetGVMType() gvm.RefType {
 	return gvm.RefType(s.Type)
 }
 
-func (s StateVariable) GetType() token.Type {
-	return token.StateVariable
-}
-
-func (s StateVariable) GetParamType() value_type.Type {
-	return s.Type
-}
-
-func (s StateVariable) GetContract() token.Token {
-	return s.Contract
-}
-
-func (s StateVariable) GetPos() []byte {
-	return s.Pos
-}
-
-func (s StateVariable) GetField() []byte {
-	return s.Field
+func (s StateVariable) Eval(g *gvm.ExecCtx) (gvm.Ref, error) {
+	//return g.Load(string(p.Field), p.GetGVMType())
+	// todo
+	panic("todo")
 }
 
 func (s *StateVariable) Determine(f InstantiateAccountF) (token.Param, error) {

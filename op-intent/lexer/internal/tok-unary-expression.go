@@ -33,6 +33,10 @@ func (u DeterminedUnaryExpression) GetGVMTok() gvm.TokType {
 	return token.UnaryExpression
 }
 
+func (u DeterminedUnaryExpression) GetGVMType() gvm.RefType {
+	return gvm.RefType(u.Type)
+}
+
 func (u DeterminedUnaryExpression) Marshal(w io.Writer, err *error) {
 	if *err != nil {
 		return
@@ -52,41 +56,17 @@ func (u *DeterminedUnaryExpression) Unmarshal(r io.Reader, i *uip.VTok, err *err
 	*i = u
 }
 
-func (u DeterminedUnaryExpression) Eval(g *gvm.ExecCtx) (gvm.Ref, error) {
+func (u *DeterminedUnaryExpression) Eval(g *gvm.ExecCtx) (gvm.Ref, error) {
 	l, err := u.Left.Eval(g)
 	if err != nil {
 		return nil, err
 	}
-	switch u.GetSign() {
+	switch u.Sign {
 	case sign_type.LNot:
 		return gvm_type.LNot(l)
 	default:
-		return nil, fmt.Errorf("unknown sign_type: %v", u.GetSign())
+		return nil, fmt.Errorf("unknown sign_type: %v", u.Sign)
 	}
-}
-
-func (u DeterminedUnaryExpression) GetGVMType() gvm.RefType {
-	return gvm.RefType(u.Type)
-}
-
-func (u DeterminedUnaryExpression) GetType() token.Type {
-	return token.UnaryExpression
-}
-
-func (u DeterminedUnaryExpression) GetSign() sign_type.Type {
-	return u.Sign
-}
-
-func (u DeterminedUnaryExpression) GetLeft() token.Param {
-	return u.Left
-}
-
-func (u DeterminedUnaryExpression) GetParamType() value_type.Type {
-	return u.Type
-}
-
-func (u UnaryExpression) GetParamType() value_type.Type {
-	return u.Type
 }
 
 func (u UnaryExpression) Determine(f InstantiateAccountF) (_ token.Param, err error) {

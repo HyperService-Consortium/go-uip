@@ -94,7 +94,7 @@ func DecodeVTokWithType(r io.Reader, v *uip.VTok, t gvm.TokType, err *error) {
 	case token.StateVariable:
 		*v = new(StateVariable)
 	default:
-		panic("todo")
+		*err = fmt.Errorf("not match current type: %v", t)
 	}
 
 	(*v).Unmarshal(r, v, err)
@@ -139,7 +139,8 @@ func ReadConstant(r io.Reader, v *uip.VTok, t gvm.RefType, err *error) {
 	case gvm_type.RefUnknown:
 		*v = Undefined
 	default:
-		panic(fmt.Errorf("unknown reference type: %v", gvm_type.ExplainGVMType(t)))
+		*err = fmt.Errorf("unknown reference type: %v", gvm_type.ExplainGVMType(t))
+		return
 	}
 	(*v).Unmarshal(r, v, err)
 }
