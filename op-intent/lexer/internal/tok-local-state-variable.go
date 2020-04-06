@@ -3,6 +3,7 @@ package internal
 import (
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
 	"github.com/HyperService-Consortium/go-uip/op-intent/token"
+	"github.com/HyperService-Consortium/go-uip/serial"
 	"github.com/HyperService-Consortium/go-uip/uip"
 	"github.com/Myriad-Dreamin/gvm"
 	"io"
@@ -15,11 +16,22 @@ type LocalStateVariable struct {
 }
 
 func (l LocalStateVariable) Marshal(w io.Writer, err *error) {
-	panic("implement me")
+	if *err != nil {
+		return
+	}
+	serial.Write(w, l.Type, err)
+	serial.Write(w, l.Pos, err)
+	serial.Write(w, l.Field, err)
 }
 
 func (l LocalStateVariable) Unmarshal(r io.Reader, i *uip.VTok, err *error) {
-	panic("implement me")
+	if *err != nil {
+		return
+	}
+	serial.Read(r, &l.Type, err)
+	serial.Read(r, &l.Pos, err)
+	serial.Read(r, &l.Field, err)
+	*i = l
 }
 
 func (l LocalStateVariable) GetGVMTok() gvm.TokType {

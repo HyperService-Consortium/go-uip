@@ -2,6 +2,7 @@ package internal
 
 import (
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"github.com/HyperService-Consortium/go-uip/op-intent/token"
 	"github.com/HyperService-Consortium/go-uip/serial"
@@ -33,6 +34,44 @@ func DecodeVTok(r io.Reader, v *uip.VTok, err *error) {
 	DecodeVTokWithType(r, v, t, err)
 }
 
+func EncodeAccount(w io.Writer, v Account, err *error) {
+	if *err != nil {
+		return
+	}
+	serial.Write(w, v.GetType(), err)
+	v.Marshal(w, err)
+}
+
+func DecodeAccount(r io.Reader, v *Account, err *error) {
+	if *err != nil {
+		return
+	}
+	var t gvm.TokType
+	*err = binary.Read(r, binary.BigEndian, &t)
+	DecodeAccountWithType(r, v, t, err)
+}
+
+func DecodeAccountWithType(r io.Reader, v *Account, t gvm.TokType, err *error) {
+	if *err != nil {
+		return
+	}
+	switch t {
+	case token.NamespacedNameAccount:
+		*v = new(NamespacedNameAccount)
+	case token.NameAccount:
+		*v = new(NameAccount)
+	case token.NamespacedRawAccount:
+		*v = new(NamespacedRawAccount)
+	case token.RawAccount:
+		*v = new(RawAccount)
+	default:
+		*err = errors.New("bad account type")
+		return
+	}
+
+	(*v).Unmarshal(r, v, err)
+}
+
 func DecodeVTokWithType(r io.Reader, v *uip.VTok, t gvm.TokType, err *error) {
 	if *err != nil {
 		return
@@ -45,9 +84,20 @@ func DecodeVTokWithType(r io.Reader, v *uip.VTok, t gvm.TokType, err *error) {
 			return
 		}
 		ReadConstant(r, v, vt, err)
+		return
+	case token.BinaryExpression:
+		*v = new(DeterminedBinaryExpression)
+	case token.UnaryExpression:
+		*v = new(DeterminedUnaryExpression)
+	case token.LocalStateVariable:
+		*v = new(LocalStateVariable)
+	case token.StateVariable:
+		*v = new(StateVariable)
 	default:
 		panic("todo")
 	}
+
+	(*v).Unmarshal(r, v, err)
 	return
 }
 

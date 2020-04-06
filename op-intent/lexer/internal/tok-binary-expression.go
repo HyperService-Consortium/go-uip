@@ -55,7 +55,7 @@ func (b DeterminedBinaryExpression) Marshal(w io.Writer, err *error) {
 	EncodeVTok(w, b.Right, err)
 }
 
-func (b DeterminedBinaryExpression) Unmarshal(r io.Reader, i *uip.VTok, err *error) {
+func (b *DeterminedBinaryExpression) Unmarshal(r io.Reader, i *uip.VTok, err *error) {
 	serial.Read(r, &b.Type, err)
 	serial.Read(r, &b.Sign, err)
 	DecodeVTok(r, &b.Left, err)

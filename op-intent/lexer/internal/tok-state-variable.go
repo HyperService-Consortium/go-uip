@@ -3,6 +3,7 @@ package internal
 import (
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
 	"github.com/HyperService-Consortium/go-uip/op-intent/token"
+	"github.com/HyperService-Consortium/go-uip/serial"
 	"github.com/HyperService-Consortium/go-uip/uip"
 	"github.com/Myriad-Dreamin/gvm"
 	"io"
@@ -16,11 +17,24 @@ type StateVariable struct {
 }
 
 func (s StateVariable) Marshal(w io.Writer, err *error) {
-	panic("implement me")
+	if *err != nil {
+		return
+	}
+	serial.Write(w, s.Type, err)
+	EncodeAccount(w, s.Contract, err)
+	serial.Write(w, s.Pos, err)
+	serial.Write(w, s.Field, err)
 }
 
-func (s StateVariable) Unmarshal(r io.Reader, i *uip.VTok, err *error) {
-	panic("implement me")
+func (s *StateVariable) Unmarshal(r io.Reader, i *uip.VTok, err *error) {
+	if *err != nil {
+		return
+	}
+	serial.Read(r, &s.Type, err)
+	DecodeAccount(r, &s.Contract, err)
+	serial.Read(r, &s.Pos, err)
+	serial.Read(r, &s.Field, err)
+	*i = s
 }
 
 func (s StateVariable) GetGVMTok() gvm.TokType {
@@ -57,7 +71,7 @@ func (s StateVariable) GetField() []byte {
 	return s.Field
 }
 
-func (s StateVariable) Determine(f InstantiateAccountF) (token.Param, error) {
+func (s *StateVariable) Determine(f InstantiateAccountF) (token.Param, error) {
 	a, err := f(s.Contract)
 	if err != nil {
 		return nil, err

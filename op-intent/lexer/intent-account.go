@@ -13,7 +13,7 @@ type Account = internal.Account
 
 type RawAccount = internal.RawAccount
 type NameAccount = internal.NameAccount
-type NamespacedAccount = internal.NamespacedAccount
+type NamespacedAccount = internal.NamespacedNameAccount
 type NamespacedRawAccount = internal.NamespacedRawAccount
 
 func NewNamespacedRawAccount(a uip.Account) Account {

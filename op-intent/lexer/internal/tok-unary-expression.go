@@ -42,7 +42,10 @@ func (u DeterminedUnaryExpression) Marshal(w io.Writer, err *error) {
 	EncodeVTok(w, u.Left, err)
 }
 
-func (u DeterminedUnaryExpression) Unmarshal(r io.Reader, i *uip.VTok, err *error) {
+func (u *DeterminedUnaryExpression) Unmarshal(r io.Reader, i *uip.VTok, err *error) {
+	if *err != nil {
+		return
+	}
 	serial.Read(r, &u.Type, err)
 	serial.Read(r, &u.Sign, err)
 	DecodeVTok(r, &u.Left, err)
