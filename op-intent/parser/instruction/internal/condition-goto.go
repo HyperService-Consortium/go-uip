@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/HyperService-Consortium/go-uip/const/instruction_type"
-	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
 	"github.com/HyperService-Consortium/go-uip/uip"
 	"github.com/Myriad-Dreamin/gvm"
 	gvm_type "github.com/Myriad-Dreamin/gvm/libgvm/gvm-type"
@@ -42,7 +41,8 @@ func (g *ConditionGoto) Convert() (gg *GVMConditionGoto, err error) {
 		Type:  g.Type,
 		Index: g.Index,
 	}
-	gg.Condition, err = lexer.ParamUnmarshalJSON(g.Condition)
+	panic("todo")
+	//gg.Condition, err = lexer.ParamUnmarshalJSON(g.Condition)
 	return
 }
 

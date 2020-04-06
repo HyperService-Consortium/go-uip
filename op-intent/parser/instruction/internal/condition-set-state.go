@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/HyperService-Consortium/go-uip/const/instruction_type"
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
-	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
 	"github.com/HyperService-Consortium/go-uip/uip"
 	"github.com/Myriad-Dreamin/gvm"
 	gvm_type "github.com/Myriad-Dreamin/gvm/libgvm/gvm-type"
@@ -54,11 +53,12 @@ func (tx *ConditionSetState) Convert() (g *GVMConditionSetState, err error) {
 		Type:   tx.Type,
 		Target: string(tx.Target),
 	}
-	g.RightExpression, err = lexer.ParamUnmarshalJSON(tx.RightExpression)
-	if err != nil {
-		return nil, err
-	}
-	g.Condition, err = lexer.ParamUnmarshalJSON(tx.Condition)
+	panic("todo")
+	//g.RightExpression, err = lexer.ParamUnmarshalJSON(tx.RightExpression)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//g.Condition, err = lexer.ParamUnmarshalJSON(tx.Condition)
 	return
 }
 

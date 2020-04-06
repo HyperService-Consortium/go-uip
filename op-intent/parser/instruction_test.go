@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"github.com/HyperService-Consortium/go-uip/op-intent/parser/instruction"
 	"github.com/HyperService-Consortium/go-uip/standard"
 	"github.com/HyperService-Consortium/go-uip/uip"
@@ -22,11 +21,11 @@ func TestInstructions(t *testing.T) {
 		{"condition set state", instruction.NewConditionSetState(0, nil, nil, nil)},
 		{"transaction intent", &instruction.TransactionIntent{}},
 	} {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(tt.name, func(ttt *testing.T) {
 			if err := standard.IsValidInstructionImpl(tt.impl); err != nil {
-				t.Error(err)
+				ttt.Error(err)
 			}
-			fmt.Print(tt.impl)
+			//fmt.Print(tt.impl)
 		})
 	}
 }

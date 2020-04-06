@@ -18,19 +18,25 @@ type UnaryExpression struct {
 	Left Param           `json:"left"`
 }
 
-func (u UnaryExpression) GetGVMTok() gvm.TokType {
-	return convertGVMTokType(token.UnaryExpression)
+type DeterminedUnaryExpression struct {
+	Type value_type.Type `json:"type"`
+	Sign sign_type.Type  `json:"sign"`
+	Left token.Param     `json:"left"`
 }
 
-func (u UnaryExpression) Marshal(w io.Writer, err *error) {
+func (u DeterminedUnaryExpression) GetGVMTok() gvm.TokType {
+	return token.UnaryExpression
+}
+
+func (u DeterminedUnaryExpression) Marshal(w io.Writer, err *error) {
 	panic("implement me")
 }
 
-func (u UnaryExpression) Unmarshal(r io.Reader, i *uip.VTok, err *error) {
+func (u DeterminedUnaryExpression) Unmarshal(r io.Reader, i *uip.VTok, err *error) {
 	panic("implement me")
 }
 
-func (u UnaryExpression) Eval(g *gvm.ExecCtx) (gvm.Ref, error) {
+func (u DeterminedUnaryExpression) Eval(g *gvm.ExecCtx) (gvm.Ref, error) {
 	l, err := u.Left.Eval(g)
 	if err != nil {
 		return nil, err
@@ -43,30 +49,37 @@ func (u UnaryExpression) Eval(g *gvm.ExecCtx) (gvm.Ref, error) {
 	}
 }
 
-func (u UnaryExpression) GetGVMType() gvm.RefType {
+func (u DeterminedUnaryExpression) GetGVMType() gvm.RefType {
 	return gvm.RefType(u.Type)
 }
 
-func (u UnaryExpression) GetType() token.Type {
+func (u DeterminedUnaryExpression) GetType() token.Type {
 	return token.UnaryExpression
 }
 
-func (u UnaryExpression) GetSign() sign_type.Type {
+func (u DeterminedUnaryExpression) GetSign() sign_type.Type {
 	return u.Sign
 }
 
-func (u UnaryExpression) GetLeft() token.Param {
+func (u DeterminedUnaryExpression) GetLeft() token.Param {
 	return u.Left
+}
+
+func (u DeterminedUnaryExpression) GetParamType() value_type.Type {
+	return u.Type
 }
 
 func (u UnaryExpression) GetParamType() value_type.Type {
 	return u.Type
 }
 
-func (u UnaryExpression) Determine(f InstantiateAccountF) (_ Param, err error) {
-	u.Left, err = u.Left.Determine(f)
+func (u UnaryExpression) Determine(f InstantiateAccountF) (_ token.Param, err error) {
+	var du DeterminedUnaryExpression
+	du.Left, err = u.Left.Determine(f)
 	if err != nil {
 		return nil, err
 	}
-	return u, nil
+	du.Sign = u.Sign
+	du.Type = u.Type
+	return &du, nil
 }

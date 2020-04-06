@@ -1,10 +1,12 @@
 package lexer
 
-import "github.com/HyperService-Consortium/go-uip/op-intent/lexer/internal"
+import (
+	"github.com/HyperService-Consortium/go-uip/op-intent/token"
+)
 
 type ContractInvokeMeta struct {
-	Code     []byte           `json:"contract_code"` // key
-	FuncName string           `json:"func"`
-	Params   []internal.Param `json:"parameters"`
-	Meta     []byte           `json:"meta"`
+	Code     []byte        `json:"contract_code"` // key
+	FuncName string        `json:"func"`
+	Params   []token.Param `json:"parameters"`
+	Meta     []byte        `json:"meta"`
 }

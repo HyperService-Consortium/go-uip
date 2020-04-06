@@ -24,7 +24,7 @@ func (s StateVariable) Unmarshal(r io.Reader, i *uip.VTok, err *error) {
 }
 
 func (s StateVariable) GetGVMTok() gvm.TokType {
-	return convertGVMTokType(token.StateVariable)
+	return token.StateVariable
 }
 
 func (s StateVariable) Eval(g *gvm.ExecCtx) (gvm.Ref, error) {
@@ -57,7 +57,7 @@ func (s StateVariable) GetField() []byte {
 	return s.Field
 }
 
-func (s StateVariable) Determine(f InstantiateAccountF) (Param, error) {
+func (s StateVariable) Determine(f InstantiateAccountF) (token.Param, error) {
 	a, err := f(s.Contract)
 	if err != nil {
 		return nil, err

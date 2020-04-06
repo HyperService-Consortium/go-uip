@@ -23,7 +23,7 @@ func (l LocalStateVariable) Unmarshal(r io.Reader, i *uip.VTok, err *error) {
 }
 
 func (l LocalStateVariable) GetGVMTok() gvm.TokType {
-	return convertGVMTokType(token.LocalStateVariable)
+	return token.LocalStateVariable
 }
 
 func (l LocalStateVariable) Eval(g *gvm.ExecCtx) (gvm.Ref, error) {
@@ -50,6 +50,6 @@ func (l LocalStateVariable) GetField() []byte {
 	return l.Field
 }
 
-func (l LocalStateVariable) Determine(f InstantiateAccountF) (Param, error) {
+func (l LocalStateVariable) Determine(f InstantiateAccountF) (token.Param, error) {
 	return l, nil
 }

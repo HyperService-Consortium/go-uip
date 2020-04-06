@@ -17,6 +17,8 @@ type StateVariable = internal.StateVariable
 type ConstantVariable = internal.ConstantVariable
 type BinaryExpression = internal.BinaryExpression
 type UnaryExpression = internal.UnaryExpression
+type DeterminedBinaryExpression = internal.DeterminedBinaryExpression
+type DeterminedUnaryExpression = internal.DeterminedUnaryExpression
 
 func ParamUnmarshalJSON(b []byte) (r Param, err error) {
 	c, err := document.NewGJSONDocument(b)

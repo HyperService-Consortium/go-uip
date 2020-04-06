@@ -30,20 +30,20 @@ func (ier *Parser) parseContractInvocation(invokeIntent *lexer.InvokeIntent) (in
 		return nil, errorn.NewInvalidFieldError(errors.New("chain id not matched"))
 	}
 
-	for i := range invokeIntent.Params {
-		invokeIntent.Params[i], err = invokeIntent.Params[i].Determine(ier.queryContract)
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	var meta lexer.ContractInvokeMeta
 	meta.Code = invokeIntent.Code
 	meta.FuncName = invokeIntent.FuncName
-	meta.Params = invokeIntent.Params
 	meta.Meta, err = invokeIntent.Meta.RawBytes()
 	if err != nil {
 		return nil, err
+	}
+
+	meta.Params = make([]token.Param, len(invokeIntent.Params))
+	for i := range invokeIntent.Params {
+		meta.Params[i], err = invokeIntent.Params[i].Determine(ier.queryContract)
+		if err != nil {
+			return nil, err
+		}
 	}
 	b, err := ier.marshal(meta)
 	if err != nil {
@@ -58,7 +58,7 @@ func (ier *Parser) parseContractInvocation(invokeIntent *lexer.InvokeIntent) (in
 		Amt:       invokeIntent.Amount,
 		ChainID:   srcInfo.GetChainId(),
 	}, invokeIntent.GetName())
-	proposals, err := ier.parseContractInvokeProof(invokeIntent)
+	proposals, err := ier.parseContractInvokeProof(&meta)
 	if err != nil {
 		return
 	}
@@ -86,7 +86,7 @@ func DecodeContractPos(src string) ([]byte, error) {
 	return hex.DecodeString(src)
 }
 
-func (ier *Parser) parseContractInvokeProof(intent *lexer.InvokeIntent) (proposals uip.MerkleProofProposalsImpl, err error) {
+func (ier *Parser) parseContractInvokeProof(meta *lexer.ContractInvokeMeta) (proposals uip.MerkleProofProposalsImpl, err error) {
 	//var b []byte
 	//var txp transactionProofSourceDescription
 	//txp.ChainID = intent.Src.ChainId
@@ -107,7 +107,7 @@ func (ier *Parser) parseContractInvokeProof(intent *lexer.InvokeIntent) (proposa
 	//	SourceDescription: b,
 	//})
 
-	for _, param := range intent.Params {
+	for _, param := range meta.Params {
 		proposals, err = ier.addProposal(param, proposals)
 		if err != nil {
 			return
@@ -123,9 +123,9 @@ func (ier *Parser) parseContractInvokeProof(intent *lexer.InvokeIntent) (proposa
 //	Pos      []byte `json:"pos"`
 //	Field    []byte `json:"field"`
 //}
-func (ier *Parser) addProposal(param lexer.Param, proposal uip.MerkleProofProposalsImpl) (uip.MerkleProofProposalsImpl, error) {
+func (ier *Parser) addProposal(param token.Param, proposal uip.MerkleProofProposalsImpl) (uip.MerkleProofProposalsImpl, error) {
 
-	switch param.GetType() {
+	switch param.GetGVMTok() {
 	case token.Constant:
 	case token.StateVariable:
 		c := param.(token.StateVariableI).GetContract()
@@ -144,7 +144,7 @@ func (ier *Parser) addProposal(param lexer.Param, proposal uip.MerkleProofPropos
 			proposal = append(proposal, MerkleProofProposal{
 				DescriptionType:   merkleproof_proposal_type.DataProof,
 				MerkleProofType:   mpt,
-				ValueType:         param.GetParamType(),
+				ValueType:         uip.TypeIDUnderlyingType(param.GetGVMType()),
 				SourceDescription: v,
 			})
 		}

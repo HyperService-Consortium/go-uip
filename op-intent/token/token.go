@@ -1,7 +1,8 @@
 package token
 
-type Type uint64
+type Type = uint64
 
+//noinspection ALL
 const (
 	Pay Type = iota
 	Invoke
@@ -13,6 +14,10 @@ const (
 	LocalStateVariable
 	BinaryExpression
 	UnaryExpression
+
+	FuncParam
+	ReturnParam
+	LocalVariable
 
 	NamespacedNameAccount
 	NameAccount

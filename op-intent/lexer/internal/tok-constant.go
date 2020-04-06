@@ -26,7 +26,7 @@ func (p ConstantVariable) Encode() ([]byte, error) {
 }
 
 func (p ConstantVariable) GetGVMTok() gvm.TokType {
-	return convertGVMTokType(token.Constant)
+	return token.Constant
 }
 
 func (p ConstantVariable) GetGVMType() gvm.RefType {
@@ -42,7 +42,7 @@ func (p ConstantVariable) Unwrap() interface{} {
 	return p.Const
 }
 
-func (p ConstantVariable) Determine(_ InstantiateAccountF) (Param, error) {
+func (p ConstantVariable) Determine(_ InstantiateAccountF) (token.Param, error) {
 	return p, nil
 }
 

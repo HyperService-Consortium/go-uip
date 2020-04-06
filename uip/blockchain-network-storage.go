@@ -1,8 +1,7 @@
 package uip
 
-
 type TypeIDUnderlyingType = uint16
-type TypeID TypeIDUnderlyingType
+type TypeID = TypeIDUnderlyingType
 type ContractAddress = []byte
 
 type Storage interface {

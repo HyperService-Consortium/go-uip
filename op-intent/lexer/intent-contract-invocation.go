@@ -4,7 +4,6 @@ import (
 	"encoding/base64"
 	"github.com/HyperService-Consortium/go-uip/op-intent/document"
 	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
-	"github.com/HyperService-Consortium/go-uip/op-intent/lexer/internal"
 )
 
 type InvokeIntent struct {
@@ -13,7 +12,7 @@ type InvokeIntent struct {
 	Dst      Account           `json:"contract_addr"` // key
 	Code     []byte            `json:"contract_code"` // key
 	FuncName string            `json:"func"`
-	Params   []internal.Param  `json:"parameters"`
+	Params   []Param           `json:"parameters"`
 	Amount   string            `json:"amount"` // option
 	Meta     document.Document `json:"meta"`
 }

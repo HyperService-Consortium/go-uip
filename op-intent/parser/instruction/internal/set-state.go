@@ -97,7 +97,8 @@ func (tx *SetState) Convert() (g *GVMSetState, err error) {
 		Type:   tx.Type,
 		Target: string(tx.Target),
 	}
-	g.RightExpression, err = lexer.ParamUnmarshalJSON(tx.RightExpression)
+	panic("todo")
+	//g.RightExpression, err = lexer.ParamUnmarshalJSON(tx.RightExpression)
 	return
 }
 

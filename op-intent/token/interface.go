@@ -2,7 +2,6 @@ package token
 
 import (
 	"github.com/HyperService-Consortium/go-uip/const/sign_type"
-	"github.com/HyperService-Consortium/go-uip/const/value_type"
 	"github.com/HyperService-Consortium/go-uip/uip"
 )
 
@@ -24,11 +23,7 @@ type Token interface {
 	GetType() Type
 }
 
-type Param interface {
-	Token
-	uip.VTok
-	GetParamType() value_type.Type
-}
+type Param = uip.VTok
 
 type stateVariableI interface {
 	GetPos() []byte
