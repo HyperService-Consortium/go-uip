@@ -124,153 +124,154 @@ func runIntentRTest(t *testing.T, opIntents map[string]interface{}, callback fun
 //      "ratio": "1 ether as XYZ"
 //    }
 
+var ifLoopIntentR = obj{
+	"op-intents": []obj{
+		{
+			"name": "op1",
+			"type": "Payment",
+			"src": obj{
+				"domain":    1,
+				"user_name": "a1",
+			},
+			"dst": obj{
+				"domain":    2,
+				"user_name": "a2",
+			},
+			"amount": "1a",
+			"unit":   "ether",
+		},
+		{
+			"name":    "op2",
+			"type":    "ContractInvocation",
+			"invoker": "a2",
+			"func":    "vote",
+			"contract": obj{
+				"domain":  2,
+				"address": "0x3723261b2a5a62b778b5c74318534d7fdf8db38c",
+			},
+			"parameters": []obj{},
+		},
+		{
+			"name": "if-op",
+			"type": "IfStatement",
+			"if": []obj{
+				{
+					"name":    "op3",
+					"type":    "ContractInvocation",
+					"invoker": "a2",
+					"func":    "vote",
+					"contract": obj{
+						"address": "0x3723261b2a5a62b778b5c74318d34d7fdbadb38e",
+					},
+					"parameters": []obj{},
+				},
+				{
+					"name": "op4",
+					"type": "Payment",
+					"src": obj{
+						"domain":    1,
+						"user_name": "a1",
+					},
+					"dst": obj{
+						"domain":    2,
+						"user_name": "a2",
+					},
+					"amount": "aa",
+					"unit":   "ether",
+				},
+			},
+			"else": []obj{
+				{
+					"name":    "op5",
+					"type":    "ContractInvocation",
+					"invoker": "a2",
+					"func":    "vote",
+					"contract": obj{
+						"domain":  2,
+						"address": "0x3723261b2a5a62b778b5c74318534d7fdf8db38c",
+					},
+					"parameters": []obj{},
+				},
+			},
+			"condition": obj{
+				"left": obj{
+					"type": "uint256",
+					"value": obj{
+						"contract": "c2",
+						"field":    "num_count",
+						"pos":      "00",
+					},
+				},
+				"right": obj{
+					"type": "uint256",
+					"value": obj{
+						"contract": "c2",
+						"field":    "totalVotes",
+						"pos":      "01",
+					},
+				},
+				"sign": "Greater",
+			},
+		},
+		{
+			"name": "loop",
+			"type": "loopFunction",
+			"loop": []obj{
+				{
+					"name":    "op6",
+					"type":    "ContractInvocation",
+					"invoker": "a2",
+					"func":    "vote",
+					"contract": obj{
+						"domain":  2,
+						"address": "0x3723261b2a5a62b778b5c74318534d7fdf8db38c",
+					},
+					"parameters": []obj{},
+				},
+			},
+			"loopTime": "5",
+		},
+	},
+	"dependencies": []obj{},
+	"contracts": []obj{
+		{
+			"contractName": "c1",
+			"domain":       1,
+			"address":      "0xafc7d2959e72081770304f6474151293be1fbba7",
+		},
+		{
+			"contractName": "c2",
+			"domain":       2,
+			"address":      "0x3723261b2a5a62b778b5c74318534d7fdf8db38c",
+		},
+		{
+			"contractName": "c3",
+			"domain":       3,
+			"address":      "0x3723261b2a5a62b778b5c74318d34d7fdbadb38e",
+		},
+	},
+	"accounts": []obj{
+		{
+			"userName": "a1",
+			"domain":   1,
+			"address":  "0x7019fa779024c0a0eac1d8475733eefe10a49f3b",
+		},
+		{
+			"userName": "a2",
+			"domain":   2,
+			"address":  "0x47a1cdb6594d6efed3a6b917f2fbaa2bbcf61a2e",
+		},
+		{
+			"userName": "a3",
+			"domain":   3,
+			"address":  "0x47a1cdb6559d6efed3a6b917f2fbaa2bbcf61a2e",
+		},
+	},
+}
+
 func TestGenerateIfLoopIntentR(t *testing.T) {
 
-	i := obj{
-		"op-intents": []obj{
-			{
-				"name": "op1",
-				"type": "Payment",
-				"src": obj{
-					"domain":    1,
-					"user_name": "a1",
-				},
-				"dst": obj{
-					"domain":    2,
-					"user_name": "a2",
-				},
-				"amount": "1a",
-				"unit":   "ether",
-			},
-			{
-				"name":    "op2",
-				"type":    "ContractInvocation",
-				"invoker": "a2",
-				"func":    "vote",
-				"contract": obj{
-					"domain":  2,
-					"address": "0x3723261b2a5a62b778b5c74318534d7fdf8db38c",
-				},
-				"parameters": []obj{},
-			},
-			{
-				"name": "if-op",
-				"type": "IfStatement",
-				"if": []obj{
-					{
-						"name":    "op3",
-						"type":    "ContractInvocation",
-						"invoker": "a2",
-						"func":    "vote",
-						"contract": obj{
-							"address": "0x3723261b2a5a62b778b5c74318d34d7fdbadb38e",
-						},
-						"parameters": []obj{},
-					},
-					{
-						"name": "op4",
-						"type": "Payment",
-						"src": obj{
-							"domain":    1,
-							"user_name": "a1",
-						},
-						"dst": obj{
-							"domain":    2,
-							"user_name": "a2",
-						},
-						"amount": "aa",
-						"unit":   "ether",
-					},
-				},
-				"else": []obj{
-					{
-						"name":    "op5",
-						"type":    "ContractInvocation",
-						"invoker": "a2",
-						"func":    "vote",
-						"contract": obj{
-							"domain":  2,
-							"address": "0x3723261b2a5a62b778b5c74318534d7fdf8db38c",
-						},
-						"parameters": []obj{},
-					},
-				},
-				"condition": obj{
-					"left": obj{
-						"type": "uint256",
-						"value": obj{
-							"contract": "c2",
-							"field":    "num_count",
-							"pos":      "00",
-						},
-					},
-					"right": obj{
-						"type": "uint256",
-						"value": obj{
-							"contract": "c2",
-							"field":    "totalVotes",
-							"pos":      "01",
-						},
-					},
-					"sign": "Greater",
-				},
-			},
-			{
-				"name": "loop",
-				"type": "loopFunction",
-				"loop": []obj{
-					{
-						"name":    "op6",
-						"type":    "ContractInvocation",
-						"invoker": "a2",
-						"func":    "vote",
-						"contract": obj{
-							"domain":  2,
-							"address": "0x3723261b2a5a62b778b5c74318534d7fdf8db38c",
-						},
-						"parameters": []obj{},
-					},
-				},
-				"loopTime": "5",
-			},
-		},
-		"dependencies": []obj{},
-		"contracts": []obj{
-			{
-				"contractName": "c1",
-				"domain":       1,
-				"address":      "0xafc7d2959e72081770304f6474151293be1fbba7",
-			},
-			{
-				"contractName": "c2",
-				"domain":       2,
-				"address":      "0x3723261b2a5a62b778b5c74318534d7fdf8db38c",
-			},
-			{
-				"contractName": "c3",
-				"domain":       3,
-				"address":      "0x3723261b2a5a62b778b5c74318d34d7fdbadb38e",
-			},
-		},
-		"accounts": []obj{
-			{
-				"userName": "a1",
-				"domain":   1,
-				"address":  "0x7019fa779024c0a0eac1d8475733eefe10a49f3b",
-			},
-			{
-				"userName": "a2",
-				"domain":   2,
-				"address":  "0x47a1cdb6594d6efed3a6b917f2fbaa2bbcf61a2e",
-			},
-			{
-				"userName": "a3",
-				"domain":   3,
-				"address":  "0x47a1cdb6559d6efed3a6b917f2fbaa2bbcf61a2e",
-			},
-		},
-	}
-	runIntentRTest(t, i, func(intents parser.TxIntents) {
+	runIntentRTest(t, ifLoopIntentR, func(intents parser.TxIntents) {
 		for _, intent := range intents.GetTxIntents() {
 			fmt.Println(intent.GetName())
 		}

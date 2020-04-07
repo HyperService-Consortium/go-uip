@@ -2,9 +2,14 @@ package isc
 
 import (
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
+	merkle_proof "github.com/HyperService-Consortium/go-uip/const/merkle-proof-type"
 	"github.com/HyperService-Consortium/go-uip/mock"
+	opintent "github.com/HyperService-Consortium/go-uip/op-intent"
+	error2 "github.com/HyperService-Consortium/go-uip/op-intent/errorn"
 	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
+	"github.com/HyperService-Consortium/go-uip/op-intent/parser"
 	"github.com/HyperService-Consortium/go-uip/op-intent/parser/instruction"
 	"github.com/HyperService-Consortium/go-uip/storage"
 	"github.com/HyperService-Consortium/go-uip/uip"
@@ -295,4 +300,247 @@ func TestISC_InsuranceClaim(t *testing.T) {
 			sugar.HandlerError0(isc.Storage.storage.Commit())
 		})
 	}
+}
+
+func TestIf(t *testing.T) {
+	type obj map[string]interface{}
+	var opIntents = obj{
+		"op-intents": []obj{
+			{
+				"name": "op1",
+				"type": "Payment",
+				"src": obj{
+					"domain":    1,
+					"user_name": "a1",
+				},
+				"dst": obj{
+					"domain":    2,
+					"user_name": "a2",
+				},
+				"amount": "1a",
+				"unit":   "ether",
+			},
+			{
+				"name":    "op2",
+				"type":    "ContractInvocation",
+				"invoker": "a2",
+				"func":    "vote",
+				"contract": obj{
+					"domain":  2,
+					"address": "0x3723261b2a5a62b778b5c74318534d7fdf8db38c",
+				},
+				"parameters": []obj{},
+			},
+			{
+				"name": "if-op",
+				"type": "IfStatement",
+				"if": []obj{
+					{
+						"name":    "op3",
+						"type":    "ContractInvocation",
+						"invoker": "a2",
+						"func":    "vote",
+						"contract": obj{
+							"address": "0x3723261b2a5a62b778b5c74318d34d7fdbadb38e",
+						},
+						"parameters": []obj{},
+					},
+					{
+						"name": "op4",
+						"type": "Payment",
+						"src": obj{
+							"domain":    1,
+							"user_name": "a1",
+						},
+						"dst": obj{
+							"domain":    2,
+							"user_name": "a2",
+						},
+						"amount": "aa",
+						"unit":   "ether",
+					},
+				},
+				"else": []obj{
+					{
+						"name":    "op5",
+						"type":    "ContractInvocation",
+						"invoker": "a2",
+						"func":    "vote",
+						"contract": obj{
+							"domain":  2,
+							"address": "0x3723261b2a5a62b778b5c74318534d7fdf8db38c",
+						},
+						"parameters": []obj{},
+					},
+				},
+				"condition": obj{
+					"left": obj{
+						"type": "uint256",
+						"value": obj{
+							"contract": "c2",
+							"field":    "num_count",
+							"pos":      "00",
+						},
+					},
+					"right": obj{
+						"type": "uint256",
+						"value": obj{
+							"contract": "c2",
+							"field":    "totalVotes",
+							"pos":      "01",
+						},
+					},
+					"sign": "Greater",
+				},
+			},
+			{
+				"name": "loop",
+				"type": "loopFunction",
+				"loop": []obj{
+					{
+						"name":    "op6",
+						"type":    "ContractInvocation",
+						"invoker": "a2",
+						"func":    "vote",
+						"contract": obj{
+							"domain":  2,
+							"address": "0x3723261b2a5a62b778b5c74318534d7fdf8db38c",
+						},
+						"parameters": []obj{},
+					},
+				},
+				"loopTime": "5",
+			},
+		},
+		"dependencies": []obj{},
+		"contracts": []obj{
+			{
+				"contractName": "c1",
+				"domain":       1,
+				"address":      "0xafc7d2959e72081770304f6474151293be1fbba7",
+			},
+			{
+				"contractName": "c2",
+				"domain":       2,
+				"address":      "0x3723261b2a5a62b778b5c74318534d7fdf8db38c",
+			},
+			{
+				"contractName": "c3",
+				"domain":       3,
+				"address":      "0x3723261b2a5a62b778b5c74318d34d7fdbadb38e",
+			},
+		},
+		"accounts": []obj{
+			{
+				"userName": "a1",
+				"domain":   1,
+				"address":  "0x7019fa779024c0a0eac1d8475733eefe10a49f3b",
+			},
+			{
+				"userName": "a2",
+				"domain":   2,
+				"address":  "0x47a1cdb6594d6efed3a6b917f2fbaa2bbcf61a2e",
+			},
+			{
+				"userName": "a3",
+				"domain":   3,
+				"address":  "0x47a1cdb6559d6efed3a6b917f2fbaa2bbcf61a2e",
+			},
+		},
+	}
+
+	var intents parser.TxIntents
+
+	ier, err := opintent.NewInitializer(uip.BlockChainGetterNilImpl{}, mAccountProvider{})
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	p := packet{
+		content: sugar.HandlerError(json.Marshal(opIntents)).([]byte),
+	}
+
+	intents, err = ier.ParseR(p)
+	if err != nil {
+		t.Error(err)
+		pe := err.(*error2.ParseError)
+		fmt.Println(string(sugar.HandlerError(pe.Serialize()).([]byte)))
+		return
+	}
+	var txIntents = intents.GetTxIntents()
+	var instructions []uip.Instruction
+	for i := range txIntents {
+		//fmt.Println(txIntents[i].GetName())
+		instructions = append(instructions, txIntents[i].GetInstruction())
+	}
+
+	ctx := ContextImpl{
+		s: user0,
+		a: []byte{2},
+	}
+	isc := NewISC(ctx, storage.NewVM(mock.NewLocalStorage()))
+
+	var newContractReply NewContractReply
+
+	unpack(isc.NewContract([][]byte{ctx.s}, []uint64{0}, instructions, encodeInstructions(instructions)), &newContractReply)
+	commit(t, isc)
+	fmt.Println(newContractReply)
+	assert.EqualValues(t, StateInitializing, isc.Storage.getISCState())
+
+	for i := range instructions {
+		assert.EqualValues(t, OK, isc.FreezeInfo(uint64(i)))
+		commit(t, isc)
+	}
+
+	assert.EqualValues(t, StateInitialized, isc.Storage.getISCState())
+
+	assert.EqualValues(t, OK, isc.UserAck(user0, []byte("todo")))
+	//	iscOwners:       [][]byte{ctx.s},
+	//			funds:           []uint64{0},
+	//			instructions:    funcSetA(),
+	//			rawInstructions: encodeInstructions(funcSetA()),
+}
+
+func commit(_ *testing.T, isc *ISC) {
+	sugar.HandlerError0(isc.Storage.storage.Commit())
+}
+
+func unpack(response Response, n *NewContractReply) {
+	var data = response.(*ResponseData).Data
+	//fmt.Println(string(data))
+	sugar.HandlerError0(json.Unmarshal(data, n))
+}
+
+type packet struct {
+	content []byte
+}
+
+func (p packet) GetContent() (content []byte) {
+	return p.content
+}
+
+type mAccountProvider struct {
+}
+
+func (a mAccountProvider) AccountBase() uip.AccountBase {
+	return a
+}
+
+func (mAccountProvider) Get(_ string, chainId uint64) (uip.Account, error) {
+	return &uip.AccountImpl{
+		ChainId: chainId,
+		Address: []byte("121313212313133123333333333333333313"),
+	}, nil
+}
+
+func (mAccountProvider) GetRelay(domain uint64) (uip.Account, error) {
+	return &uip.AccountImpl{
+		ChainId: domain,
+		Address: []byte("99999"),
+	}, nil
+}
+
+func (mAccountProvider) GetTransactionProofType(_ uint64) (uip.MerkleProofType, error) {
+	return merkle_proof.MerklePatriciaTrieUsingKeccak256, nil
 }
