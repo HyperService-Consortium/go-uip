@@ -6,6 +6,7 @@ import (
 	"github.com/HyperService-Consortium/go-uip/const/trans_type"
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
 	"github.com/HyperService-Consortium/go-uip/op-intent/parser/instruction/internal"
+	"github.com/HyperService-Consortium/go-uip/serial"
 	"github.com/HyperService-Consortium/go-uip/uip"
 	"github.com/Myriad-Dreamin/gvm"
 	"io"
@@ -57,15 +58,34 @@ type TransactionIntent struct {
 }
 
 func (tx *TransactionIntent) Marshal(w io.Writer, err *error) {
-	panic("implement me")
+	if *err != nil {
+		return
+	}
+	serial.Write(w, tx.TransType, err)
+	serial.Write(w, tx.Src, err)
+	serial.Write(w, tx.Dst, err)
+	serial.Write(w, tx.Amt, err)
+	serial.Write(w, tx.ChainID, err)
+	serial.Write(w, []byte(tx.Meta), err)
 }
 
-func (tx *TransactionIntent) Exec(g *gvm.ExecCtx) error {
+func (tx *TransactionIntent) Exec(c *gvm.ExecCtx) error {
 	panic("implement me")
 }
 
 func (tx *TransactionIntent) Unmarshal(r io.Reader, i *uip.Instruction, err *error) {
-	panic("implement me")
+	if *err != nil {
+		return
+	}
+	serial.Read(r, &tx.TransType, err)
+	serial.Read(r, &tx.Src, err)
+	serial.Read(r, &tx.Dst, err)
+	serial.Read(r, &tx.Amt, err)
+	serial.Read(r, &tx.ChainID, err)
+	var b []byte
+	serial.Read(r, &b, err)
+	tx.Meta = b
+	*i = tx
 }
 
 func (tx *TransactionIntent) GetType() instruction_type.Type {

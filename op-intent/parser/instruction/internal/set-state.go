@@ -12,14 +12,22 @@ import (
 )
 
 type SetState struct {
-	IType           instruction_type.Type `json:"itype"`
-	Type            value_type.Type       `json:"value_type"`
-	Target          []byte                `json:"target"`
-	RightExpression json.RawMessage       `json:"expression"`
+	Type            value_type.Type `json:"value_type"`
+	Target          []byte          `json:"target"`
+	RightExpression json.RawMessage `json:"expression"`
+}
+
+func (g SetState) GetType() instruction_type.Type {
+	return instruction_type.SetState
 }
 
 func (g SetState) Marshal(w io.Writer, err *error) {
-	panic("implement me")
+	if *err != nil {
+		return
+	}
+	serial.Write(w, g.Type, err)
+	serial.Write(w, g.Target, err)
+	serial.Write(w, []byte(g.RightExpression), err)
 }
 
 func (g SetState) Exec(c *gvm.ExecCtx) error {
@@ -27,12 +35,19 @@ func (g SetState) Exec(c *gvm.ExecCtx) error {
 }
 
 func (g SetState) Unmarshal(r io.Reader, i *uip.Instruction, err *error) {
-	panic("implement me")
+	if *err != nil {
+		return
+	}
+	serial.Read(r, &g.Type, err)
+	serial.Read(r, &g.Target, err)
+	var b []byte
+	serial.Read(r, &b, err)
+	g.RightExpression = b
+	*i = g
 }
 
 func NewSetState(t value_type.Type, target []byte, rhs json.RawMessage) *SetState {
 	return &SetState{
-		IType:           instruction_type.SetState,
 		Type:            t,
 		Target:          target,
 		RightExpression: rhs,
@@ -63,7 +78,7 @@ type GVMSetState struct {
 }
 
 func (G *GVMSetState) GetType() instruction_type.Type {
-	return instruction_type.SetState
+	return instruction_type.GVMSetState
 }
 
 func (G GVMSetState) Exec(g *gvm.ExecCtx) error {
@@ -100,8 +115,4 @@ func (tx *SetState) Convert() (g *GVMSetState, err error) {
 	panic("todo")
 	//g.RightExpression, err = lexer.ParamUnmarshalJSON(tx.RightExpression)
 	return
-}
-
-func (tx *SetState) GetType() instruction_type.Type {
-	return instruction_type.SetState
 }

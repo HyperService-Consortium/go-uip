@@ -12,16 +12,23 @@ type RawGoto struct {
 	Offset    int
 }
 
-func (g RawGoto) Marshal(w io.Writer, err *error) {
-	panic("implement me")
+func (g RawGoto) Marshal(_ io.Writer, err *error) {
+	if *err != nil {
+		return
+	}
+	*err = ErrNotTranslated
 }
 
-func (g RawGoto) Exec(c *gvm.ExecCtx) error {
-	panic("implement me")
+func (g RawGoto) Exec(_ *gvm.ExecCtx) error {
+	return ErrNotTranslated
 }
 
-func (g RawGoto) Unmarshal(r io.Reader, i *uip.Instruction, err *error) {
-	panic("implement me")
+func (g RawGoto) Unmarshal(_ io.Reader, i *uip.Instruction, err *error) {
+	if *err != nil {
+		return
+	}
+	*err = ErrNotTranslated
+	*i = g
 }
 
 func (r RawGoto) GetType() instruction_type.Type {

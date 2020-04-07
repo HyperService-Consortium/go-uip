@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"errors"
 	"github.com/HyperService-Consortium/go-uip/const/instruction_type"
 	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
 	"github.com/HyperService-Consortium/go-uip/uip"
@@ -14,16 +15,25 @@ type RawConditionGoto struct {
 	Offset    int
 }
 
-func (g RawConditionGoto) Marshal(w io.Writer, err *error) {
-	panic("implement me")
+var ErrNotTranslated = errors.New("not translated")
+
+func (g RawConditionGoto) Marshal(_ io.Writer, err *error) {
+	if *err != nil {
+		return
+	}
+	*err = ErrNotTranslated
 }
 
-func (g RawConditionGoto) Exec(c *gvm.ExecCtx) error {
-	panic("implement me")
+func (g RawConditionGoto) Exec(_ *gvm.ExecCtx) error {
+	return ErrNotTranslated
 }
 
-func (g RawConditionGoto) Unmarshal(r io.Reader, i *uip.Instruction, err *error) {
-	panic("implement me")
+func (g RawConditionGoto) Unmarshal(_ io.Reader, i *uip.Instruction, err *error) {
+	if *err != nil {
+		return
+	}
+	*err = ErrNotTranslated
+	*i = g
 }
 
 func (g RawConditionGoto) GetType() instruction_type.Type {

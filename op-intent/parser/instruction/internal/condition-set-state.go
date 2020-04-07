@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/HyperService-Consortium/go-uip/const/instruction_type"
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
+	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
+	"github.com/HyperService-Consortium/go-uip/serial"
 	"github.com/HyperService-Consortium/go-uip/uip"
 	"github.com/Myriad-Dreamin/gvm"
 	gvm_type "github.com/Myriad-Dreamin/gvm/libgvm/gvm-type"
@@ -12,15 +14,24 @@ import (
 )
 
 type ConditionSetState struct {
-	IType           instruction_type.Type `json:"itype"`
-	Type            value_type.Type       `json:"value_type"`
-	Target          []byte                `json:"target"`
-	RightExpression json.RawMessage       `json:"expression"`
-	Condition       json.RawMessage       `json:"condition"`
+	Type            value_type.Type `json:"value_type"`
+	Target          []byte          `json:"target"`
+	RightExpression json.RawMessage `json:"expression"`
+	Condition       json.RawMessage `json:"condition"`
+}
+
+func (g ConditionSetState) GetType() instruction_type.Type {
+	return instruction_type.ConditionSetState
 }
 
 func (g ConditionSetState) Marshal(w io.Writer, err *error) {
-	panic("implement me")
+	if *err != nil {
+		return
+	}
+	serial.Write(w, g.Type, err)
+	serial.Write(w, g.Target, err)
+	serial.Write(w, []byte(g.RightExpression), err)
+	serial.Write(w, []byte(g.Condition), err)
 }
 
 func (g ConditionSetState) Exec(c *gvm.ExecCtx) error {
@@ -28,30 +39,56 @@ func (g ConditionSetState) Exec(c *gvm.ExecCtx) error {
 }
 
 func (g ConditionSetState) Unmarshal(r io.Reader, i *uip.Instruction, err *error) {
-	panic("implement me")
+	if *err != nil {
+		return
+	}
+	serial.Read(r, &g.Type, err)
+	serial.Read(r, &g.Target, err)
+	var b []byte
+	serial.Read(r, &b, err)
+	g.RightExpression = b
+	serial.Read(r, &b, err)
+	g.Condition = b
+	*i = g
 }
 
 type GVMConditionSetState struct {
 	IType           instruction_type.Type `json:"itype"`
 	Type            value_type.Type       `json:"value_type"`
 	Target          string                `json:"target"`
-	RightExpression gvm.VTok              `json:"expression"`
-	Condition       gvm.VTok              `json:"condition"`
+	RightExpression uip.VTok              `json:"expression"`
+	Condition       uip.VTok              `json:"condition"`
 }
 
-func (g GVMConditionSetState) Marshal(w io.Writer, err *error) {
-	panic("implement me")
+func (inst GVMConditionSetState) GetType() instruction_type.Type {
+	return instruction_type.ConditionSetState
 }
 
-func (g GVMConditionSetState) Unmarshal(r io.Reader, i *uip.Instruction, err *error) {
-	panic("implement me")
+func (inst GVMConditionSetState) Marshal(w io.Writer, err *error) {
+	if *err != nil {
+		return
+	}
+	serial.Write(w, inst.Type, err)
+	serial.Write(w, inst.Target, err)
+	lexer.EncodeVTok(w, inst.RightExpression, err)
+	lexer.EncodeVTok(w, inst.Condition, err)
 }
 
-func (tx *ConditionSetState) Convert() (g *GVMConditionSetState, err error) {
-	g = &GVMConditionSetState{
-		IType:  tx.IType,
-		Type:   tx.Type,
-		Target: string(tx.Target),
+func (inst GVMConditionSetState) Unmarshal(r io.Reader, i *uip.Instruction, err *error) {
+	if *err != nil {
+		return
+	}
+	serial.Read(r, &inst.Type, err)
+	serial.Read(r, &inst.Target, err)
+	lexer.DecodeVTok(r, &inst.RightExpression, err)
+	lexer.DecodeVTok(r, &inst.Condition, err)
+	*i = inst
+}
+
+func (g *ConditionSetState) Convert() (gg *GVMConditionSetState, err error) {
+	gg = &GVMConditionSetState{
+		Type:   g.Type,
+		Target: string(g.Target),
 	}
 	panic("todo")
 	//g.RightExpression, err = lexer.ParamUnmarshalJSON(tx.RightExpression)
@@ -62,7 +99,7 @@ func (tx *ConditionSetState) Convert() (g *GVMConditionSetState, err error) {
 	return
 }
 
-func (inst *GVMConditionSetState) Exec(g *gvm.ExecCtx) error {
+func (inst GVMConditionSetState) Exec(g *gvm.ExecCtx) error {
 	v, err := inst.GetGotoConditionGVMI().Eval(g)
 	if err != nil {
 		return err
@@ -86,28 +123,23 @@ func (inst *GVMConditionSetState) Exec(g *gvm.ExecCtx) error {
 	return nil
 }
 
-func (G GVMConditionSetState) GetGotoConditionGVMI() gvm.VTok {
-	return G.Condition
+func (inst GVMConditionSetState) GetGotoConditionGVMI() gvm.VTok {
+	return inst.Condition
 }
 
-func (G GVMConditionSetState) GetRefNameGVMI() string {
-	return G.Target
+func (inst GVMConditionSetState) GetRefNameGVMI() string {
+	return inst.Target
 }
 
-func (G GVMConditionSetState) GetRightHandStatementGVMI() gvm.VTok {
-	return G.RightExpression
+func (inst GVMConditionSetState) GetRightHandStatementGVMI() gvm.VTok {
+	return inst.RightExpression
 }
 
 func NewConditionSetState(t value_type.Type, target []byte, rhs, cond json.RawMessage) *ConditionSetState {
 	return &ConditionSetState{
-		IType:           instruction_type.ConditionSetState,
 		Type:            t,
 		Target:          target,
 		RightExpression: rhs,
 		Condition:       cond,
 	}
-}
-
-func (tx *ConditionSetState) GetType() instruction_type.Type {
-	return instruction_type.ConditionSetState
 }

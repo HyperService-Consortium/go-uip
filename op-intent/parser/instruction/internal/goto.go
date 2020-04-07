@@ -2,26 +2,38 @@ package internal
 
 import (
 	"github.com/HyperService-Consortium/go-uip/const/instruction_type"
+	"github.com/HyperService-Consortium/go-uip/serial"
 	"github.com/HyperService-Consortium/go-uip/uip"
 	"github.com/Myriad-Dreamin/gvm"
 	"io"
 )
 
 type Goto struct {
-	Type  instruction_type.Type `json:"itype"`
-	Index uint64                `json:"goto"`
+	Index uint64 `json:"goto"`
+}
+
+func (tx Goto) GetType() instruction_type.Type {
+	return instruction_type.Goto
 }
 
 func (g Goto) Marshal(w io.Writer, err *error) {
-	panic("implement me")
+	if *err != nil {
+		return
+	}
+	serial.Write(w, g.Index, err)
 }
 
 func (g Goto) Exec(c *gvm.ExecCtx) error {
-	panic("implement me")
+	c.PC = g.Index
+	return nil
 }
 
 func (g Goto) Unmarshal(r io.Reader, i *uip.Instruction, err *error) {
-	panic("implement me")
+	if *err != nil {
+		return
+	}
+	serial.Read(r, &g.Index, err)
+	*i = g
 }
 
 func (tx *Goto) GetGotoIndexGVMI() uint64 {
@@ -30,11 +42,6 @@ func (tx *Goto) GetGotoIndexGVMI() uint64 {
 
 func NewGoto(index uint64) *Goto {
 	return &Goto{
-		Type:  instruction_type.Goto,
 		Index: index,
 	}
-}
-
-func (tx *Goto) GetType() instruction_type.Type {
-	return instruction_type.Goto
 }

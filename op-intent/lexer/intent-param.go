@@ -122,7 +122,6 @@ func ParamUnmarshalResult(content document.Document) (p Param, err error) {
 
 	v = content.Get(FieldValueConstant)
 	if v.Exists() {
-		//todo v.Value() -> intDesc
 		return CreateConstantFromJSON(intDesc, v), nil
 	} else if content.Get(FieldContractPos).Exists() &&
 		content.Get(FieldContractField).Exists() {

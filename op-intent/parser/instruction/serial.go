@@ -46,7 +46,21 @@ func DecodeInstruction(r io.Reader) (i uip.Instruction, err error) {
 func DecodeInstructionWithType(r io.Reader, t instruction_type.Type) (i uip.Instruction, err error) {
 	switch t {
 	case instruction_type.SetState:
+		i = new(SetState)
+	case instruction_type.GVMSetState:
 		i = new(GVMSetState)
+	case instruction_type.ConditionSetState:
+		i = new(ConditionSetState)
+	case instruction_type.Goto:
+		i = new(Goto)
+	case instruction_type.ConditionGoto:
+		i = new(ConditionGoto)
+	case instruction_type.ContractInvoke, instruction_type.Payment:
+		i = new(TransactionIntent)
+	//case instruction_type.RawSetState:
+	//	fallthrough
+	//case instruction_type.RawGoto:
+	//	fallthrough
 	default:
 		return nil, errors.New("invalid type")
 	}

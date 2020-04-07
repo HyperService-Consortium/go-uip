@@ -9,6 +9,7 @@ import (
 )
 
 type _jsonX struct{}
+
 func (*_jsonX) Marshal(v interface{}) ([]byte, error) {
 	return json.Marshal(v)
 }
@@ -20,6 +21,7 @@ func (*_jsonX) NewDocument(b []byte) (document.Document, error) {
 }
 
 var jsonX *_jsonX
+
 func IsValidInstructionImpl(i uip.Instruction) error {
 	return IsValidInstructionImpl_(i, jsonX)
 }
@@ -31,24 +33,25 @@ func IsValidInstructionType(t instruction_type.Type) error {
 	return errors.New("not valid instruction type")
 }
 
-func IsValidInstructionImpl_(i uip.Instruction, marshaller interface{
+func IsValidInstructionImpl_(i uip.Instruction, marshaller interface {
 	Marshal(v interface{}) ([]byte, error)
 	NewDocument(b []byte) (document.Document, error)
 }) error {
-	x, err := marshaller.Marshal(i)
-	if err != nil {
-		return err
-	}
+	// todo
+	//x, err := marshaller.Marshal(i)
+	//if err != nil {
+	//	return err
+	//}
 
-	g, err := marshaller.NewDocument(x)
-	if err != nil {
-		return err
-	}
+	//g, err := marshaller.NewDocument(x)
+	//if err != nil {
+	//	return err
+	//}
 
-	t := g.Get("itype")
-	if !t.Exists() {
-		return errors.New("type not found")
-	}
+	//t := g.Get("itype")
+	//if !t.Exists() {
+	//	return errors.New("type not found")
+	//}
 
 	return nil
 }

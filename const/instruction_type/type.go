@@ -1,6 +1,5 @@
 package instruction_type
 
-
 type Type = uint64
 
 const (
@@ -12,10 +11,12 @@ const (
 	SetState
 	ConditionSetState
 
+	GVMSetState
+	GVMConditionSetState
 
 	Length
-	StandardStep = 1<<16
-	Standard = StandardStep << 4
+	StandardStep = 1 << 16
+	Standard     = StandardStep << 4
 )
 
 const (
@@ -25,7 +26,7 @@ const (
 	RawConditionSetState
 
 	RawLengthL = RawGoto
-	RawLengthR = RawConditionSetState+1
+	RawLengthR = RawConditionSetState + 1
 )
 
 func IsStandard(t Type) bool {
@@ -39,4 +40,3 @@ func IsValidType(t Type) bool {
 func IsRaw(t Type) bool {
 	return t < RawLengthR && RawLengthL <= t
 }
-

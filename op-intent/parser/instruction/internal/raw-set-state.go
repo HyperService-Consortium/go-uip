@@ -13,16 +13,23 @@ type RawSetState struct {
 	RightExpression lexer.Param
 }
 
-func (g RawSetState) Marshal(w io.Writer, err *error) {
-	panic("implement me")
+func (g RawSetState) Marshal(_ io.Writer, err *error) {
+	if *err != nil {
+		return
+	}
+	*err = ErrNotTranslated
 }
 
-func (g RawSetState) Exec(c *gvm.ExecCtx) error {
-	panic("implement me")
+func (g RawSetState) Exec(_ *gvm.ExecCtx) error {
+	return ErrNotTranslated
 }
 
-func (g RawSetState) Unmarshal(r io.Reader, i *uip.Instruction, err *error) {
-	panic("implement me")
+func (g RawSetState) Unmarshal(_ io.Reader, i *uip.Instruction, err *error) {
+	if *err != nil {
+		return
+	}
+	*err = ErrNotTranslated
+	*i = g
 }
 
 func (r RawSetState) GetType() instruction_type.Type {
