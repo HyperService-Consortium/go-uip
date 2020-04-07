@@ -59,6 +59,10 @@ func (isc *ISC) GetFunction(function string) (gvm.Function, error) {
 	}
 }
 
+func (isc *ISC) Commit() error {
+	return isc.Storage.storage.Commit()
+}
+
 func (isc *ISC) checkRunException(err error) (uint64, error) {
 	if err == libgvm.StopUnderFlow {
 		err = nil
@@ -85,23 +89,23 @@ func (isc *ISC) nextPC() (uint64, error) {
 /*                            isc as a contract                            */
 
 func (isc *ISC) IsOpening() bool {
-	return isc.Storage.getISCState() == StateOpening
+	return isc.Storage.GetISCState() == StateOpening
 }
 
 func (isc *ISC) IsActive() bool {
-	return isc.Storage.getISCState() != StateClosed
+	return isc.Storage.GetISCState() != StateClosed
 }
 
 func (isc *ISC) IsInitializing() bool {
-	return isc.Storage.getISCState() == StateInitializing
+	return isc.Storage.GetISCState() == StateInitializing
 }
 
 func (isc *ISC) IsInitialized() bool {
-	return isc.Storage.getISCState() == StateInitialized
+	return isc.Storage.GetISCState() == StateInitialized
 }
 
 func (isc *ISC) IsSettling() bool {
-	return isc.Storage.getISCState() == StateSettling
+	return isc.Storage.GetISCState() == StateSettling
 }
 
 func (isc *ISC) maybeSwitchToStateSettling(pc uint64) Response {

@@ -10,7 +10,7 @@ type Storage struct {
 	storage *storage.VM
 }
 
-func (s *Storage) getISCState() uint8 {
+func (s *Storage) GetISCState() uint8 {
 	return s.storage.GetUint8(state)
 }
 

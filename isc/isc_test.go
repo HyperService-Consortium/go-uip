@@ -233,7 +233,7 @@ func TestISC_FreezeInfo(t *testing.T) {
 		}, args: args{
 			0,
 		}, want: OK, callback: func(t *testing.T, isc *ISC) {
-			assert.EqualValues(t, StateInitialized, isc.Storage.getISCState())
+			assert.EqualValues(t, StateInitialized, isc.Storage.GetISCState())
 		}},
 	}
 	for _, tt := range tests {
@@ -266,7 +266,7 @@ func TestISC_UserAck(t *testing.T) {
 
 	assert.EqualValues(t, OK, _isc.FreezeInfo(0))
 	sugar.HandlerError0(_isc.Storage.storage.Commit())
-	assert.EqualValues(t, StateInitialized, _isc.Storage.getISCState())
+	assert.EqualValues(t, StateInitialized, _isc.Storage.GetISCState())
 
 	type fields struct {
 		Storage Storage
@@ -292,7 +292,7 @@ func TestISC_UserAck(t *testing.T) {
 		}, args: args{
 			user0, []byte{1},
 		}, want: OK, callback: func(t *testing.T, isc *ISC) {
-			assert.EqualValues(t, StateSettling, isc.Storage.getISCState())
+			assert.EqualValues(t, StateSettling, isc.Storage.GetISCState())
 		}},
 	}
 	for _, tt := range tests {
@@ -535,16 +535,16 @@ func setupOpIntent(t *testing.T) (ctx *ContextImpl, isc *ISC) {
 	unpack(isc.NewContract([][]byte{ctx.s}, []uint64{0}, instructions, encodeInstructions(instructions)), &newContractReply)
 	commit(t, isc)
 	fmt.Println(newContractReply)
-	assert.EqualValues(t, StateInitializing, isc.Storage.getISCState())
+	assert.EqualValues(t, StateInitializing, isc.Storage.GetISCState())
 
 	for i := range instructions {
 		assert.EqualValues(t, OK, isc.FreezeInfo(uint64(i)))
 		commit(t, isc)
 	}
-	assert.EqualValues(t, StateInitialized, isc.Storage.getISCState())
+	assert.EqualValues(t, StateInitialized, isc.Storage.GetISCState())
 
 	assert.EqualValues(t, OK, isc.UserAck(user0, []byte("todo")))
-	assert.EqualValues(t, StateOpening, isc.Storage.getISCState())
+	assert.EqualValues(t, StateOpening, isc.Storage.GetISCState())
 	return
 }
 
@@ -576,12 +576,12 @@ func TestIfScenario_IfYes(t *testing.T) {
 	//12 loop.loopEnd 2
 	//13 loop.resetLoopVar 4
 
-	assert.EqualValues(t, StateSettling, isc.Storage.getISCState())
+	assert.EqualValues(t, StateSettling, isc.Storage.GetISCState())
 
 	assert.EqualValues(t, OK, isc.SettleContract())
 	commit(t, isc)
 
-	assert.EqualValues(t, StateClosed, isc.Storage.getISCState())
+	assert.EqualValues(t, StateClosed, isc.Storage.GetISCState())
 }
 
 func TestIfScenario_IfNo(t *testing.T) {
@@ -610,12 +610,12 @@ func TestIfScenario_IfNo(t *testing.T) {
 	//12 loop.loopEnd 2
 	//13 loop.resetLoopVar 4
 
-	assert.EqualValues(t, StateSettling, isc.Storage.getISCState())
+	assert.EqualValues(t, StateSettling, isc.Storage.GetISCState())
 
 	assert.EqualValues(t, OK, isc.SettleContract())
 	commit(t, isc)
 
-	assert.EqualValues(t, StateClosed, isc.Storage.getISCState())
+	assert.EqualValues(t, StateClosed, isc.Storage.GetISCState())
 }
 
 func doTransaction(t *testing.T, isc *ISC, pc uint64) {
