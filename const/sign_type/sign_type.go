@@ -2,18 +2,19 @@ package sign_type
 
 type Type = uint32
 
+//noinspection GoUnusedConst
 const (
 	Unknown Type = iota
 
 	EQ
+	NEQ
 	LE
 	LT
 	GE
 	GT
-	LNot
-	// Logic And
 	LAnd
 	LOr
+	LNot
 
 	ADD // +
 	SUB // -

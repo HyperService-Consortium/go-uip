@@ -37,7 +37,7 @@ func (n NamespacedRawAccount) GetAddress() uip.Address {
 	return n.Address
 }
 
-func NewNamespacedRawAccount(a uip.Account) Account {
+func NewNamespacedRawAccount(a uip.Account) *NamespacedRawAccount {
 	return &NamespacedRawAccount{
 		Address: a.GetAddress(),
 		ChainID: a.GetChainId(),

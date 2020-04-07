@@ -16,7 +16,8 @@ type NameAccount = internal.NameAccount
 type NamespacedAccount = internal.NamespacedNameAccount
 type NamespacedRawAccount = internal.NamespacedRawAccount
 
-func NewNamespacedRawAccount(a uip.Account) Account {
+//noinspection GoUnusedExportedFunction
+func NewNamespacedRawAccount(a uip.Account) *NamespacedRawAccount {
 	return internal.NewNamespacedRawAccount(a)
 }
 

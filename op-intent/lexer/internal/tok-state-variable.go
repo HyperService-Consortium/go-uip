@@ -46,9 +46,9 @@ func (s StateVariable) GetGVMType() gvm.RefType {
 }
 
 func (s StateVariable) Eval(g *gvm.ExecCtx) (gvm.Ref, error) {
-	//return g.Load(string(p.Field), p.GetGVMType())
-	// todo
-	panic("todo")
+	contract := s.Contract.(NamespacedRawAccount)
+	return g.Machine.(uip.ISCMachine).GetExternalStorageAt(
+		contract.ChainID, s.Type, contract.Address, s.Pos, s.Field)
 }
 
 func (s *StateVariable) Determine(c DetermineContext) (token.Param, error) {
@@ -56,6 +56,6 @@ func (s *StateVariable) Determine(c DetermineContext) (token.Param, error) {
 	if err != nil {
 		return nil, err
 	}
-	s.Contract = NewNamespacedRawAccount(a)
+	s.Contract = *NewNamespacedRawAccount(a)
 	return s, nil
 }

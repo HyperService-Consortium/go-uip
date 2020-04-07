@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"github.com/HyperService-Consortium/go-uip/const/instruction_type"
 	"github.com/HyperService-Consortium/go-uip/const/trans_type"
+	TxState "github.com/HyperService-Consortium/go-uip/const/transaction_state_type"
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
 	"github.com/HyperService-Consortium/go-uip/op-intent/parser/instruction/internal"
+	"github.com/HyperService-Consortium/go-uip/op-intent/parser/trap"
 	"github.com/HyperService-Consortium/go-uip/serial"
 	"github.com/HyperService-Consortium/go-uip/uip"
 	"github.com/Myriad-Dreamin/gvm"
@@ -69,7 +71,14 @@ func (tx *TransactionIntent) Marshal(w io.Writer, err *error) {
 }
 
 func (tx *TransactionIntent) Exec(c *gvm.ExecCtx) error {
-	panic("implement me")
+	isc := c.Machine.(uip.ISCMachine)
+	if isc.GetMuPC() != TxState.Closed {
+		return trap.ClaimRequest
+	}
+
+	isc.SetMuPC(TxState.Unknown)
+	c.PC++
+	return nil
 }
 
 func (tx *TransactionIntent) Unmarshal(r io.Reader, i *uip.Instruction, err *error) {

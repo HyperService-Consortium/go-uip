@@ -3,8 +3,11 @@ package isc
 import (
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	merkle_proof "github.com/HyperService-Consortium/go-uip/const/merkle-proof-type"
+	TxState "github.com/HyperService-Consortium/go-uip/const/transaction_state_type"
+	"github.com/HyperService-Consortium/go-uip/const/value_type"
 	"github.com/HyperService-Consortium/go-uip/mock"
 	opintent "github.com/HyperService-Consortium/go-uip/op-intent"
 	error2 "github.com/HyperService-Consortium/go-uip/op-intent/errorn"
@@ -16,6 +19,7 @@ import (
 	"github.com/Myriad-Dreamin/gvm"
 	"github.com/Myriad-Dreamin/minimum-lib/sugar"
 	"github.com/stretchr/testify/assert"
+	"math/big"
 	"reflect"
 	"testing"
 )
@@ -35,8 +39,49 @@ func encodeInstructions(is []uip.Instruction) (bs [][]byte) {
 	return sugar.HandlerError(instruction.EncodeInstructions(is)).([][]byte)
 }
 
+type StorageKey struct {
+	chainID         uip.ChainID
+	typeID          uip.TypeID
+	contractAddress string
+	pos             string
+	description     string
+}
+
 type ContextImpl struct {
-	s, a []byte
+	s, a            []byte
+	externalStorage map[StorageKey]gvm.Ref
+}
+
+func (c *ContextImpl) GetExternalStorageAt(chainID uip.ChainID, typeID uip.TypeID,
+	contractAddress uip.ContractAddress, pos []byte, description []byte) (gvm.Ref, error) {
+	if c.externalStorage == nil {
+		c.externalStorage = make(map[StorageKey]gvm.Ref)
+	}
+	if x, ok := c.externalStorage[StorageKey{
+		chainID:         chainID,
+		typeID:          typeID,
+		contractAddress: string(contractAddress),
+		pos:             string(pos),
+		description:     string(description),
+	}]; ok {
+		return x, nil
+	} else {
+		return nil, errors.New("no found")
+	}
+}
+
+func (c *ContextImpl) ProvideExternalStorageAt(chainID uip.ChainID, typeID uip.TypeID,
+	contractAddress uip.ContractAddress, pos []byte, description []byte, ref gvm.Ref) {
+	if c.externalStorage == nil {
+		c.externalStorage = make(map[StorageKey]gvm.Ref)
+	}
+	c.externalStorage[StorageKey{
+		chainID:         chainID,
+		typeID:          typeID,
+		contractAddress: string(contractAddress),
+		pos:             string(pos),
+		description:     string(description),
+	}] = ref
 }
 
 func (c ContextImpl) Sender() []byte {
@@ -53,7 +98,7 @@ func TestISC_NewContract(t *testing.T) {
 		msg     Context
 	}
 
-	ctx := ContextImpl{
+	ctx := &ContextImpl{
 		s: user0,
 		a: []byte{2},
 	}
@@ -148,7 +193,7 @@ func TestISC_NewContract(t *testing.T) {
 func createTestContract() Storage {
 	var vm = storage.NewVM(mock.NewLocalStorage())
 
-	ctx := ContextImpl{
+	ctx := &ContextImpl{
 		s: user0,
 		a: []byte{2},
 	}
@@ -195,7 +240,7 @@ func TestISC_FreezeInfo(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			isc := &ISC{
 				Storage: tt.fields.Storage,
-				Msg:     tt.fields.Msg,
+				Ctx:     tt.fields.Msg,
 			}
 			isc.GVM = gvm.Wrap(isc)
 
@@ -214,7 +259,7 @@ func TestISC_UserAck(t *testing.T) {
 
 	var c1 = createTestContract()
 	var _isc = &ISC{Storage: c1,
-		Msg: &ContextImpl{
+		Ctx: &ContextImpl{
 			s: user0,
 			a: []byte{2},
 		}}
@@ -254,7 +299,7 @@ func TestISC_UserAck(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			isc := &ISC{
 				Storage: tt.fields.Storage,
-				Msg:     tt.fields.Msg,
+				Ctx:     tt.fields.Msg,
 			}
 			isc.GVM = gvm.Wrap(isc)
 
@@ -290,7 +335,7 @@ func TestISC_InsuranceClaim(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			isc := &ISC{
 				Storage: tt.fields.Storage,
-				Msg:     tt.fields.Msg,
+				Ctx:     tt.fields.Msg,
 			}
 			isc.GVM = gvm.Wrap(isc)
 
@@ -302,153 +347,157 @@ func TestISC_InsuranceClaim(t *testing.T) {
 	}
 }
 
-func TestIf(t *testing.T) {
-	type obj map[string]interface{}
-	var opIntents = obj{
-		"op-intents": []obj{
-			{
-				"name": "op1",
-				"type": "Payment",
-				"src": obj{
-					"domain":    1,
-					"user_name": "a1",
-				},
-				"dst": obj{
-					"domain":    2,
-					"user_name": "a2",
-				},
-				"amount": "1a",
-				"unit":   "ether",
-			},
-			{
-				"name":    "op2",
-				"type":    "ContractInvocation",
-				"invoker": "a2",
-				"func":    "vote",
-				"contract": obj{
-					"domain":  2,
-					"address": "0x3723261b2a5a62b778b5c74318534d7fdf8db38c",
-				},
-				"parameters": []obj{},
-			},
-			{
-				"name": "if-op",
-				"type": "IfStatement",
-				"if": []obj{
-					{
-						"name":    "op3",
-						"type":    "ContractInvocation",
-						"invoker": "a2",
-						"func":    "vote",
-						"contract": obj{
-							"address": "0x3723261b2a5a62b778b5c74318d34d7fdbadb38e",
-						},
-						"parameters": []obj{},
-					},
-					{
-						"name": "op4",
-						"type": "Payment",
-						"src": obj{
-							"domain":    1,
-							"user_name": "a1",
-						},
-						"dst": obj{
-							"domain":    2,
-							"user_name": "a2",
-						},
-						"amount": "aa",
-						"unit":   "ether",
-					},
-				},
-				"else": []obj{
-					{
-						"name":    "op5",
-						"type":    "ContractInvocation",
-						"invoker": "a2",
-						"func":    "vote",
-						"contract": obj{
-							"domain":  2,
-							"address": "0x3723261b2a5a62b778b5c74318534d7fdf8db38c",
-						},
-						"parameters": []obj{},
-					},
-				},
-				"condition": obj{
-					"left": obj{
-						"type": "uint256",
-						"value": obj{
-							"contract": "c2",
-							"field":    "num_count",
-							"pos":      "00",
-						},
-					},
-					"right": obj{
-						"type": "uint256",
-						"value": obj{
-							"contract": "c2",
-							"field":    "totalVotes",
-							"pos":      "01",
-						},
-					},
-					"sign": "Greater",
-				},
-			},
-			{
-				"name": "loop",
-				"type": "loopFunction",
-				"loop": []obj{
-					{
-						"name":    "op6",
-						"type":    "ContractInvocation",
-						"invoker": "a2",
-						"func":    "vote",
-						"contract": obj{
-							"domain":  2,
-							"address": "0x3723261b2a5a62b778b5c74318534d7fdf8db38c",
-						},
-						"parameters": []obj{},
-					},
-				},
-				"loopTime": "5",
-			},
-		},
-		"dependencies": []obj{},
-		"contracts": []obj{
-			{
-				"contractName": "c1",
-				"domain":       1,
-				"address":      "0xafc7d2959e72081770304f6474151293be1fbba7",
-			},
-			{
-				"contractName": "c2",
-				"domain":       2,
-				"address":      "0x3723261b2a5a62b778b5c74318534d7fdf8db38c",
-			},
-			{
-				"contractName": "c3",
-				"domain":       3,
-				"address":      "0x3723261b2a5a62b778b5c74318d34d7fdbadb38e",
-			},
-		},
-		"accounts": []obj{
-			{
-				"userName": "a1",
-				"domain":   1,
-				"address":  "0x7019fa779024c0a0eac1d8475733eefe10a49f3b",
-			},
-			{
-				"userName": "a2",
-				"domain":   2,
-				"address":  "0x47a1cdb6594d6efed3a6b917f2fbaa2bbcf61a2e",
-			},
-			{
-				"userName": "a3",
-				"domain":   3,
-				"address":  "0x47a1cdb6559d6efed3a6b917f2fbaa2bbcf61a2e",
-			},
-		},
-	}
+var c2 = obj{
+	"contractName": "c2",
+	"domain":       2,
+	"address":      "0x3723261b2a5a62b778b5c74318534d7fdf8db38c",
+}
 
+type obj map[string]interface{}
+
+var opIntents = obj{
+	"op-intents": []obj{
+		{
+			"name": "op1",
+			"type": "Payment",
+			"src": obj{
+				"domain":    1,
+				"user_name": "a1",
+			},
+			"dst": obj{
+				"domain":    2,
+				"user_name": "a2",
+			},
+			"amount": "1a",
+			"unit":   "ether",
+		},
+		{
+			"name":    "op2",
+			"type":    "ContractInvocation",
+			"invoker": "a2",
+			"func":    "vote",
+			"contract": obj{
+				"domain":  2,
+				"address": "0x3723261b2a5a62b778b5c74318534d7fdf8db38c",
+			},
+			"parameters": []obj{},
+		},
+		{
+			"name": "if-op",
+			"type": "IfStatement",
+			"if": []obj{
+				{
+					"name":    "op3",
+					"type":    "ContractInvocation",
+					"invoker": "a2",
+					"func":    "vote",
+					"contract": obj{
+						"address": "0x3723261b2a5a62b778b5c74318d34d7fdbadb38e",
+					},
+					"parameters": []obj{},
+				},
+				{
+					"name": "op4",
+					"type": "Payment",
+					"src": obj{
+						"domain":    1,
+						"user_name": "a1",
+					},
+					"dst": obj{
+						"domain":    2,
+						"user_name": "a2",
+					},
+					"amount": "aa",
+					"unit":   "ether",
+				},
+			},
+			"else": []obj{
+				{
+					"name":    "op5",
+					"type":    "ContractInvocation",
+					"invoker": "a2",
+					"func":    "vote",
+					"contract": obj{
+						"domain":  2,
+						"address": "0x3723261b2a5a62b778b5c74318534d7fdf8db38c",
+					},
+					"parameters": []obj{},
+				},
+			},
+			"condition": obj{
+				"left": obj{
+					"type": "uint256",
+					"value": obj{
+						"contract": "c2",
+						"field":    "num_count",
+						"pos":      "00",
+					},
+				},
+				"right": obj{
+					"type": "uint256",
+					"value": obj{
+						"contract": "c2",
+						"field":    "totalVotes",
+						"pos":      "01",
+					},
+				},
+				"sign": "Greater",
+			},
+		},
+		{
+			"name": "loop",
+			"type": "loopFunction",
+			"loop": []obj{
+				{
+					"name":    "op6",
+					"type":    "ContractInvocation",
+					"invoker": "a2",
+					"func":    "vote",
+					"contract": obj{
+						"domain":  2,
+						"address": "0x3723261b2a5a62b778b5c74318534d7fdf8db38c",
+					},
+					"parameters": []obj{},
+				},
+			},
+			"loopTime": "5",
+		},
+	},
+	"dependencies": []obj{},
+	"contracts": []obj{
+		{
+			"contractName": "c1",
+			"domain":       1,
+			"address":      "0xafc7d2959e72081770304f6474151293be1fbba7",
+		},
+		c2,
+		{
+			"contractName": "c3",
+			"domain":       3,
+			"address":      "0x3723261b2a5a62b778b5c74318d34d7fdbadb38e",
+		},
+	},
+	"accounts": []obj{
+		{
+			"userName": "a1",
+			"domain":   1,
+			"address":  "0x7019fa779024c0a0eac1d8475733eefe10a49f3b",
+		},
+		{
+			"userName": "a2",
+			"domain":   2,
+			"address":  "0x47a1cdb6594d6efed3a6b917f2fbaa2bbcf61a2e",
+		},
+		{
+			"userName": "a3",
+			"domain":   3,
+			"address":  "0x47a1cdb6559d6efed3a6b917f2fbaa2bbcf61a2e",
+		},
+	},
+}
+
+func setupOpIntent(t *testing.T) (ctx *ContextImpl, isc *ISC) {
+	t.Helper()
 	var intents parser.TxIntents
 
 	ier, err := opintent.NewInitializer(uip.BlockChainGetterNilImpl{}, mAccountProvider{})
@@ -471,15 +520,15 @@ func TestIf(t *testing.T) {
 	var txIntents = intents.GetTxIntents()
 	var instructions []uip.Instruction
 	for i := range txIntents {
-		//fmt.Println(txIntents[i].GetName())
+		fmt.Println(i, txIntents[i].GetName(), txIntents[i].GetInstruction().GetType())
 		instructions = append(instructions, txIntents[i].GetInstruction())
 	}
 
-	ctx := ContextImpl{
+	ctx = &ContextImpl{
 		s: user0,
 		a: []byte{2},
 	}
-	isc := NewISC(ctx, storage.NewVM(mock.NewLocalStorage()))
+	isc = NewISC(ctx, storage.NewVM(mock.NewLocalStorage()))
 
 	var newContractReply NewContractReply
 
@@ -492,17 +541,139 @@ func TestIf(t *testing.T) {
 		assert.EqualValues(t, OK, isc.FreezeInfo(uint64(i)))
 		commit(t, isc)
 	}
-
 	assert.EqualValues(t, StateInitialized, isc.Storage.getISCState())
 
 	assert.EqualValues(t, OK, isc.UserAck(user0, []byte("todo")))
-	//	iscOwners:       [][]byte{ctx.s},
-	//			funds:           []uint64{0},
-	//			instructions:    funcSetA(),
-	//			rawInstructions: encodeInstructions(funcSetA()),
+	assert.EqualValues(t, StateOpening, isc.Storage.getISCState())
+	return
 }
 
-func commit(_ *testing.T, isc *ISC) {
+func TestIfScenario_IfYes(t *testing.T) {
+	ctx, isc := setupOpIntent(t)
+	//0 op1.cna 0
+	doTransaction(t, isc, uint64(0))
+	//1 op1.cnb 0
+	doTransaction(t, isc, uint64(1))
+	//2 op2 1
+
+	BranchIfTest0(ctx, true)
+	doTransaction(t, isc, uint64(2))
+	//3 if-op.goto.if 3
+	//4 op5 1
+	//5 if-op.goto.else 2
+	//6 op3 1
+	doTransaction(t, isc, uint64(6))
+	//7 op4.cna 0
+	doTransaction(t, isc, uint64(7))
+	//8 op4.cnb 0
+	doTransaction(t, isc, uint64(8))
+	//9 loop.loopBegin 3
+	//10 op6 1
+	for i := 0; i < 5; i++ {
+		doTransaction(t, isc, uint64(10))
+	}
+	//11 loop.addLoopVar 4
+	//12 loop.loopEnd 2
+	//13 loop.resetLoopVar 4
+
+	assert.EqualValues(t, StateSettling, isc.Storage.getISCState())
+
+	assert.EqualValues(t, OK, isc.SettleContract())
+	commit(t, isc)
+
+	assert.EqualValues(t, StateClosed, isc.Storage.getISCState())
+}
+
+func TestIfScenario_IfNo(t *testing.T) {
+	ctx, isc := setupOpIntent(t)
+	//0 op1.cna 0
+	doTransaction(t, isc, uint64(0))
+	//1 op1.cnb 0
+	doTransaction(t, isc, uint64(1))
+	//2 op2 1
+
+	BranchIfTest0(ctx, false)
+	doTransaction(t, isc, uint64(2))
+	//3 if-op.goto.if 3
+	//4 op5 1
+	doTransaction(t, isc, uint64(4))
+	//5 if-op.goto.else 2
+	//6 op3 1
+	//7 op4.cna 0
+	//8 op4.cnb 0
+	//9 loop.loopBegin 3
+	//10 op6 1
+	for i := 0; i < 5; i++ {
+		doTransaction(t, isc, uint64(10))
+	}
+	//11 loop.addLoopVar 4
+	//12 loop.loopEnd 2
+	//13 loop.resetLoopVar 4
+
+	assert.EqualValues(t, StateSettling, isc.Storage.getISCState())
+
+	assert.EqualValues(t, OK, isc.SettleContract())
+	commit(t, isc)
+
+	assert.EqualValues(t, StateClosed, isc.Storage.getISCState())
+}
+
+func doTransaction(t *testing.T, isc *ISC, pc uint64) {
+	t.Helper()
+	assert.EqualValues(t, pc, isc.GetPC())
+	assert.EqualValues(t, OK, isc.InsuranceClaim(pc, TxState.Instantiating))
+	commit(t, isc)
+
+	assert.EqualValues(t, pc, isc.GetPC())
+	assert.EqualValues(t, OK, isc.InsuranceClaim(pc, TxState.Open))
+	commit(t, isc)
+
+	assert.EqualValues(t, pc, isc.GetPC())
+	assert.EqualValues(t, OK, isc.InsuranceClaim(pc, TxState.Opened))
+	commit(t, isc)
+
+	assert.EqualValues(t, pc, isc.GetPC())
+	assert.EqualValues(t, OK, isc.InsuranceClaim(pc, TxState.Closed))
+	commit(t, isc)
+}
+
+func BranchIfTest0(ctx *ContextImpl, ifOrNot bool) {
+	//"left": obj{
+	//	"type": "uint256",
+	//	"value": obj{
+	//		"contract": "c2",
+	//		"field":    "num_count",
+	//		"pos":      "00",
+	//	},
+	//},
+	var l0 *lexer.Uint256
+
+	if ifOrNot {
+		l0 = (*lexer.Uint256)(big.NewInt(2))
+	} else {
+		l0 = (*lexer.Uint256)(big.NewInt(1))
+	}
+	ctx.ProvideExternalStorageAt(
+		uip.ChainIDUnderlyingType(c2["domain"].(int)), value_type.Uint256,
+		sugar.HandlerError(hex.DecodeString(c2["address"].(string)[2:])).([]byte), []byte{0}, []byte("num_count"),
+		l0)
+	//	"right": obj{
+	//	"type": "uint256",
+	//	"value": obj{
+	//		"contract": "c2",
+	//		"field":    "totalVotes",
+	//		"pos":      "01",
+	//	},
+	//},
+	ctx.ProvideExternalStorageAt(
+		uip.ChainIDUnderlyingType(c2["domain"].(int)), value_type.Uint256,
+		sugar.HandlerError(hex.DecodeString(c2["address"].(string)[2:])).([]byte), []byte{1}, []byte("totalVotes"),
+		(*lexer.Uint256)(big.NewInt(1)))
+	//	"sign": "Greater",
+}
+
+func commit(t *testing.T, isc *ISC) {
+	t.Helper()
 	sugar.HandlerError0(isc.Storage.storage.Commit())
 }
 

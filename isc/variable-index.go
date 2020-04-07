@@ -34,12 +34,20 @@ func (s *Storage) setUserAckCount(u uint64) {
 	s.storage.SetUint64("UserAckCount", u)
 }
 
-func (s *Storage) getPC() uint64 {
+func (s *Storage) GetPC() uint64 {
 	return s.storage.GetUint64("_PC")
 }
 
-func (s *Storage) setPC(u uint64) {
+func (s *Storage) SetPC(u uint64) {
 	s.storage.SetUint64("_PC", u)
+}
+
+func (s *Storage) GetMuPC() uint64 {
+	return s.storage.GetUint64("_muPC")
+}
+
+func (s *Storage) SetMuPC(u uint64) {
+	s.storage.SetUint64("_muPC", u)
 }
 
 func (s *Storage) Owners() *storage.BytesArray {

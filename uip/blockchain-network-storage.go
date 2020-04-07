@@ -11,6 +11,11 @@ type Storage interface {
 	GetStorageAt(chainID ChainID, typeID TypeID, contractAddress ContractAddress, pos []byte, description []byte) (Variable, error)
 }
 
+//
+//Type     value_type.Type `json:"type"`
+//Contract Account         `json:"contract"`
+//Pos      []byte          `json:"pos"`
+//Field    []byte          `json:"field"`
 type StorageGetter interface {
 	GetBlockStorage(chainID ChainID) (storage Storage, err error)
 }

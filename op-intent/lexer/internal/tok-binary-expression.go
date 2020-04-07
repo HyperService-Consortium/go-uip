@@ -34,6 +34,8 @@ func (b BinaryExpression) Determine(f DetermineContext) (_ token.Param, err erro
 	if err != nil {
 		return nil, err
 	}
+	db.Type = b.Type
+	db.Sign = b.Sign
 
 	return &db, nil
 }
