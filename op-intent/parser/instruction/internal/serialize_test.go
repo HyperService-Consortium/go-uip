@@ -2,6 +2,7 @@ package internal_test
 
 import (
 	"bytes"
+	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
 	"github.com/HyperService-Consortium/go-uip/op-intent/parser/instruction"
 	"github.com/HyperService-Consortium/go-uip/op-intent/parser/instruction/internal"
 	"github.com/HyperService-Consortium/go-uip/uip"
@@ -41,7 +42,7 @@ func TestSerialize(t *testing.T) {
 	for _, tt := range []testCase{
 		inheritInstructionTestCase("encode-goto", internal.Goto{Index: 1}),
 		inheritInstructionTestCase("encode-condition-goto", internal.ConditionGoto{
-			Condition: []byte("qwq"), Index: 1}),
+			Condition: lexer.Bool(true), Index: 1}),
 		inheritInstructionTestCase("encode-set-state", internal.SetState{
 			Type: 1, Target: []byte("target"), RightExpression: []byte("expression")}),
 		inheritInstructionTestCase("encode-condition-set-state", internal.ConditionSetState{

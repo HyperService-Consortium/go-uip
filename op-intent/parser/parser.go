@@ -50,7 +50,7 @@ func (ier *Parser) fillIndex(intents TxIntentsImpl) (TxIntentsImpl, error) {
 		switch inst.GetType() {
 		case instruction_type.RawConditionGoto:
 			ri := inst.(*instruction.RawConditionGoto)
-			cond, err := ier.marshal(ri.Condition)
+			cond, err := ri.Condition.Determine(ier)
 			if err != nil {
 				return nil, err
 			}

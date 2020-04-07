@@ -55,11 +55,11 @@ func (ier *Parser) _queryAccount(m lexer.AccountMap, a lexer.Account, contextCha
 	}
 }
 
-func (ier *Parser) queryAccount(a lexer.Account) (uip.Account, error) {
+func (ier *Parser) QueryAccount(a lexer.Account) (uip.Account, error) {
 	return ier._queryAccount(ier.Program.AccountMapping, a, 0)
 }
 
-func (ier *Parser) queryContract(a lexer.Account) (uip.Account, error) {
+func (ier *Parser) QueryContract(a lexer.Account) (uip.Account, error) {
 	return ier._queryAccount(ier.Program.ContractMapping, a, 0)
 }
 
@@ -76,12 +76,12 @@ func (ier *Parser) parsePayment(paymentIntent *lexer.PaymentIntent) (intents []u
 	var srcInfo, dstInfo uip.Account
 	var intent uip.TxIntentI
 
-	srcInfo, err = ier.queryAccount(paymentIntent.Src)
+	srcInfo, err = ier.QueryAccount(paymentIntent.Src)
 	if err != nil {
 		return nil, err.(*errorn.ParseError).Desc(errorn.AtOpIntentField{Field: "src"})
 	}
 
-	dstInfo, err = ier.queryAccount(paymentIntent.Dst)
+	dstInfo, err = ier.QueryAccount(paymentIntent.Dst)
 	if err != nil {
 		return nil, err.(*errorn.ParseError).Desc(errorn.AtOpIntentField{Field: "dst"})
 	}

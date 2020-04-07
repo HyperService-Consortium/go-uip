@@ -23,7 +23,7 @@ func (b BinaryExpression) GetGVMType() gvm.RefType {
 	return gvm.RefType(b.Type)
 }
 
-func (b BinaryExpression) Determine(f InstantiateAccountF) (_ token.Param, err error) {
+func (b BinaryExpression) Determine(f DetermineContext) (_ token.Param, err error) {
 	var db DeterminedBinaryExpression
 	db.Left, err = b.Left.Determine(f)
 	if err != nil {

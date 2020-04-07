@@ -16,7 +16,7 @@ func (ier *Parser) parseContractInvocation(invokeIntent *lexer.InvokeIntent) (in
 
 	var srcInfo, dstInfo uip.Account
 	var intent uip.TxIntentI
-	srcInfo, err = ier.queryAccount(invokeIntent.Src)
+	srcInfo, err = ier.QueryAccount(invokeIntent.Src)
 	if err != nil {
 		return nil, errorn.NewGetAccountFailed(err).Desc(errorn.AtOpIntentField{Field: "src"})
 	}
@@ -40,7 +40,7 @@ func (ier *Parser) parseContractInvocation(invokeIntent *lexer.InvokeIntent) (in
 
 	meta.Params = make([]token.Param, len(invokeIntent.Params))
 	for i := range invokeIntent.Params {
-		meta.Params[i], err = invokeIntent.Params[i].Determine(ier.queryContract)
+		meta.Params[i], err = invokeIntent.Params[i].Determine(ier)
 		if err != nil {
 			return nil, err
 		}

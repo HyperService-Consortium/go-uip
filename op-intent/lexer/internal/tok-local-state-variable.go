@@ -46,6 +46,6 @@ func (l LocalStateVariable) GetGVMType() gvm.RefType {
 	return gvm.RefType(l.Type)
 }
 
-func (l LocalStateVariable) Determine(_ InstantiateAccountF) (token.Param, error) {
+func (l LocalStateVariable) Determine(_ DetermineContext) (token.Param, error) {
 	return l, nil
 }

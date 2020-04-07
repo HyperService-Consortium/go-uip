@@ -91,7 +91,7 @@ func runIntentRTest(t *testing.T, opIntents map[string]interface{}, callback fun
 			}
 		case instruction_type.ConditionGoto:
 			intent := instruction.(*instruction2.ConditionGoto)
-			fmt.Println(string(intent.Condition))
+			fmt.Println(intent.Condition)
 			fmt.Println(intent.Index)
 		case instruction_type.Goto:
 			intent := instruction.(*instruction2.Goto)

@@ -15,12 +15,15 @@ type Account interface {
 
 type Param interface {
 	GetGVMType() gvm.RefType
-	Determine(f InstantiateAccountF) (token.Param, error)
+	Determine(f DetermineContext) (token.Param, error)
 }
 
 type DeterminedParam interface {
-	Determine(f InstantiateAccountF) (token.Param, error)
+	Determine(f DetermineContext) (token.Param, error)
 	token.Param
 }
 
-type InstantiateAccountF = func(a Account) (uip.Account, error)
+type DetermineContext interface {
+	QueryContract(a Account) (uip.Account, error)
+	QueryAccount(a Account) (uip.Account, error)
+}

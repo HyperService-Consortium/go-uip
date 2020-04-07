@@ -69,7 +69,7 @@ func (u *DeterminedUnaryExpression) Eval(g *gvm.ExecCtx) (gvm.Ref, error) {
 	}
 }
 
-func (u UnaryExpression) Determine(f InstantiateAccountF) (_ token.Param, err error) {
+func (u UnaryExpression) Determine(f DetermineContext) (_ token.Param, err error) {
 	var du DeterminedUnaryExpression
 	du.Left, err = u.Left.Determine(f)
 	if err != nil {

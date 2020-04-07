@@ -26,7 +26,7 @@ func NewGoto(index uint64) *Goto {
 	return internal.NewGoto(index)
 }
 
-func NewConditionGoto(index uint64, condition json.RawMessage) *ConditionGoto {
+func NewConditionGoto(index uint64, condition uip.VTok) *ConditionGoto {
 	return internal.NewConditionGoto(index, condition)
 }
 

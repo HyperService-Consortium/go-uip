@@ -51,8 +51,8 @@ func (s StateVariable) Eval(g *gvm.ExecCtx) (gvm.Ref, error) {
 	panic("todo")
 }
 
-func (s *StateVariable) Determine(f InstantiateAccountF) (token.Param, error) {
-	a, err := f(s.Contract)
+func (s *StateVariable) Determine(c DetermineContext) (token.Param, error) {
+	a, err := c.QueryContract(s.Contract)
 	if err != nil {
 		return nil, err
 	}
