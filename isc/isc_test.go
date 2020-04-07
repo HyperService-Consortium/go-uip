@@ -19,7 +19,7 @@ var user0 = []byte{1}
 
 func funcSetA() []uip.Instruction {
 	return []uip.Instruction{
-		&instruction.GVMSetState{
+		&instruction.SetState{
 			Target:          "a",
 			RightExpression: lexer.Bool(true),
 		},

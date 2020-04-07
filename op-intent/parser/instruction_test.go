@@ -17,8 +17,8 @@ func TestInstructions(t *testing.T) {
 		//{"raw set state", &RawSetState{}},
 		{"goto", instruction.NewGoto(0)},
 		{"condition goto", instruction.NewConditionGoto(0, nil)},
-		{"set state", instruction.NewSetState(0, nil, nil)},
-		{"condition set state", instruction.NewConditionSetState(0, nil, nil, nil)},
+		{"set state", instruction.NewSetState(0, "233", nil)},
+		{"condition set state", instruction.NewConditionSetState(0, "abc", nil, nil)},
 		{"transaction intent", &instruction.TransactionIntent{}},
 	} {
 		t.Run(tt.name, func(ttt *testing.T) {

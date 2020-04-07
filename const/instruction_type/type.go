@@ -11,9 +11,6 @@ const (
 	SetState
 	ConditionSetState
 
-	GVMSetState
-	GVMConditionSetState
-
 	Length
 	StandardStep = 1 << 16
 	Standard     = StandardStep << 4

@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"encoding/json"
 	"github.com/HyperService-Consortium/go-uip/const/instruction_type"
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
 	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
@@ -11,42 +10,7 @@ import (
 	"io"
 )
 
-type SetState struct {
-	Type            value_type.Type `json:"value_type"`
-	Target          []byte          `json:"target"`
-	RightExpression json.RawMessage `json:"expression"`
-}
-
-func (g SetState) GetType() instruction_type.Type {
-	return instruction_type.SetState
-}
-
-func (g SetState) Marshal(w io.Writer, err *error) {
-	if *err != nil {
-		return
-	}
-	serial.Write(w, g.Type, err)
-	serial.Write(w, g.Target, err)
-	serial.Write(w, []byte(g.RightExpression), err)
-}
-
-func (g SetState) Exec(c *gvm.ExecCtx) error {
-	panic("implement me")
-}
-
-func (g SetState) Unmarshal(r io.Reader, i *uip.Instruction, err *error) {
-	if *err != nil {
-		return
-	}
-	serial.Read(r, &g.Type, err)
-	serial.Read(r, &g.Target, err)
-	var b []byte
-	serial.Read(r, &b, err)
-	g.RightExpression = b
-	*i = g
-}
-
-func NewSetState(t value_type.Type, target []byte, rhs json.RawMessage) *SetState {
+func NewSetState(t value_type.Type, target string, rhs uip.VTok) *SetState {
 	return &SetState{
 		Type:            t,
 		Target:          target,
@@ -54,34 +18,36 @@ func NewSetState(t value_type.Type, target []byte, rhs json.RawMessage) *SetStat
 	}
 }
 
-func (G *GVMSetState) Marshal(w io.Writer, err *error) {
+func (G SetState) Marshal(w io.Writer, err *error) {
 	if *err != nil {
 		return
 	}
+	serial.Write(w, G.Type, err)
 	serial.Write(w, G.Target, err)
 	lexer.EncodeVTok(w, G.RightExpression, err)
 }
 
-func (G *GVMSetState) Unmarshal(r io.Reader, i *uip.Instruction, err *error) {
+func (G SetState) Unmarshal(r io.Reader, i *uip.Instruction, err *error) {
 	if *err != nil {
 		return
 	}
+	serial.Read(r, &G.Type, err)
 	serial.Read(r, &G.Target, err)
 	lexer.DecodeVTok(r, &G.RightExpression, err)
 	*i = G
 }
 
-type GVMSetState struct {
+type SetState struct {
 	Type            value_type.Type `json:"value_type"`
 	Target          string          `json:"target"`
 	RightExpression uip.VTok        `json:"expression"`
 }
 
-func (G *GVMSetState) GetType() instruction_type.Type {
-	return instruction_type.GVMSetState
+func (G SetState) GetType() instruction_type.Type {
+	return instruction_type.SetState
 }
 
-func (G GVMSetState) Exec(g *gvm.ExecCtx) error {
+func (G SetState) Exec(g *gvm.ExecCtx) error {
 	return execSetState(g, G.Target, G.RightExpression)
 }
 
@@ -99,20 +65,10 @@ func execSetState(g *gvm.ExecCtx, target string, rhs gvm.VTok) error {
 	return nil
 }
 
-func (G GVMSetState) GetRefNameGVMI() string {
+func (G SetState) GetRefNameGVMI() string {
 	return G.Target
 }
 
-func (G GVMSetState) GetRightHandStatementGVMI() gvm.VTok {
+func (G SetState) GetRightHandStatementGVMI() gvm.VTok {
 	return G.RightExpression
-}
-
-func (tx *SetState) Convert() (g *GVMSetState, err error) {
-	g = &GVMSetState{
-		Type:   tx.Type,
-		Target: string(tx.Target),
-	}
-	panic("todo")
-	//g.RightExpression, err = lexer.ParamUnmarshalJSON(tx.RightExpression)
-	return
 }

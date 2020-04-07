@@ -47,8 +47,6 @@ func DecodeInstructionWithType(r io.Reader, t instruction_type.Type) (i uip.Inst
 	switch t {
 	case instruction_type.SetState:
 		i = new(SetState)
-	case instruction_type.GVMSetState:
-		i = new(GVMSetState)
 	case instruction_type.ConditionSetState:
 		i = new(ConditionSetState)
 	case instruction_type.Goto:

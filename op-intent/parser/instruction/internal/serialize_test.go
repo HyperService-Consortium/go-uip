@@ -44,10 +44,10 @@ func TestSerialize(t *testing.T) {
 		inheritInstructionTestCase("encode-condition-goto", internal.ConditionGoto{
 			Condition: lexer.Bool(true), Index: 1}),
 		inheritInstructionTestCase("encode-set-state", internal.SetState{
-			Type: 1, Target: []byte("target"), RightExpression: []byte("expression")}),
+			Type: 1, Target: "target", RightExpression: lexer.Bool(true)}),
 		inheritInstructionTestCase("encode-condition-set-state", internal.ConditionSetState{
-			Type: 1, Target: []byte("target"),
-			RightExpression: []byte("expression"), Condition: []byte("condition")}),
+			Type: 1, Target: "target",
+			RightExpression: lexer.Bool(true), Condition: lexer.Bool(true)}),
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			var b = bytes.NewBuffer(nil)

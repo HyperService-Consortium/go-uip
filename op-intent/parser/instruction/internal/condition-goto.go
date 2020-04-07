@@ -19,9 +19,8 @@ func NewConditionGoto(index uint64, condition uip.VTok) *ConditionGoto {
 }
 
 type ConditionGoto struct {
-	Type      instruction_type.Type `json:"itype"`
-	Index     uint64                `json:"goto"`
-	Condition uip.VTok              `json:"condition"`
+	Index     uint64   `json:"goto"`
+	Condition uip.VTok `json:"condition"`
 }
 
 func (inst ConditionGoto) GetType() instruction_type.Type {

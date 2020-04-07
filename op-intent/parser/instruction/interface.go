@@ -18,7 +18,6 @@ type ConditionGoto = internal.ConditionGoto
 type RawConditionGoto = internal.RawConditionGoto
 
 type SetState = internal.SetState
-type GVMSetState = internal.GVMSetState
 type RawSetState = internal.RawSetState
 type ConditionSetState = internal.ConditionSetState
 
@@ -30,11 +29,11 @@ func NewConditionGoto(index uint64, condition uip.VTok) *ConditionGoto {
 	return internal.NewConditionGoto(index, condition)
 }
 
-func NewSetState(t value_type.Type, target []byte, rhs json.RawMessage) *SetState {
+func NewSetState(t value_type.Type, target string, rhs uip.VTok) *SetState {
 	return internal.NewSetState(t, target, rhs)
 }
 
-func NewConditionSetState(t value_type.Type, target []byte, rhs json.RawMessage, condition json.RawMessage) *ConditionSetState {
+func NewConditionSetState(t value_type.Type, target string, rhs uip.VTok, condition uip.VTok) *ConditionSetState {
 	return internal.NewConditionSetState(t, target, rhs, condition)
 }
 

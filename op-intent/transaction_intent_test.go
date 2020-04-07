@@ -100,7 +100,7 @@ func runIntentRTest(t *testing.T, opIntents map[string]interface{}, callback fun
 			intent := instruction.(*instruction2.SetState)
 			fmt.Println(intent.Type)
 			fmt.Println(string(intent.Target))
-			fmt.Println(string(intent.RightExpression))
+			fmt.Println(intent.RightExpression)
 		case instruction_type.ConditionSetState:
 
 		}
@@ -439,7 +439,7 @@ func (a mAccountProvider) AccountBase() uip.AccountBase {
 	return a
 }
 
-func (mAccountProvider) Get(name string, chainId uint64) (uip.Account, error) {
+func (mAccountProvider) Get(_ string, chainId uint64) (uip.Account, error) {
 	return &uip.AccountImpl{
 		ChainId: chainId,
 		Address: []byte("121313212313133123333333333333333313"),
@@ -453,7 +453,7 @@ func (mAccountProvider) GetRelay(domain uint64) (uip.Account, error) {
 	}, nil
 }
 
-func (mAccountProvider) GetTransactionProofType(chainId uint64) (uip.MerkleProofType, error) {
+func (mAccountProvider) GetTransactionProofType(_ uint64) (uip.MerkleProofType, error) {
 	return merkle_proof.MerklePatriciaTrieUsingKeccak256, nil
 }
 

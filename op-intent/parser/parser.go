@@ -72,11 +72,11 @@ func (ier *Parser) fillIndex(intents TxIntentsImpl) (TxIntentsImpl, error) {
 			//ri := inst.(*RawGoto)
 		case instruction_type.RawSetState:
 			ri := inst.(*instruction.RawSetState)
-			rhs, err := ier.marshal(ri.RightExpression)
+			rhs, err := ri.RightExpression.Determine(ier)
 			if err != nil {
 				return nil, err
 			}
-			intents[i].SetInstruction(instruction.NewSetState(ri.Target.Type, ri.Target.Field, rhs))
+			intents[i].SetInstruction(instruction.NewSetState(ri.Target.Type, string(ri.Target.Field), rhs))
 		}
 	}
 	return intents, nil
