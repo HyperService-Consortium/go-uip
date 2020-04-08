@@ -37,6 +37,7 @@ type Int16 = lexer_types.Int16
 type Int32 = lexer_types.Int32
 type Int64 = lexer_types.Int64
 type Int128 = lexer_types.Int128
+type Int256 = lexer_types.Int256
 
 type String = lexer_types.String
 type Bytes = lexer_types.Bytes

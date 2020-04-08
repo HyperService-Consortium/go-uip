@@ -28,16 +28,19 @@ func NewSortError(err error) *ParseError {
 }
 
 const ErrorTypeUnmarshalError = "unmarshal error"
+
 func NewUnmarshalError(err error) *ParseError {
 	return _newParseError(err, ErrorTypeUnmarshalError)
 }
 
 const ErrorTypeMarshalError = "marshal error"
+
 func NewMarshalError(err error) *ParseError {
 	return _newParseError(err, ErrorTypeMarshalError)
 }
 
 const ErrorTypeInvalidField = "invalid field error"
+
 func NewInvalidFieldError(err error) *ParseError {
 	return _newParseError(err, ErrorTypeInvalidField)
 }
@@ -71,7 +74,7 @@ func NewParseTransactionIntentError(err error) *ParseError {
 }
 
 type AccountIndexConflict struct {
-	Name string
+	Name    string
 	ChainID uip.ChainIDUnderlyingType
 }
 
@@ -83,22 +86,24 @@ func NewAccountIndexConflict(name string, chainID uip.ChainIDUnderlyingType) *Pa
 	return _newParseError(AccountIndexConflict{name, chainID}, "account indexing conflict")
 }
 
-
 func NewNoDeterminedChainID() *ParseError {
 	return _newParseError(ErrNoDeterminedChainID, ErrNoDeterminedChainID.Error())
 }
 
 const ErrorTypeValueTypeNotFound = "value type not found"
+
 func NewValueTypeNotFound(valueType string) *ParseError {
 	return _newParseError(ValueTypeNotFound{ValueType: valueType}, ErrorTypeValueTypeNotFound)
 }
 
 const ErrorTypeAccountTypeNotFound = "account type not found"
+
 func NewAccountTypeNotFound(t int) *ParseError {
 	return _newParseError(AccountTypeNotFound{AccountType: t}, ErrorTypeAccountTypeNotFound)
 }
 
 const ErrorTypeFieldNotFound = "field not found"
+
 func NewFieldNotFound(field string) *ParseError {
 	return _newParseError(FieldNotFound{Field: field}, ErrorTypeFieldNotFound)
 }
@@ -112,6 +117,7 @@ func NewOpNameNotFound(opName string) *ParseError {
 }
 
 const ErrorTypeDecodeDomainError = "decode domain error"
+
 func NewDecodeDomainError(err error) *ParseError {
 	return _newParseError(err, ErrorTypeDecodeDomainError)
 }
@@ -124,19 +130,20 @@ func NewGetDomainError(err error) *ParseError {
 	return _newParseError(err, "get domain error")
 }
 
-
 const ErrorTypeDecodeAddressError = "decode address error"
+
 func NewDecodeAddressError(err error) *ParseError {
 	return _newParseError(err, ErrorTypeDecodeAddressError)
 }
 
-
 const ErrorTypeDecodeHexError = "decode hex error"
+
 func NewDecodeHexError(err error) *ParseError {
 	return _newParseError(err, ErrorTypeDecodeHexError)
 }
 
 const ErrorTypeDecodeContractPosError = "decode contract pos error"
+
 func NewDecodeContractPosError(err error) *ParseError {
 	return _newParseError(err, ErrorTypeDecodeContractPosError)
 }
@@ -191,7 +198,7 @@ func (a AtOpIntentField) String() string {
 	return fmt.Sprintf("at op intents field %s", a.Field)
 }
 
-type AtOpIntentParameterPos struct { Pos int }
+type AtOpIntentParameterPos struct{ Pos int }
 
 func (a AtOpIntentParameterPos) String() string {
 	return fmt.Sprintf("at parameter pos %d", a.Pos)
