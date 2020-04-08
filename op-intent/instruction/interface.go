@@ -58,6 +58,14 @@ type TransactionIntent struct {
 	ChainID   uint64          `json:"chain_id"`
 }
 
+func (tx *TransactionIntent) GetTxType() trans_type.Type {
+	return tx.TransType
+}
+
+func (tx *TransactionIntent) GetChainID() uip.ChainIDUnderlyingType {
+	return tx.ChainID
+}
+
 func (tx *TransactionIntent) Marshal(w io.Writer, err *error) {
 	if *err != nil {
 		return

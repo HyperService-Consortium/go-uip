@@ -36,3 +36,4 @@ type InvokeIntent = lexer.InvokeIntent
 type PaymentIntent = lexer.PaymentIntent
 type IfIntent = lexer.IfIntent
 type LoopIntent = lexer.LoopIntent
+type ContractInvokeMeta = lexer.ContractInvokeMeta
