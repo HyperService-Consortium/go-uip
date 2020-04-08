@@ -2,7 +2,7 @@ package parser
 
 import (
 	"errors"
-	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
+	"github.com/HyperService-Consortium/go-uip/errorn"
 	"reflect"
 	"testing"
 )
@@ -23,8 +23,7 @@ func TestInitializer_decodeHex(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ier := &Parser{
-			}
+			ier := &Parser{}
 			gotB, err := ier.decodeHex(tt.args.src)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("decodeHex() error = %v, wantErr %v", err, tt.wantErr)
@@ -66,8 +65,7 @@ func TestInitializer_marshal(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ier := &Parser{
-			}
+			ier := &Parser{}
 			gotB, err := ier.marshal(tt.args.v)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("marshal() error = %v, wantErr %v", err, tt.wantErr)

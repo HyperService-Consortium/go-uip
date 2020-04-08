@@ -1,14 +1,14 @@
 package parser
 
 import (
-	"encoding/hex"
 	"errors"
 	"github.com/HyperService-Consortium/go-uip/const/merkleproof_proposal_type"
+	"github.com/HyperService-Consortium/go-uip/const/token_type"
 	"github.com/HyperService-Consortium/go-uip/const/trans_type"
-	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
+	"github.com/HyperService-Consortium/go-uip/errorn"
+	"github.com/HyperService-Consortium/go-uip/internal/token_types"
+	"github.com/HyperService-Consortium/go-uip/op-intent/instruction"
 	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
-	"github.com/HyperService-Consortium/go-uip/op-intent/parser/instruction"
-	"github.com/HyperService-Consortium/go-uip/op-intent/token"
 	"github.com/HyperService-Consortium/go-uip/uip"
 )
 
@@ -38,7 +38,7 @@ func (ier *Parser) parseContractInvocation(invokeIntent *lexer.InvokeIntent) (in
 		return nil, err
 	}
 
-	meta.Params = make([]token.Param, len(invokeIntent.Params))
+	meta.Params = make([]token_types.Param, len(invokeIntent.Params))
 	for i := range invokeIntent.Params {
 		meta.Params[i], err = invokeIntent.Params[i].Determine(ier)
 		if err != nil {
@@ -78,14 +78,6 @@ func (ier *Parser) parseContractInvocation(invokeIntent *lexer.InvokeIntent) (in
 	return
 }
 
-func DecodeContractAddress(src string) ([]byte, error) {
-	return hex.DecodeString(src)
-}
-
-func DecodeContractPos(src string) ([]byte, error) {
-	return hex.DecodeString(src)
-}
-
 func (ier *Parser) parseContractInvokeProof(meta *lexer.ContractInvokeMeta) (proposals uip.MerkleProofProposalsImpl, err error) {
 	//var b []byte
 	//var txp transactionProofSourceDescription
@@ -123,12 +115,12 @@ func (ier *Parser) parseContractInvokeProof(meta *lexer.ContractInvokeMeta) (pro
 //	Pos      []byte `json:"pos"`
 //	Field    []byte `json:"field"`
 //}
-func (ier *Parser) addProposal(param token.Param, proposal uip.MerkleProofProposalsImpl) (uip.MerkleProofProposalsImpl, error) {
+func (ier *Parser) addProposal(param token_types.Param, proposal uip.MerkleProofProposalsImpl) (uip.MerkleProofProposalsImpl, error) {
 
 	switch param.GetGVMTok() {
-	case token.Constant:
-	case token.StateVariable:
-		c := param.(token.StateVariableI).GetContract()
+	case token_type.Constant:
+	case token_type.StateVariable:
+		c := param.(token_types.StateVariableI).GetContract()
 		if u, ok := c.(uip.Account); !ok {
 			return nil, errorn.NewNoDeterminedAccount()
 		} else {

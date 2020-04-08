@@ -1,9 +1,8 @@
 package lexer
 
-import "github.com/HyperService-Consortium/go-uip/op-intent/token"
+import "github.com/HyperService-Consortium/go-uip/internal/token_types"
 
 type Intent interface {
-	token.Token
+	token_types.Token
 	GetName() string
 }
-

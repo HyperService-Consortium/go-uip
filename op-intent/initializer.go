@@ -1,15 +1,15 @@
 package opintent
 
 import (
-	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
+	"github.com/HyperService-Consortium/go-uip/errorn"
 	"github.com/HyperService-Consortium/go-uip/uip"
 )
 
 type Initializer struct {
 	degPool          *DegreePool
 	accountBase      uip.AccountBase
-	contractBase uip.ContractBase
-	chainGetter uip.BlockChainGetter
+	contractBase     uip.ContractBase
+	chainGetter      uip.BlockChainGetter
 	largerThanLarger uint32
 }
 

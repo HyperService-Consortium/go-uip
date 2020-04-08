@@ -1,40 +1,28 @@
 package lexer
 
 import (
-	"github.com/HyperService-Consortium/go-uip/op-intent/document"
-	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
-	"github.com/HyperService-Consortium/go-uip/op-intent/lexer/internal"
+	"github.com/HyperService-Consortium/go-uip/errorn"
+	"github.com/HyperService-Consortium/go-uip/internal/document"
+	"github.com/HyperService-Consortium/go-uip/internal/lexer_types"
 	"github.com/HyperService-Consortium/go-uip/uip"
 	"strconv"
 	"strings"
 )
 
-type Account = internal.Account
-
-type RawAccount = internal.RawAccount
-type NameAccount = internal.NameAccount
-type NamespacedAccount = internal.NamespacedNameAccount
-type NamespacedRawAccount = internal.NamespacedRawAccount
-
-//noinspection GoUnusedExportedFunction
-func NewNamespacedRawAccount(a uip.Account) *NamespacedRawAccount {
-	return internal.NewNamespacedRawAccount(a)
-}
-
-func AccountUnmarshalResult(entityKey string, content document.Document) (_ Account, err error) {
+func AccountUnmarshalResult(entityKey string, content document.Document) (_ lexer_types.Account, err error) {
 	if content.IsArray() {
 		return nil, errorn.NewInvalidDocumentType("want string or object")
 	}
 	if !content.IsObject() {
 		x := content.String()
 		if strings.HasPrefix(x, "0x") {
-			b, err := DecodeAddress(x[2:])
+			b, err := lexer_types.DecodeAddress(x[2:])
 			if err != nil {
 				return nil, errorn.NewDecodeAddressError(err)
 			}
-			return &RawAccount{Address: b}, nil
+			return &lexer_types.RawAccount{Address: b}, nil
 		}
-		return &NameAccount{Name: x}, nil
+		return &lexer_types.NameAccount{Name: x}, nil
 	}
 	var domain uip.ChainIDUnderlyingType
 	v := content.Get(FieldOpIntentsDomain)
@@ -47,9 +35,9 @@ func AccountUnmarshalResult(entityKey string, content document.Document) (_ Acco
 	v = content.Get(entityKey)
 	if v.Exists() {
 		if domain != 0 {
-			return &NamespacedAccount{Name: v.String(), ChainID: domain}, nil
+			return &lexer_types.NamespacedNameAccount{Name: v.String(), ChainID: domain}, nil
 		} else {
-			return &NameAccount{Name: v.String()}, nil
+			return &lexer_types.NameAccount{Name: v.String()}, nil
 		}
 	}
 
@@ -59,14 +47,14 @@ func AccountUnmarshalResult(entityKey string, content document.Document) (_ Acco
 		if strings.HasPrefix(x, "0x") {
 			x = x[2:]
 		}
-		b, err := DecodeAddress(x)
+		b, err := lexer_types.DecodeAddress(x)
 		if err != nil {
 			return nil, errorn.NewDecodeAddressError(err)
 		}
 		if domain != 0 {
-			return &NamespacedRawAccount{Address: b, ChainID: domain}, nil
+			return &lexer_types.NamespacedRawAccount{Address: b, ChainID: domain}, nil
 		} else {
-			return &RawAccount{Address: b}, nil
+			return &lexer_types.RawAccount{Address: b}, nil
 		}
 	}
 

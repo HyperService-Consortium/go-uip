@@ -1,11 +1,13 @@
 package lexer
 
+import "github.com/HyperService-Consortium/go-uip/internal/lexer_types"
+
 const (
 	FieldOpIntents     = "op-intents"
 	FieldOpIntentsName = "name"
 
 	FieldOpIntentsInvoker      = "invoker"
-	FieldOpIntentsContract = "contract"
+	FieldOpIntentsContract     = "contract"
 	FieldOpIntentsContractAddr = "contract_addr"
 	FieldOpIntentsContractCode = "contract_code"
 	FieldOpIntentsFunc         = "func"
@@ -19,7 +21,7 @@ const (
 
 	FieldOpIntentsDependencies = "dependencies"
 
-	FieldOpIntentsDomain   = "domain"
+	FieldOpIntentsDomain   = lexer_types.FieldOpIntentsDomain
 	FieldOpIntentsUserName = "user_name"
 	FieldKeyType           = "type"
 	FieldOpIntentsSign     = "sign"
@@ -35,5 +37,5 @@ const (
 
 	FieldValueConstant = "constant"
 
-	FieldKeyAddress = "address"
+	FieldKeyAddress = lexer_types.FieldKeyAddress
 )

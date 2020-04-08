@@ -6,9 +6,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/HyperService-Consortium/go-uip/const/instruction_type"
-	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
+	"github.com/HyperService-Consortium/go-uip/errorn"
+	"github.com/HyperService-Consortium/go-uip/internal/lexer_types"
+	"github.com/HyperService-Consortium/go-uip/op-intent/instruction"
 	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
-	"github.com/HyperService-Consortium/go-uip/op-intent/parser/instruction"
 	"github.com/HyperService-Consortium/go-uip/uip"
 )
 
@@ -85,6 +86,6 @@ func (ier *Parser) fillIndex(intents TxIntentsImpl) (TxIntentsImpl, error) {
 type LexerResult struct {
 	RootIntents     *lexer.RootIntents
 	RawDependencies *lexer.RawDependencies
-	ContractMapping lexer.AccountMap
-	AccountMapping  lexer.AccountMap
+	ContractMapping lexer_types.AccountMap
+	AccountMapping  lexer_types.AccountMap
 }

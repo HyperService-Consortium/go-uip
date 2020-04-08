@@ -1,8 +1,8 @@
 package lexer
 
 import (
-	"github.com/HyperService-Consortium/go-uip/op-intent/document"
-	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
+	"github.com/HyperService-Consortium/go-uip/errorn"
+	"github.com/HyperService-Consortium/go-uip/internal/document"
 	"github.com/Myriad-Dreamin/minimum-lib/sugar"
 	"reflect"
 	"testing"
@@ -30,17 +30,17 @@ func TestRawDependency_UnmarshalResult(t *testing.T) {
 			document.NewMapDocument(document.MObj{FieldKeyLeft: "op1", FieldKeyRight: "op2"})).(document.Document)},
 			wantErr: false, want: RawDependency{
 				Src: "op1", Dst: "op2",
-		}},
+			}},
 		{name: "good-before", args: args{i: sugar.HandlerError(
 			document.NewMapDocument(document.MObj{FieldKeyLeft: "op1", FieldKeyRight: "op2", FieldDependencyDep: "before"})).(document.Document)},
 			wantErr: false, want: RawDependency{
-			Src: "op1", Dst: "op2",
-		}},
+				Src: "op1", Dst: "op2",
+			}},
 		{name: "good-after", args: args{i: sugar.HandlerError(
 			document.NewMapDocument(document.MObj{FieldKeyLeft: "op1", FieldKeyRight: "op2", FieldDependencyDep: "after"})).(document.Document)},
 			wantErr: false, want: RawDependency{
-			Src: "op2", Dst: "op1",
-		}},
+				Src: "op2", Dst: "op1",
+			}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

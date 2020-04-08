@@ -1,29 +1,16 @@
 package lexer
 
 import (
-	"encoding/hex"
 	"github.com/HyperService-Consortium/go-uip/const/sign_type"
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
-	"github.com/HyperService-Consortium/go-uip/op-intent/document"
-	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
-	"github.com/HyperService-Consortium/go-uip/op-intent/lexer/internal"
+	"github.com/HyperService-Consortium/go-uip/errorn"
+	"github.com/HyperService-Consortium/go-uip/internal/document"
+	"github.com/HyperService-Consortium/go-uip/internal/lexer_types"
 	"math/big"
-	"strings"
 )
 
-type Param = internal.Param
-
-type LocalStateVariable = internal.LocalStateVariable
-type StateVariable = internal.StateVariable
-
-//type ConstantVariable = internal.ConstantVariable
-type BinaryExpression = internal.BinaryExpression
-type UnaryExpression = internal.UnaryExpression
-type DeterminedBinaryExpression = internal.DeterminedBinaryExpression
-type DeterminedUnaryExpression = internal.DeterminedUnaryExpression
-
 //noinspection GoUnusedExportedFunction
-func ParamUnmarshalJSON(b []byte) (r Param, err error) {
+func ParamUnmarshalJSON(b []byte) (r lexer_types.Param, err error) {
 	c, err := document.NewGJSONDocument(b)
 	if err != nil {
 		return
@@ -31,34 +18,12 @@ func ParamUnmarshalJSON(b []byte) (r Param, err error) {
 	return ParamUnmarshalResult(c)
 }
 
-func CreateConstantFromJSON(t value_type.Type, v document.Document) internal.DeterminedParam {
+func CreateConstantFromJSON(t value_type.Type, v document.Document) lexer_types.DeterminedParam {
 	switch t {
 	case value_type.Uint256:
-		return (*Uint256)(big.NewInt(v.Int()))
+		return (*lexer_types.Uint256)(big.NewInt(v.Int()))
 	}
 	panic("implement me")
-}
-
-func decodeHex(src string) (b []byte, err error) {
-	b, err = hex.DecodeString(src)
-	if err != nil {
-		return nil, errorn.NewDecodeHexError(err)
-	}
-	return b, nil
-}
-
-func DecodeAddress(src string) ([]byte, error) {
-	if strings.HasPrefix(src, "0x") {
-		return decodeHex(src[2:])
-	}
-	return decodeHex(src)
-}
-
-func DecodeContractPos(src string) ([]byte, error) {
-	if strings.HasPrefix(src, "0x") {
-		return decodeHex(src[2:])
-	}
-	return decodeHex(src)
 }
 
 //Greater
@@ -67,7 +32,7 @@ var SignTable = map[string]sign_type.Type{
 	"Greater": sign_type.GT,
 }
 
-func ParamUnmarshalResult(content document.Document) (p Param, err error) {
+func ParamUnmarshalResult(content document.Document) (p lexer_types.Param, err error) {
 
 	v := content.Get(FieldOpIntentsSign)
 	if v.Exists() {
@@ -88,7 +53,7 @@ func ParamUnmarshalResult(content document.Document) (p Param, err error) {
 
 		v = content.Get(FieldKeyRight)
 		if !v.Exists() {
-			return UnaryExpression{Type: value_type.Type(left.GetGVMType()), Sign: sign, Left: left}, nil
+			return lexer_types.UnaryExpression{Type: value_type.Type(left.GetGVMType()), Sign: sign, Left: left}, nil
 		}
 
 		right, err := ParamUnmarshalResult(v)
@@ -104,7 +69,7 @@ func ParamUnmarshalResult(content document.Document) (p Param, err error) {
 			t = value_type.Bool
 		}
 		// todo: determine param type of non-boolean expression
-		return BinaryExpression{Type: t, Sign: sign, Left: left, Right: right}, nil
+		return lexer_types.BinaryExpression{Type: t, Sign: sign, Left: left, Right: right}, nil
 	}
 
 	v = content.Get(FieldKeyType)
@@ -128,7 +93,7 @@ func ParamUnmarshalResult(content document.Document) (p Param, err error) {
 		//if err != nil {
 		//	return nil, errorn.NewDecodeAddressError(err)
 		//}
-		pos, err := DecodeContractPos(content.Get(FieldContractPos).String())
+		pos, err := lexer_types.DecodeContractPos(content.Get(FieldContractPos).String())
 		if err != nil {
 			return nil, errorn.NewDecodeContractPosError(err)
 		}
@@ -136,7 +101,7 @@ func ParamUnmarshalResult(content document.Document) (p Param, err error) {
 		if err != nil {
 			return nil, err
 		}
-		return &StateVariable{Type: intDesc, Contract: acc,
+		return &lexer_types.StateVariable{Type: intDesc, Contract: acc,
 			Pos: pos, Field: []byte(content.Get(FieldContractField).String())}, nil
 
 	}
@@ -147,12 +112,12 @@ func ParamUnmarshalResult(content document.Document) (p Param, err error) {
 	return nil, errorn.NewInvalidFieldError(errorn.UnknownParam)
 }
 
-func initParamsR(i document.Document) (params []Param, err error) {
+func initParamsR(i document.Document) (params []lexer_types.Param, err error) {
 	if i.Exists() && !i.IsArray() {
 		return nil, errorn.NewInvalidFieldError(errorn.ErrTypeError).Desc(errorn.AtOpIntentField{Field: FieldOpIntentsParameters})
 	}
 	rawParams := i.Array()
-	params = make([]Param, rawParams.Len())
+	params = make([]lexer_types.Param, rawParams.Len())
 	for i := 0; i < rawParams.Len(); i++ {
 		params[i], err = ParamUnmarshalResult(rawParams.Index(i))
 		if err != nil {

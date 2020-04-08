@@ -1,7 +1,7 @@
 package parser
 
 import (
-	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
+	"github.com/HyperService-Consortium/go-uip/errorn"
 	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
 )
 
@@ -15,14 +15,14 @@ type DependenciesInfo struct {
 	Dependencies []Dependency
 }
 
-func (ier * Parser) InitDependencies(
+func (ier *Parser) InitDependencies(
 	rawDeps lexer.RawDependenciesI, nameMap map[string]int) (
 	deps *DependenciesInfo, err error) {
 	deps = &DependenciesInfo{
 		Dependencies: make([]Dependency, rawDeps.Len()),
 	}
 
-	for idx, _ := range deps.Dependencies {
+	for idx := range deps.Dependencies {
 		rawDep := rawDeps.GetDependencies(idx)
 
 		n := rawDep.GetSrc()

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/HyperService-Consortium/go-uip/const/instruction_type"
-	"github.com/HyperService-Consortium/go-uip/op-intent/document"
+	"github.com/HyperService-Consortium/go-uip/internal/document"
 	"github.com/HyperService-Consortium/go-uip/uip"
 )
 

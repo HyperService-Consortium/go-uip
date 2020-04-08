@@ -2,8 +2,9 @@ package lexer
 
 import (
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
-	"github.com/HyperService-Consortium/go-uip/op-intent/document"
-	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
+	"github.com/HyperService-Consortium/go-uip/errorn"
+	"github.com/HyperService-Consortium/go-uip/internal/document"
+	"github.com/HyperService-Consortium/go-uip/internal/lexer_types"
 	"github.com/Myriad-Dreamin/minimum-lib/sugar"
 	"github.com/stretchr/testify/assert"
 	"math/big"
@@ -29,7 +30,7 @@ func TestParamUnmarshalResult(t *testing.T) {
 		args    args
 		wantErr bool
 		errType string
-		want    Param
+		want    lexer_types.Param
 	}{
 		{name: "type-absent", args: args{i: sugar.HandlerError(
 			document.NewMapDocument(document.MObj{FieldOpIntentsValue: document.MObj{
@@ -50,7 +51,7 @@ func TestParamUnmarshalResult(t *testing.T) {
 				FieldOpIntentsValue: document.MObj{
 					"constant": 2000,
 				},
-			})).(document.Document)}, want: (*Uint256)(big.NewInt(2000)), wantErr: false},
+			})).(document.Document)}, want: (*lexer_types.Uint256)(big.NewInt(2000)), wantErr: false},
 		{name: "good state", args: args{i: sugar.HandlerError(
 			document.NewMapDocument(document.MObj{
 				FieldKeyType: "uint256",
@@ -59,9 +60,9 @@ func TestParamUnmarshalResult(t *testing.T) {
 					"field":    "total",
 					"pos":      "01",
 				},
-			})).(document.Document)}, want: &StateVariable{
+			})).(document.Document)}, want: &lexer_types.StateVariable{
 			Type:     value_type.Uint256,
-			Contract: &NameAccount{Name: "c1"},
+			Contract: &lexer_types.NameAccount{Name: "c1"},
 			Pos:      []byte{1},
 			Field:    []byte("total"),
 		}, wantErr: false},
@@ -107,9 +108,9 @@ func TestParamUnmarshalResult(t *testing.T) {
 					"field":    "total",
 					"pos":      "01",
 				},
-			})).(document.Document)}, want: &StateVariable{
+			})).(document.Document)}, want: &lexer_types.StateVariable{
 			Type: value_type.Uint256,
-			Contract: &NamespacedAccount{
+			Contract: &lexer_types.NamespacedNameAccount{
 				ChainID: uint64(1),
 				Name:    "c1",
 			},

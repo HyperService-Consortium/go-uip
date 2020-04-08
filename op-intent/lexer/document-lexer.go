@@ -1,13 +1,12 @@
 package lexer
 
 import (
-	"errors"
+	"github.com/HyperService-Consortium/go-uip/const/token_type"
 	UnitType "github.com/HyperService-Consortium/go-uip/const/unit_type"
-	"github.com/HyperService-Consortium/go-uip/op-intent/document"
-	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
-	"github.com/HyperService-Consortium/go-uip/op-intent/token"
+	"github.com/HyperService-Consortium/go-uip/errorn"
+	"github.com/HyperService-Consortium/go-uip/internal/document"
+	"github.com/HyperService-Consortium/go-uip/internal/lexer_types"
 	"github.com/HyperService-Consortium/go-uip/standard"
-	"github.com/HyperService-Consortium/go-uip/uip"
 )
 
 type DocumentLexer struct {
@@ -16,7 +15,7 @@ type DocumentLexer struct {
 
 func (l *DocumentLexer) InitContents(source document.Document) (r *RootIntents, err error) {
 	rawContents := source.Get(FieldOpIntents)
-	if ! rawContents.Exists() {
+	if !rawContents.Exists() {
 		return nil, errorn.NewFieldNotFound(FieldOpIntents)
 	}
 
@@ -49,13 +48,13 @@ func (l *DocumentLexer) InitContent(content document.Document) (i Intent, err er
 	}
 
 	switch intent.OpType {
-	case token.Pay:
+	case token_type.Pay:
 		return l.initPayment(intent, content)
-	case token.Invoke:
+	case token_type.Invoke:
 		return l.initContractInvocation(intent, content)
-	case token.If:
+	case token_type.If:
 		return l.initIfStatement(intent, content)
-	case token.Loop:
+	case token_type.Loop:
 		return l.initLoopStatement(intent, content)
 	default:
 		return nil, errorn.NewInvalidFieldError(errorn.InvalidOpType)
@@ -153,6 +152,7 @@ func (r RawDependencies) Len() int {
 func (r RawDependencies) GetDependencies(i int) RawDependencyI {
 	return &r.dependencies[i]
 }
+
 type RawDependenciesI interface {
 	Len() int
 	GetDependencies(i int) RawDependencyI
@@ -162,7 +162,6 @@ type RawDependencyI interface {
 	GetSrc() string
 	GetDst() string
 }
-
 
 func (l *DocumentLexer) InitDependencies(source document.Document) (deps *RawDependencies, err error) {
 	if source.Exists() && !source.IsArray() {
@@ -182,52 +181,13 @@ func (l *DocumentLexer) InitDependencies(source document.Document) (deps *RawDep
 	return
 }
 
-type FullAccount struct {
-	Name string
-	ChainID uip.ChainIDUnderlyingType
-	Address []byte
-}
-
-func (a *FullAccount) GetChainId() uip.ChainID {
-	return a.ChainID
-}
-
-func (a *FullAccount) GetAddress() uip.Address {
-	return a.Address
-}
-
-func (a *FullAccount) UnmarshalResult(nameKey string,content document.Document) (err error) {
-	v := content.Get(nameKey)
-	if !v.Exists() {
-		return errorn.NewFieldNotFound(nameKey)
-	}
-	a.Name = v.String()
-	v = content.Get(FieldOpIntentsDomain)
-	if !v.Exists() {
-		return errorn.NewFieldNotFound(FieldOpIntentsDomain)
-	}
-	a.ChainID = v.Uint()
-	if a.ChainID == 0 {
-		return errorn.NewInvalidFieldError(errors.New("a.ChainID cant not be zero"))
-	}
-	v = content.Get(FieldKeyAddress)
-	if !v.Exists() {
-		return errorn.NewFieldNotFound(FieldKeyAddress)
-	}
-	a.Address, err = DecodeAddress(v.String())
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (l *DocumentLexer) initAccounts(nameKey string,source document.Document) (accounts []FullAccount, err error) {
+func (l *DocumentLexer) initAccounts(nameKey string, source document.Document) (accounts []lexer_types.FullAccount, err error) {
 	if source.Exists() && !source.IsArray() {
 		return nil, errorn.NewInvalidFieldError(errorn.ErrTypeError).Desc(errorn.AtOpIntentField{Field: FieldOpIntentsParameters})
 	}
 	rawAccounts := source.Array()
 
-	accounts = make([]FullAccount, rawAccounts.Len())
+	accounts = make([]lexer_types.FullAccount, rawAccounts.Len())
 	for idx := 0; idx < rawAccounts.Len(); idx++ {
 		err = accounts[idx].UnmarshalResult(nameKey, rawAccounts.Index(idx))
 		if err != nil {
@@ -237,57 +197,26 @@ func (l *DocumentLexer) initAccounts(nameKey string,source document.Document) (a
 	return
 }
 
-func (l *DocumentLexer) InitContracts_(source document.Document) (accounts []FullAccount, err error) {
+func (l *DocumentLexer) InitContracts_(source document.Document) (accounts []lexer_types.FullAccount, err error) {
 	return l.initAccounts("contractName", source)
 }
 
-func (l *DocumentLexer) InitAccounts_(source document.Document) (accounts []FullAccount, err error) {
+func (l *DocumentLexer) InitAccounts_(source document.Document) (accounts []lexer_types.FullAccount, err error) {
 	return l.initAccounts("userName", source)
 }
 
-func (l *DocumentLexer) InitContracts(source document.Document) (AccountMap, error) {
+func (l *DocumentLexer) InitContracts(source document.Document) (lexer_types.AccountMap, error) {
 	r, err := l.InitContracts_(source)
 	if err != nil {
 		return nil, err
 	}
-	return BuildAccountMap(r)
+	return lexer_types.BuildAccountMap(r)
 }
 
-func (l *DocumentLexer) InitAccounts(source document.Document) (AccountMap, error) {
+func (l *DocumentLexer) InitAccounts(source document.Document) (lexer_types.AccountMap, error) {
 	r, err := l.InitAccounts_(source)
 	if err != nil {
 		return nil, err
 	}
-	return BuildAccountMap(r)
-}
-
-
-type ChainMap map[uip.ChainIDUnderlyingType]*FullAccount
-type AccountMap map[string]ChainMap
-func BuildAccountMap(accounts []FullAccount) (res AccountMap, err error) {
-	res = make(AccountMap)
-	var c ChainMap
-	for i := range accounts {
-		a := &accounts[i]
-
-		if res[a.Name] == nil {
-			res[a.Name] = make(ChainMap)
-		}
-		c = res[a.Name]
-
-		if c[a.ChainID] != nil {
-			return nil, errorn.NewAccountIndexConflict(a.Name, a.ChainID)
-		}
-		c[a.ChainID] = a
-
-		if c[0] == nil {
-			c[0] = a
-		}
-	}
-	for _, c := range res {
-		if len(c) > 2 {
-			delete(c, 0)
-		}
-	}
-	return
+	return lexer_types.BuildAccountMap(r)
 }

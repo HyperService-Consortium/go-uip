@@ -1,8 +1,9 @@
 package lexer
 
 import (
-	"github.com/HyperService-Consortium/go-uip/op-intent/document"
-	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
+	"github.com/HyperService-Consortium/go-uip/errorn"
+	"github.com/HyperService-Consortium/go-uip/internal/document"
+	"github.com/HyperService-Consortium/go-uip/internal/lexer_types"
 	"github.com/Myriad-Dreamin/minimum-lib/sugar"
 	"reflect"
 	"testing"
@@ -17,27 +18,27 @@ func TestAccountUnmarshalResult(t *testing.T) {
 		args    args
 		wantErr bool
 		errType string
-		want    Account
+		want    lexer_types.Account
 	}{
 		{name: "good identity string", args: args{i: sugar.HandlerError(
-			document.NewMapDocument("a1")).(document.Document)}, wantErr: false, want: NameAccount{
+			document.NewMapDocument("a1")).(document.Document)}, wantErr: false, want: lexer_types.NameAccount{
 			Name: "a1",
 		}},
 		{name: "good hex string", args: args{i: sugar.HandlerError(
-			document.NewMapDocument("0xa1")).(document.Document)}, wantErr: false, want: RawAccount{
+			document.NewMapDocument("0xa1")).(document.Document)}, wantErr: false, want: lexer_types.RawAccount{
 			Address: []byte{0xa1},
 		}},
 		{name: "good domain-absent", args: args{i: sugar.HandlerError(
-			document.NewMapDocument(document.MObj{FieldOpIntentsUserName: "a1"})).(document.Document)}, wantErr: false, want: NameAccount{
+			document.NewMapDocument(document.MObj{FieldOpIntentsUserName: "a1"})).(document.Document)}, wantErr: false, want: lexer_types.NameAccount{
 			Name: "a1",
 		}},
 		// whom chain id must be implied
 		{name: "good address only", args: args{i: sugar.HandlerError(
-			document.NewMapDocument(document.MObj{"address": "0001"})).(document.Document)}, wantErr: false, want: RawAccount{
+			document.NewMapDocument(document.MObj{"address": "0001"})).(document.Document)}, wantErr: false, want: lexer_types.RawAccount{
 			Address: []byte{0, 1},
 		}},
 		{name: "good address with namespace", args: args{i: sugar.HandlerError(
-			document.NewMapDocument(document.MObj{"address": "0001", FieldOpIntentsDomain: 1})).(document.Document)}, wantErr: false, want: NamespacedRawAccount{
+			document.NewMapDocument(document.MObj{"address": "0001", FieldOpIntentsDomain: 1})).(document.Document)}, wantErr: false, want: lexer_types.NamespacedRawAccount{
 			Address: []byte{0, 1},
 			ChainID: 1,
 		}},
@@ -45,10 +46,10 @@ func TestAccountUnmarshalResult(t *testing.T) {
 			document.NewMapDocument(document.MObj{FieldOpIntentsDomain: 1})).(document.Document)}, wantErr: true, errType: errorn.ErrorTypeInvalidField},
 		{name: "good", args: args{i: sugar.HandlerError(
 			document.NewMapDocument(document.MObj{FieldOpIntentsUserName: "a1", FieldOpIntentsDomain: 1})).(document.Document)},
-			wantErr: false, want: NamespacedAccount{
-			ChainID: 1,
-			Name:    "a1",
-		}},
+			wantErr: false, want: lexer_types.NamespacedNameAccount{
+				ChainID: 1,
+				Name:    "a1",
+			}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

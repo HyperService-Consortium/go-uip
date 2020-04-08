@@ -1,9 +1,10 @@
 package lexer
 
 import (
-	"github.com/HyperService-Consortium/go-uip/op-intent/document"
-	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
-	"github.com/HyperService-Consortium/go-uip/op-intent/token"
+	"github.com/HyperService-Consortium/go-uip/const/token_type"
+	"github.com/HyperService-Consortium/go-uip/errorn"
+	"github.com/HyperService-Consortium/go-uip/internal/document"
+	"github.com/HyperService-Consortium/go-uip/internal/lexer_types"
 	"github.com/Myriad-Dreamin/minimum-lib/sugar"
 	"github.com/stretchr/testify/assert"
 	"reflect"
@@ -25,7 +26,7 @@ func TestInitializer_initContractInvocationR(t *testing.T) {
 		{"good", args{
 			info: &IntentImpl{
 				Name:   "op1",
-				OpType: token.Invoke,
+				OpType: token_type.Invoke,
 			},
 			content: sugar.HandlerError(document.NewMapDocument(nil)).(document.Document),
 		}, nil, true, errorn.ErrorTypeFieldNotFound},
@@ -170,7 +171,7 @@ func TestDocumentLexer_initAccounts(t *testing.T) {
 		name         string
 		fields       fields
 		args         args
-		wantAccounts []FullAccount
+		wantAccounts []lexer_types.FullAccount
 		wantErr      bool
 	}{
 		{"good", fields{BaseLexer: BaseLexer{}}, args{nameKey: "userName", source: sugar.HandlerError(
@@ -179,7 +180,7 @@ func TestDocumentLexer_initAccounts(t *testing.T) {
 				"domain":   1,
 				"address":  "0x3723",
 			}})).(document.Document)},
-			[]FullAccount{
+			[]lexer_types.FullAccount{
 				{Name: "a1", ChainID: 1, Address: []byte{0x37, 0x23}},
 			}, false},
 	}
@@ -193,7 +194,7 @@ func TestDocumentLexer_initAccounts(t *testing.T) {
 				t.Errorf("initAccounts() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !assert.EqualValues(t, tt.wantAccounts, gotAccounts, ) {
+			if !assert.EqualValues(t, tt.wantAccounts, gotAccounts) {
 				t.Errorf("initAccounts() gotAccounts = %v, want %v", gotAccounts, tt.wantAccounts)
 			}
 		})
@@ -202,35 +203,35 @@ func TestDocumentLexer_initAccounts(t *testing.T) {
 
 func TestBuildAccountMap(t *testing.T) {
 	type args struct {
-		accounts []FullAccount
+		accounts []lexer_types.FullAccount
 	}
 	tests := []struct {
 		name    string
 		args    args
-		wantRes AccountMap
+		wantRes lexer_types.AccountMap
 		wantErr bool
 	}{
-		{"good", args{[]FullAccount{
-			{Name:"a1", ChainID: 1, Address: []byte{}},
-		}}, AccountMap{
-			"a1" : ChainMap{
-				0: &FullAccount{Name:"a1", ChainID: 1, Address: []byte{}},
-				1: &FullAccount{Name:"a1", ChainID: 1, Address: []byte{}},
+		{"good", args{[]lexer_types.FullAccount{
+			{Name: "a1", ChainID: 1, Address: []byte{}},
+		}}, lexer_types.AccountMap{
+			"a1": lexer_types.ChainMap{
+				0: &lexer_types.FullAccount{Name: "a1", ChainID: 1, Address: []byte{}},
+				1: &lexer_types.FullAccount{Name: "a1", ChainID: 1, Address: []byte{}},
 			},
 		}, false},
-		{"good on diff chain", args{[]FullAccount{
-			{Name:"a1", ChainID: 1, Address: []byte{}},
-			{Name:"a1", ChainID: 2, Address: []byte{1}},
-		}}, AccountMap{
-			"a1" : ChainMap{
-				1: &FullAccount{Name:"a1", ChainID: 1, Address: []byte{}},
-				2: &FullAccount{Name:"a1", ChainID: 2, Address: []byte{1}},
+		{"good on diff chain", args{[]lexer_types.FullAccount{
+			{Name: "a1", ChainID: 1, Address: []byte{}},
+			{Name: "a1", ChainID: 2, Address: []byte{1}},
+		}}, lexer_types.AccountMap{
+			"a1": lexer_types.ChainMap{
+				1: &lexer_types.FullAccount{Name: "a1", ChainID: 1, Address: []byte{}},
+				2: &lexer_types.FullAccount{Name: "a1", ChainID: 2, Address: []byte{1}},
 			},
 		}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotRes, err := BuildAccountMap(tt.args.accounts)
+			gotRes, err := lexer_types.BuildAccountMap(tt.args.accounts)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("BuildAccountMap() error = %v, wantErr %v", err, tt.wantErr)
 				return

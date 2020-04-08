@@ -1,20 +1,22 @@
 package parser
 
 import (
+	"github.com/HyperService-Consortium/go-uip/const/token_type"
 	"github.com/HyperService-Consortium/go-uip/const/trans_type"
 	UnitType "github.com/HyperService-Consortium/go-uip/const/unit_type"
-	"github.com/HyperService-Consortium/go-uip/op-intent/document"
-	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
+	"github.com/HyperService-Consortium/go-uip/errorn"
+	"github.com/HyperService-Consortium/go-uip/internal/document"
+	"github.com/HyperService-Consortium/go-uip/internal/lexer_types"
+	"github.com/HyperService-Consortium/go-uip/internal/token_types"
+	"github.com/HyperService-Consortium/go-uip/op-intent/instruction"
 	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
-	"github.com/HyperService-Consortium/go-uip/op-intent/parser/instruction"
-	"github.com/HyperService-Consortium/go-uip/op-intent/token"
 	"github.com/HyperService-Consortium/go-uip/uip"
 )
 
-func (ier *Parser) _queryAccount(m lexer.AccountMap, a lexer.Account, contextChainID uip.ChainIDUnderlyingType) (uip.Account, error) {
+func (ier *Parser) _queryAccount(m lexer_types.AccountMap, a lexer_types.Account, contextChainID uip.ChainIDUnderlyingType) (uip.Account, error) {
 	switch a.GetType() {
-	case token.NamespacedNameAccount:
-		a := a.(token.NamespacedNameAccountI)
+	case token_type.NamespacedNameAccount:
+		a := a.(token_types.NamespacedNameAccountI)
 		if c, ok := m[a.GetName()]; ok && c != nil {
 			if r, ok := c[a.GetChainID()]; ok {
 				return r, nil
@@ -25,8 +27,8 @@ func (ier *Parser) _queryAccount(m lexer.AccountMap, a lexer.Account, contextCha
 			return nil, errorn.NewGetAccountFailed(err)
 		}
 		return r, nil
-	case token.NameAccount:
-		a := a.(token.NameAccountI)
+	case token_type.NameAccount:
+		a := a.(token_types.NameAccountI)
 		if c, ok := m[a.GetName()]; ok && c != nil {
 			if r, ok := c[0]; ok {
 				return r, nil
@@ -40,34 +42,34 @@ func (ier *Parser) _queryAccount(m lexer.AccountMap, a lexer.Account, contextCha
 			}
 		}
 		return nil, errorn.NewAccountNotFound(a.GetName(), 0x20200202)
-	case token.NamespacedRawAccount:
-		return a.(token.NamespacedRawAccountI), nil
-	case token.RawAccount:
+	case token_type.NamespacedRawAccount:
+		return a.(token_types.NamespacedRawAccountI), nil
+	case token_type.RawAccount:
 		if contextChainID == 0 {
 			return nil, errorn.NewNoDeterminedChainID()
 		}
 		return &uip.AccountImpl{
 			ChainId: contextChainID,
-			Address: a.(token.RawAccountI).GetAddress(),
+			Address: a.(token_types.RawAccountI).GetAddress(),
 		}, nil
 	default:
 		return nil, errorn.NewAccountTypeNotFound(int(a.GetType()))
 	}
 }
 
-func (ier *Parser) QueryAccount(a lexer.Account) (uip.Account, error) {
+func (ier *Parser) QueryAccount(a lexer_types.Account) (uip.Account, error) {
 	return ier._queryAccount(ier.Program.AccountMapping, a, 0)
 }
 
-func (ier *Parser) QueryContract(a lexer.Account) (uip.Account, error) {
+func (ier *Parser) QueryContract(a lexer_types.Account) (uip.Account, error) {
 	return ier._queryAccount(ier.Program.ContractMapping, a, 0)
 }
 
-func (ier *Parser) queryAccountWCtx(a lexer.Account, contextChainID uip.ChainIDUnderlyingType) (uip.Account, error) {
+func (ier *Parser) queryAccountWCtx(a lexer_types.Account, contextChainID uip.ChainIDUnderlyingType) (uip.Account, error) {
 	return ier._queryAccount(ier.Program.AccountMapping, a, contextChainID)
 }
 
-func (ier *Parser) queryContractWCtx(a lexer.Account, contextChainID uip.ChainIDUnderlyingType) (uip.Account, error) {
+func (ier *Parser) queryContractWCtx(a lexer_types.Account, contextChainID uip.ChainIDUnderlyingType) (uip.Account, error) {
 	return ier._queryAccount(ier.Program.ContractMapping, a, contextChainID)
 }
 

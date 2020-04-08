@@ -1,9 +1,9 @@
 package parser
 
 import (
-	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
+	"github.com/HyperService-Consortium/go-uip/const/token_type"
+	"github.com/HyperService-Consortium/go-uip/errorn"
 	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
-	"github.com/HyperService-Consortium/go-uip/op-intent/token"
 	"github.com/HyperService-Consortium/go-uip/uip"
 )
 
@@ -12,8 +12,7 @@ type RawIntentsI interface {
 	GetRawIntent(idx int) lexer.Intent
 }
 
-
-func (ier * Parser) ParseIntents(rawIntents RawIntentsI) (intents TxIntentsImpl, err error) {
+func (ier *Parser) ParseIntents(rawIntents RawIntentsI) (intents TxIntentsImpl, err error) {
 	intents, err = ier.parseIntents(rawIntents)
 	if err != nil {
 		return nil, err
@@ -21,7 +20,7 @@ func (ier * Parser) ParseIntents(rawIntents RawIntentsI) (intents TxIntentsImpl,
 	return ier.fillIndex(intents)
 }
 
-func (ier * Parser) parseIntents(rawIntents RawIntentsI) (intents TxIntentsImpl, err error) {
+func (ier *Parser) parseIntents(rawIntents RawIntentsI) (intents TxIntentsImpl, err error) {
 	var addition []uip.TxIntentI
 	intents, addition = make(TxIntentsImpl, 0, rawIntents.Len()), make([]uip.TxIntentI, 0, 1)
 
@@ -35,24 +34,24 @@ func (ier * Parser) parseIntents(rawIntents RawIntentsI) (intents TxIntentsImpl,
 	return
 }
 
-func (ier * Parser) ParseIntent(rawIntent lexer.Intent) (intents []uip.TxIntentI, err error) {
+func (ier *Parser) ParseIntent(rawIntent lexer.Intent) (intents []uip.TxIntentI, err error) {
 	switch rawIntent.GetType() {
-	case token.Pay:
+	case token_type.Pay:
 		if intents, err = ier.parsePayment(rawIntent.(*lexer.PaymentIntent)); err != nil {
 			return nil, err
 		}
 
-	case token.Invoke:
+	case token_type.Invoke:
 		if intents, err = ier.parseContractInvocation(rawIntent.(*lexer.InvokeIntent)); err != nil {
 			return nil, err
 		}
 
-	case token.If:
+	case token_type.If:
 		if intents, err = ier.parseIf(rawIntent.(*lexer.IfIntent)); err != nil {
 			return nil, err
 		}
 
-	case token.Loop:
+	case token_type.Loop:
 		if intents, err = ier.parseLoop(rawIntent.(*lexer.LoopIntent)); err != nil {
 			return nil, err
 		}

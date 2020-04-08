@@ -3,8 +3,9 @@ package parser
 import (
 	"github.com/HyperService-Consortium/go-uip/const/sign_type"
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
+	"github.com/HyperService-Consortium/go-uip/internal/lexer_types"
+	"github.com/HyperService-Consortium/go-uip/op-intent/instruction"
 	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
-	"github.com/HyperService-Consortium/go-uip/op-intent/parser/instruction"
 	"github.com/HyperService-Consortium/go-uip/uip"
 )
 
@@ -35,7 +36,7 @@ func (ier *Parser) parseLoop(intent *lexer.LoopIntent) (intents []uip.TxIntentI,
 		return nil, err
 	}
 
-	loopVar := &lexer.LocalStateVariable{
+	loopVar := &lexer_types.LocalStateVariable{
 		Type:  loopVarType,
 		Pos:   nil,
 		Field: []byte(intent.GetName() + ".loopVar"),
@@ -43,26 +44,26 @@ func (ier *Parser) parseLoop(intent *lexer.LoopIntent) (intents []uip.TxIntentI,
 
 	addOpLoopVar := newIntent(&instruction.RawSetState{
 		Target: loopVar,
-		RightExpression: &lexer.BinaryExpression{
+		RightExpression: &lexer_types.BinaryExpression{
 			Type:  loopVarType,
 			Sign:  sign_type.ADD,
 			Left:  loopVar,
-			Right: lexer.Int64(1),
+			Right: lexer_types.Int64(1),
 		},
 	}, intent.GetName()+".addLoopVar")
 
 	resetLoopVar := newIntent(&instruction.RawSetState{
 		Target:          loopVar,
-		RightExpression: lexer.Int64(0),
+		RightExpression: lexer_types.Int64(0),
 	}, intent.GetName()+".resetLoopVar")
 
 	loopBegin := newIntent(&instruction.RawConditionGoto{
 		IndexName: resetLoopVar.GetName(),
-		Condition: &lexer.BinaryExpression{
+		Condition: &lexer_types.BinaryExpression{
 			Type:  value_type.Bool,
 			Sign:  sign_type.GE,
 			Left:  loopVar,
-			Right: lexer.Int64(intent.Times),
+			Right: lexer_types.Int64(intent.Times),
 		},
 		Offset: 0,
 	}, intent.GetName()+".loopBegin")

@@ -8,12 +8,12 @@ import (
 	merkle_proof "github.com/HyperService-Consortium/go-uip/const/merkle-proof-type"
 	TxState "github.com/HyperService-Consortium/go-uip/const/transaction_state_type"
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
+	error2 "github.com/HyperService-Consortium/go-uip/errorn"
+	"github.com/HyperService-Consortium/go-uip/internal/lexer_types"
 	"github.com/HyperService-Consortium/go-uip/mock"
 	opintent "github.com/HyperService-Consortium/go-uip/op-intent"
-	error2 "github.com/HyperService-Consortium/go-uip/op-intent/errorn"
-	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
+	"github.com/HyperService-Consortium/go-uip/op-intent/instruction"
 	"github.com/HyperService-Consortium/go-uip/op-intent/parser"
-	"github.com/HyperService-Consortium/go-uip/op-intent/parser/instruction"
 	"github.com/HyperService-Consortium/go-uip/storage"
 	"github.com/HyperService-Consortium/go-uip/uip"
 	"github.com/Myriad-Dreamin/gvm"
@@ -30,7 +30,7 @@ func funcSetA() []uip.Instruction {
 	return []uip.Instruction{
 		&instruction.SetState{
 			Target:          "a",
-			RightExpression: lexer.Bool(true),
+			RightExpression: lexer_types.Bool(true),
 		},
 	}
 }
@@ -646,12 +646,12 @@ func BranchIfTest0(ctx *ContextImpl, ifOrNot bool) {
 	//		"pos":      "00",
 	//	},
 	//},
-	var l0 *lexer.Uint256
+	var l0 *lexer_types.Uint256
 
 	if ifOrNot {
-		l0 = (*lexer.Uint256)(big.NewInt(2))
+		l0 = (*lexer_types.Uint256)(big.NewInt(2))
 	} else {
-		l0 = (*lexer.Uint256)(big.NewInt(1))
+		l0 = (*lexer_types.Uint256)(big.NewInt(1))
 	}
 	ctx.ProvideExternalStorageAt(
 		uip.ChainIDUnderlyingType(c2["domain"].(int)), value_type.Uint256,
@@ -668,7 +668,7 @@ func BranchIfTest0(ctx *ContextImpl, ifOrNot bool) {
 	ctx.ProvideExternalStorageAt(
 		uip.ChainIDUnderlyingType(c2["domain"].(int)), value_type.Uint256,
 		sugar.HandlerError(hex.DecodeString(c2["address"].(string)[2:])).([]byte), []byte{1}, []byte("totalVotes"),
-		(*lexer.Uint256)(big.NewInt(1)))
+		(*lexer_types.Uint256)(big.NewInt(1)))
 	//	"sign": "Greater",
 }
 

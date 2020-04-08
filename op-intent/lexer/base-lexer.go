@@ -1,14 +1,13 @@
 package lexer
 
 import (
-	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
+	"github.com/HyperService-Consortium/go-uip/errorn"
 	"github.com/HyperService-Consortium/go-uip/standard"
 )
 
-type BaseLexer struct {}
+type BaseLexer struct{}
 
 func (l *BaseLexer) checkContractInvocation(intent *InvokeIntent) (i *InvokeIntent, err error) {
-
 
 	if intent.Src == nil {
 		return nil, errorn.NewFieldNotFound("src")

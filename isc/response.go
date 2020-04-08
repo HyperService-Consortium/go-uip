@@ -3,7 +3,7 @@ package isc
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/HyperService-Consortium/go-uip/math"
+	"github.com/HyperService-Consortium/go-uip/lib/math"
 )
 
 type Code int

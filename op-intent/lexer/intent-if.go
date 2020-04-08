@@ -1,10 +1,10 @@
 package lexer
 
-import "github.com/HyperService-Consortium/go-uip/op-intent/lexer/internal"
+import "github.com/HyperService-Consortium/go-uip/internal/lexer_types"
 
 type IfIntent struct {
 	*IntentImpl
-	If        *RootIntents   `json:"if"`        // key
-	Condition internal.Param `json:"condition"` // key
-	Else      *RootIntents   `json:"else"`      // option
+	If        *RootIntents      `json:"if"`        // key
+	Condition lexer_types.Param `json:"condition"` // key
+	Else      *RootIntents      `json:"else"`      // option
 }

@@ -1,8 +1,9 @@
 package opintent
 
 import (
-	"github.com/HyperService-Consortium/go-uip/op-intent/document"
-	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
+	"github.com/HyperService-Consortium/go-uip/errorn"
+	"github.com/HyperService-Consortium/go-uip/internal/document"
+	"github.com/HyperService-Consortium/go-uip/internal/lexer_types"
 	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
 	"github.com/HyperService-Consortium/go-uip/op-intent/parser"
 )
@@ -16,8 +17,8 @@ func (ier *Initializer) Parse(
 	opIntents OpIntents,
 ) (txIntents parser.TxIntents, err error) {
 	l, r := &lexer.RawDocumentLexer{}, &parser.LexerResult{
-		ContractMapping: make(lexer.AccountMap),
-		AccountMapping:  make(lexer.AccountMap),
+		ContractMapping: make(lexer_types.AccountMap),
+		AccountMapping:  make(lexer_types.AccountMap),
 	}
 	r.RootIntents, err = l.InitContents(opIntents.GetContents())
 	if err != nil {
@@ -70,8 +71,7 @@ func (ier *Initializer) ParseR(opIntents OpIntentsPacket) (txIntents parser.TxIn
 }
 
 func (ier *Initializer) Parse_(l *parser.LexerResult) (txIntents parser.TxIntents, err error) {
-	p := &parser.Parser{Program: l, AccountBase:ier.accountBase, ContractBase:ier.contractBase, ChainGetter:ier.chainGetter}
-
+	p := &parser.Parser{Program: l, AccountBase: ier.accountBase, ContractBase: ier.contractBase, ChainGetter: ier.chainGetter}
 
 	deps, err := p.InitDependencies(
 		l.RawDependencies, l.RootIntents.NameMap)

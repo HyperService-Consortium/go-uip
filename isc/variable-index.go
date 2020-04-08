@@ -14,23 +14,23 @@ func (s *Storage) GetISCState() uint8 {
 	return s.storage.GetUint8(state)
 }
 
-func (s *Storage) setISCState(u uint8) {
+func (s *Storage) SetISCState(u uint8) {
 	s.storage.SetUint8(state, u)
 }
 
-func (s *Storage) getFrozenInfoCount() uint64 {
+func (s *Storage) GetFrozenInfoCount() uint64 {
 	return s.storage.GetUint64("FrozenInfoCount")
 }
 
-func (s *Storage) setFrozenInfoCount(u uint64) {
+func (s *Storage) SetFrozenInfoCount(u uint64) {
 	s.storage.SetUint64("FrozenInfoCount", u)
 }
 
-func (s *Storage) getUserAckCount() uint64 {
+func (s *Storage) GetUserAckCount() uint64 {
 	return s.storage.GetUint64("UserAckCount")
 }
 
-func (s *Storage) setUserAckCount(u uint64) {
+func (s *Storage) SetUserAckCount(u uint64) {
 	s.storage.SetUint64("UserAckCount", u)
 }
 

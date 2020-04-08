@@ -2,7 +2,7 @@ package storage
 
 import (
 	"github.com/HyperService-Consortium/go-uip/internal/util"
-	"github.com/HyperService-Consortium/go-uip/math"
+	"github.com/HyperService-Consortium/go-uip/lib/math"
 )
 
 func (v *VM) SetBytes(variName string, value []byte) {
@@ -110,7 +110,7 @@ func (v *VM) GetUint64(variName string) uint64 {
 	if len(bt) > 8 {
 		panic("Decode Error: the length of getting value is more than 8")
 	}
-	return util.BytesToUint64(append(make([]byte, 8 - len(bt), 8), bt...))
+	return util.BytesToUint64(append(make([]byte, 8-len(bt), 8), bt...))
 }
 
 func (v *VM) GetUint256(variName string) *math.Uint256 {
@@ -121,7 +121,7 @@ func (v *VM) GetUint256(variName string) *math.Uint256 {
 	if len(bt) > 32 {
 		panic("Decode Error: the length of getting value is more than 32")
 	}
-	return math.NewUint256FromBytes(append(make([]byte, 32 - len(bt), 32), bt...))
+	return math.NewUint256FromBytes(append(make([]byte, 32-len(bt), 32), bt...))
 }
 
 func (v *VM) GetInt64(variName string) int64 {
@@ -132,7 +132,7 @@ func (v *VM) GetInt64(variName string) int64 {
 	if len(bt) > 8 {
 		panic("Decode Error: the length of getting value is more than 8")
 	}
-	return util.BytesToInt64(append(make([]byte, 8 - len(bt), 8), bt...))
+	return util.BytesToInt64(append(make([]byte, 8-len(bt), 8), bt...))
 }
 
 func (v *VM) GetInt8(variName string) int8 {

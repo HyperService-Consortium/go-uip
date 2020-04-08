@@ -2,7 +2,7 @@ package opintent
 
 import (
 	"encoding/json"
-	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
+	"github.com/HyperService-Consortium/go-uip/errorn"
 )
 
 func (ier *Initializer) unmarshal(b []byte, v interface{}) (err error) {

@@ -11,10 +11,12 @@ type Serializable interface {
 	Marshal(w io.Writer, err *error)
 }
 
+type InstructionType = instruction_type.Type
+
 type Instruction interface {
 	Serializable
 	gvm.Instruction
-	GetType() instruction_type.Type
+	GetType() InstructionType
 
 	Unmarshal(r io.Reader, i *Instruction, err *error)
 }
@@ -39,38 +41,11 @@ type MerkleProofProposal interface {
 	GetSourceDescription() []byte
 }
 
-type BaseSlice interface {
-	Len() int
-	Cap() int
-}
-
 type MerkleProofProposals interface {
 	BaseSlice
 	Index(i int) MerkleProofProposal
 	Slice(l, r int) MerkleProofProposals
 	Append(appends ...MerkleProofProposal) (T MerkleProofProposals)
-}
-
-type MerkleProofProposalsImpl []MerkleProofProposal
-
-func (m MerkleProofProposalsImpl) Len() int {
-	return len(m)
-}
-
-func (m MerkleProofProposalsImpl) Cap() int {
-	return cap(m)
-}
-
-func (m MerkleProofProposalsImpl) Index(i int) MerkleProofProposal {
-	return m[i]
-}
-
-func (m MerkleProofProposalsImpl) Slice(l, r int) MerkleProofProposals {
-	return m[l:r]
-}
-
-func (m MerkleProofProposalsImpl) Append(appends ...MerkleProofProposal) (T MerkleProofProposals) {
-	return append(m, appends...)
 }
 
 type TxIntentI interface {

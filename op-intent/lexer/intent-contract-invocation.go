@@ -2,19 +2,20 @@ package lexer
 
 import (
 	"encoding/base64"
-	"github.com/HyperService-Consortium/go-uip/op-intent/document"
-	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
+	"github.com/HyperService-Consortium/go-uip/errorn"
+	"github.com/HyperService-Consortium/go-uip/internal/document"
+	"github.com/HyperService-Consortium/go-uip/internal/lexer_types"
 )
 
 type InvokeIntent struct {
 	*IntentImpl
-	Src      Account           `json:"invoker"`       // key
-	Dst      Account           `json:"contract_addr"` // key
-	Code     []byte            `json:"contract_code"` // key
-	FuncName string            `json:"func"`
-	Params   []Param           `json:"parameters"`
-	Amount   string            `json:"amount"` // option
-	Meta     document.Document `json:"meta"`
+	Src      lexer_types.Account `json:"invoker"`       // key
+	Dst      lexer_types.Account `json:"contract_addr"` // key
+	Code     []byte              `json:"contract_code"` // key
+	FuncName string              `json:"func"`
+	Params   []lexer_types.Param `json:"parameters"`
+	Amount   string              `json:"amount"` // option
+	Meta     document.Document   `json:"meta"`
 }
 
 func (intent *InvokeIntent) UnmarshalJSON(b []byte) error {
@@ -39,11 +40,11 @@ func (intent *InvokeIntent) UnmarshalDocument(content document.Document) (err er
 		}
 		intent.Dst = a
 	} else {
-		b, err := DecodeAddress(contractAddr.String())
+		b, err := lexer_types.DecodeAddress(contractAddr.String())
 		if err != nil {
 			return err
 		}
-		intent.Dst = RawAccount{Address: b}
+		intent.Dst = lexer_types.RawAccount{Address: b}
 	}
 	contractCode := content.Get(FieldOpIntentsContractCode)
 	fn := content.Get(FieldOpIntentsFunc)

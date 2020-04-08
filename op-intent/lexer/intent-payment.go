@@ -2,17 +2,18 @@ package lexer
 
 import (
 	UnitType "github.com/HyperService-Consortium/go-uip/const/unit_type"
-	"github.com/HyperService-Consortium/go-uip/op-intent/document"
-	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
+	"github.com/HyperService-Consortium/go-uip/errorn"
+	"github.com/HyperService-Consortium/go-uip/internal/document"
+	"github.com/HyperService-Consortium/go-uip/internal/lexer_types"
 )
 
 type PaymentIntent struct {
 	*IntentImpl
-	Src        Account           `json:"src"`    // key
-	Dst        Account           `json:"dst"`    // key
-	Amount     string            `json:"amount"` // key
-	UnitString string            `json:"unit"`   // optional
-	Meta       document.Document `json:"meta"`
+	Src        lexer_types.Account `json:"src"`    // key
+	Dst        lexer_types.Account `json:"dst"`    // key
+	Amount     string              `json:"amount"` // key
+	UnitString string              `json:"unit"`   // optional
+	Meta       document.Document   `json:"meta"`
 
 	Unit UnitType.Type `json:"-"`
 }

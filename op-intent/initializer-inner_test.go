@@ -1,7 +1,7 @@
 package opintent
 
 import (
-	"github.com/HyperService-Consortium/go-uip/op-intent/errorn"
+	"github.com/HyperService-Consortium/go-uip/errorn"
 	"testing"
 )
 
@@ -21,8 +21,7 @@ func TestInitializer_unmarshal(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ier := &Initializer{
-			}
+			ier := &Initializer{}
 			if err := ier.unmarshal(tt.args.b, tt.args.v); (err != nil) != tt.wantErr {
 				t.Errorf("unmarshal() error = %v, wantErr %v", err, tt.wantErr)
 			} else if err != nil {

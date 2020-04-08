@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"encoding/hex"
 	TxState "github.com/HyperService-Consortium/go-uip/const/transaction_state_type"
-	"github.com/HyperService-Consortium/go-uip/op-intent/parser/instruction"
-	"github.com/HyperService-Consortium/go-uip/op-intent/parser/trap"
+	"github.com/HyperService-Consortium/go-uip/op-intent/instruction"
+	"github.com/HyperService-Consortium/go-uip/op-intent/trap"
 	"github.com/HyperService-Consortium/go-uip/storage"
 	"github.com/HyperService-Consortium/go-uip/uip"
 	"github.com/Myriad-Dreamin/gvm"
@@ -110,7 +110,7 @@ func (isc *ISC) IsSettling() bool {
 
 func (isc *ISC) maybeSwitchToStateSettling(pc uint64) Response {
 	if pc >= isc.Storage.Instructions().Length() {
-		isc.Storage.setISCState(StateSettling)
+		isc.Storage.SetISCState(StateSettling)
 	} else if pc < 0 {
 		return reportCode(CodePCUnderflow)
 	}
@@ -118,9 +118,9 @@ func (isc *ISC) maybeSwitchToStateSettling(pc uint64) Response {
 }
 
 func (isc *ISC) resetAckState() {
-	isc.Storage.setISCState(StateInitializing)
-	isc.Storage.setFrozenInfoCount(0)
-	isc.Storage.setUserAckCount(0)
+	isc.Storage.SetISCState(StateInitializing)
+	isc.Storage.SetFrozenInfoCount(0)
+	isc.Storage.SetUserAckCount(0)
 
 	var AidMap = isc.Storage.AidMap()
 	for idx, l := uint64(0), isc.Storage.Instructions().Length(); idx < l; idx++ {
@@ -175,11 +175,11 @@ func (isc *ISC) FreezeInfo(tid uint64) Response {
 	var AidMap = isc.Storage.AidMap()
 	if AidMap.Get(tid) == TxState.Initing {
 		AidMap.Set(tid, TxState.Inited)
-		fc := isc.Storage.getFrozenInfoCount() + 1
+		fc := isc.Storage.GetFrozenInfoCount() + 1
 		if fc == isc.Storage.Instructions().Length() {
-			isc.Storage.setISCState(StateInitialized)
+			isc.Storage.SetISCState(StateInitialized)
 		}
-		isc.Storage.setFrozenInfoCount(fc)
+		isc.Storage.SetFrozenInfoCount(fc)
 	}
 	return OK
 }
@@ -189,8 +189,8 @@ func (isc *ISC) UserAck(fr, signature []byte) Response {
 	acknowledged := isc.Storage.UserAcknowledged()
 	if acknowledged.Get(fr) == nil {
 		acknowledged.Set(fr, signature)
-		uac := isc.Storage.getUserAckCount() + 1
-		isc.Storage.setUserAckCount(uac)
+		uac := isc.Storage.GetUserAckCount() + 1
+		isc.Storage.SetUserAckCount(uac)
 		if uac == isc.Storage.Owners().Length() {
 			pc, err := isc.initPC()
 			if err != nil {
@@ -198,7 +198,7 @@ func (isc *ISC) UserAck(fr, signature []byte) Response {
 			}
 			isc.Storage.SetPC(pc)
 			isc.Storage.SetMuPC(TxState.Inited)
-			isc.Storage.setISCState(StateOpening)
+			isc.Storage.SetISCState(StateOpening)
 			if r := isc.maybeSwitchToStateSettling(pc); r != nil {
 				return r
 			}
@@ -239,7 +239,7 @@ func (isc *ISC) InsuranceClaim(tid, aid uint64) Response {
 
 func (isc *ISC) SettleContract() Response {
 	assertTrue(isc.IsSettling(), CodeIsNotSettling)
-	isc.Storage.setISCState(StateClosed)
+	isc.Storage.SetISCState(StateClosed)
 	return OK
 }
 
