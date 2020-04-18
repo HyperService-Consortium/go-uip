@@ -75,6 +75,10 @@ func EncodeBigInt(b *big.Int) ([]byte, error) {
 }
 
 func WriteBigInt(w io.Writer, i *big.Int, err *error) {
+	if i == nil {
+		Write(w, []byte(nil), err)
+		return
+	}
 	Write(w, i.Bytes(), err)
 }
 
