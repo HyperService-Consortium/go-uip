@@ -7,6 +7,7 @@ import (
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
 	"github.com/HyperService-Consortium/go-uip/standard"
 	"github.com/HyperService-Consortium/go-uip/uip"
+	"github.com/Myriad-Dreamin/gvm"
 	"github.com/Myriad-Dreamin/minimum-lib/sugar"
 	"github.com/tidwall/gjson"
 	"math/big"
@@ -67,6 +68,7 @@ func (g GJSONAssertion) compare(bytes gjson.Result, v interface{}) error {
 	return nil
 }
 
+//noinspection GoUnusedExportedFunction
 func GJSONWant(kvs ...Kv) GJSONAssertion {
 	return GJSONAssertion{kvs: kvs}
 }
@@ -75,7 +77,7 @@ type MockBNIStorage struct {
 	Data []MockData
 }
 
-func (m MockBNIStorage) GetTransactionProof(chainID uip.ChainID, blockID uip.BlockID, color []byte) (uip.MerkleProof, error) {
+func (m MockBNIStorage) GetTransactionProof(_ uip.ChainID, _ uip.BlockID, _ []byte) (uip.MerkleProof, error) {
 	panic("implement me")
 }
 
@@ -95,8 +97,6 @@ func (m *MockBNIStorage) insertMockData(data []MockData) {
 	m.Data = append(m.Data, data...)
 }
 
-type testFunc = func(t *testing.T)
-
 type bNIStorageTestSet struct {
 	s uip.Storage
 }
@@ -113,6 +113,18 @@ type MockData struct {
 type MockValue struct {
 	T value_type.Type
 	V interface{}
+}
+
+func (m MockValue) GetGVMType() gvm.RefType {
+	return (gvm.RefType)(m.T)
+}
+
+func (m MockValue) Unwrap() interface{} {
+	return m.V
+}
+
+func (m MockValue) Encode() ([]byte, error) {
+	panic("implement me")
 }
 
 func (m MockValue) GetType() uip.TypeID {
