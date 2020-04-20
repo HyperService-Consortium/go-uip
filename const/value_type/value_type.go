@@ -2,6 +2,7 @@ package value_type
 
 type Type = uint16
 
+//noinspection GoUnusedConst
 const (
 	Unknown Type = iota
 	Bytes
@@ -19,6 +20,7 @@ const (
 	Int128
 	Int256 // 14
 	Bool
+
 	SliceUint8
 	SliceUint16
 	SliceUint32

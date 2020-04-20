@@ -27,6 +27,7 @@ const (
 	Length
 )
 
+//noinspection GoUnusedExportedFunction
 func IsEvaluable(t Type) bool {
-	return t <= UnaryExpression && t >= Constant
+	return t <= LocalVariable && t >= Constant
 }

@@ -1,17 +1,20 @@
 package TxState
 
+import "golang.org/x/tools/go/ssa/interp/testdata/src/fmt"
+
 type Type = uint64
 
 const (
-	Unknown Type = 0 + iota
-	Initing // 未确认
-	Inited // 确认
-	Instantiating // 实例化
-	Open // 请求创建Transaction
-	Opened // 已创建Transaction，请求关闭
-	Closed // 已关闭
+	Unknown       Type = 0 + iota
+	Initing            // Not Confirmed, but uploaded by VES
+	Inited             // Confirmed by VES
+	Instantiating      // src: Instantiating
+	Open               // dst: Instantiated, you can open
+	Opened             // src: The transaction is opened, confirm it
+	Closed             // dst: Okay, closed
 )
 
+//noinspection GoUnusedExportedFunction
 func Description(t Type) string {
 	switch t {
 	case Unknown:
@@ -29,6 +32,6 @@ func Description(t Type) string {
 	case Closed:
 		return "Closed"
 	default:
-		return "no such status"
+		return fmt.Sprintf("TxState(%v)", t)
 	}
 }
