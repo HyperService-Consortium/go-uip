@@ -1,10 +1,10 @@
 package lexer_types
 
 import (
-	"fmt"
 	"github.com/HyperService-Consortium/go-uip/const/sign_type"
 	"github.com/HyperService-Consortium/go-uip/const/token_type"
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
+	"github.com/HyperService-Consortium/go-uip/errorn"
 	"github.com/HyperService-Consortium/go-uip/internal/token_types"
 	"github.com/HyperService-Consortium/go-uip/lib/serial"
 	"github.com/HyperService-Consortium/go-uip/uip"
@@ -28,6 +28,14 @@ type DeterminedUnaryExpression struct {
 	Type value_type.Type   `json:"type"`
 	Sign sign_type.Type    `json:"sign"`
 	Left token_types.Param `json:"left"`
+}
+
+func (u DeterminedUnaryExpression) GetSign() sign_type.Type {
+	return u.Sign
+}
+
+func (u DeterminedUnaryExpression) GetLeft() token_types.Param {
+	return u.Left
 }
 
 func (u DeterminedUnaryExpression) GetGVMTok() gvm.TokType {
@@ -57,19 +65,6 @@ func (u *DeterminedUnaryExpression) Unmarshal(r io.Reader, i *uip.VTok, err *err
 	*i = u
 }
 
-func (u *DeterminedUnaryExpression) Eval(g *gvm.ExecCtx) (gvm.Ref, error) {
-	l, err := u.Left.Eval(g)
-	if err != nil {
-		return nil, err
-	}
-	switch u.Sign {
-	case sign_type.LNot:
-		return gvm_type.LNot(l)
-	default:
-		return nil, fmt.Errorf("unknown sign_type: %v", u.Sign)
-	}
-}
-
 func (u UnaryExpression) Determine(f DetermineContext) (_ token_types.Param, err error) {
 	var du DeterminedUnaryExpression
 	du.Left, err = u.Left.Determine(f)
@@ -79,4 +74,24 @@ func (u UnaryExpression) Determine(f DetermineContext) (_ token_types.Param, err
 	du.Sign = u.Sign
 	du.Type = u.Type
 	return &du, nil
+}
+
+func (u *DeterminedUnaryExpression) Eval(g *gvm.ExecCtx) (gvm.Ref, error) {
+	l, err := u.Left.Eval(g)
+	if err != nil {
+		return nil, err
+	}
+	return UnCalc(l, gvm_type.SignType(u.Sign))
+}
+
+func UnCalc(l gvm.Ref, signType gvm_type.SignType) (gvm.Ref, error) {
+	if IsGVMNative(l) {
+		switch sign_type.Type(signType) {
+		case sign_type.LNot:
+			return gvm_type.LNot(l)
+		default:
+			return nil, errorn.NewRuntimeUnCalcError(l.GetGVMType(), signType)
+		}
+	}
+	return nil, errorn.NewRuntimeUnCalcError(l.GetGVMType(), signType)
 }

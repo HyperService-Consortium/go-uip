@@ -22,8 +22,8 @@ type Param interface {
 }
 
 type DeterminedParam interface {
-	Determine(f DetermineContext) (token_types.Param, error)
 	token_types.Param
+	Determine(f DetermineContext) (token_types.Param, error)
 }
 
 type DetermineContext interface {
@@ -47,12 +47,9 @@ func DecodeAddress(src string) ([]byte, error) {
 }
 
 func DecodeContractPos(src string) ([]byte, error) {
-	if strings.HasPrefix(src, "0x") {
-		return decodeHex(src[2:])
-	}
-	return decodeHex(src)
+	return DecodeAddress(src)
 }
 
 func DecodeContractAddress(src string) ([]byte, error) {
-	return hex.DecodeString(src)
+	return DecodeAddress(src)
 }

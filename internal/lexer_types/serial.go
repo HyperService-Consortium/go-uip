@@ -2,9 +2,8 @@ package lexer_types
 
 import (
 	"encoding/binary"
-	"errors"
-	"fmt"
 	"github.com/HyperService-Consortium/go-uip/const/token_type"
+	"github.com/HyperService-Consortium/go-uip/errorn"
 	"github.com/HyperService-Consortium/go-uip/lib/serial"
 	"github.com/HyperService-Consortium/go-uip/uip"
 	"github.com/Myriad-Dreamin/gvm"
@@ -65,7 +64,7 @@ func DecodeAccountWithType(r io.Reader, v *Account, t gvm.TokType, err *error) {
 	case token_type.RawAccount:
 		*v = new(RawAccount)
 	default:
-		*err = errors.New("bad account type")
+		*err = errorn.NewAccountTypeNotFound(int(t))
 		return
 	}
 
@@ -93,8 +92,9 @@ func DecodeVTokWithType(r io.Reader, v *uip.VTok, t gvm.TokType, err *error) {
 		*v = new(LocalStateVariable)
 	case token_type.StateVariable:
 		*v = new(StateVariable)
+
 	default:
-		*err = fmt.Errorf("not match current type: %v", t)
+		*err = errorn.NewTokenTypeNotFound(int(t))
 	}
 
 	(*v).Unmarshal(r, v, err)
@@ -139,7 +139,7 @@ func ReadConstant(r io.Reader, v *uip.VTok, t gvm.RefType, err *error) {
 	case gvm_type.RefUnknown:
 		*v = Undefined
 	default:
-		*err = fmt.Errorf("unknown reference type: %v", gvm_type.ExplainGVMType(t))
+		*err = errorn.NewGVMTypeNotFound(int(t))
 		return
 	}
 	(*v).Unmarshal(r, v, err)

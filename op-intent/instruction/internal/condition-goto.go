@@ -1,8 +1,8 @@
 package internal
 
 import (
-	"fmt"
 	"github.com/HyperService-Consortium/go-uip/const/instruction_type"
+	"github.com/HyperService-Consortium/go-uip/errorn"
 	"github.com/HyperService-Consortium/go-uip/internal/lexer_types"
 	"github.com/HyperService-Consortium/go-uip/lib/serial"
 	"github.com/HyperService-Consortium/go-uip/uip"
@@ -50,10 +50,10 @@ func (inst ConditionGoto) Exec(g *gvm.ExecCtx) error {
 		return err
 	}
 	if v.GetGVMType() != gvm_type.RefBool {
-		return fmt.Errorf("type error: not bool value, is %v", v.GetGVMType())
+		return errorn.NewRuntimeTypeAssertionError(gvm_type.RefBool, v)
 	}
 	if v.Unwrap().(bool) {
-		g.PC = uint64(inst.GetGotoIndexGVMI())
+		g.PC = inst.GetGotoIndexGVMI()
 		return nil
 	}
 	g.PC++

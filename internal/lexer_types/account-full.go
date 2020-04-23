@@ -2,6 +2,7 @@ package lexer_types
 
 import (
 	"errors"
+	"github.com/HyperService-Consortium/go-uip/const/token_type"
 	"github.com/HyperService-Consortium/go-uip/errorn"
 	"github.com/HyperService-Consortium/go-uip/internal/document"
 	"github.com/HyperService-Consortium/go-uip/uip"
@@ -13,12 +14,20 @@ type FullAccount struct {
 	Address []byte
 }
 
-func (a *FullAccount) GetChainId() uip.ChainID {
+func (a *FullAccount) GetType() token_type.Type {
+	return token_type.FullAccount
+}
+
+func (a FullAccount) GetChainId() uip.ChainID {
 	return a.ChainID
 }
 
-func (a *FullAccount) GetAddress() uip.Address {
+func (a FullAccount) GetAddress() uip.Address {
 	return a.Address
+}
+
+func (a FullAccount) GetName() string {
+	return a.Name
 }
 
 const (

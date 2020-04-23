@@ -3,6 +3,7 @@ package internal
 import (
 	"github.com/HyperService-Consortium/go-uip/const/instruction_type"
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
+	"github.com/HyperService-Consortium/go-uip/errorn"
 	"github.com/HyperService-Consortium/go-uip/internal/lexer_types"
 	"github.com/HyperService-Consortium/go-uip/lib/serial"
 	"github.com/HyperService-Consortium/go-uip/uip"
@@ -48,17 +49,18 @@ func (G SetState) GetType() instruction_type.Type {
 }
 
 func (G SetState) Exec(g *gvm.ExecCtx) error {
+
 	return execSetState(g, G.Target, G.RightExpression)
 }
 
 func execSetState(g *gvm.ExecCtx, target string, rhs gvm.VTok) error {
 	k, err := rhs.Eval(g)
 	if err != nil {
-		return err
+		return errorn.NewEvalError(err)
 	}
 	err = g.Save(target, k)
 	if err != nil {
-		return err
+		return errorn.NewSaveLocalStateVariableError(err)
 	}
 
 	g.PC++

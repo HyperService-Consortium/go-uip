@@ -17,6 +17,18 @@ type StateVariable struct {
 	Field    []byte          `json:"field"`
 }
 
+func (s StateVariable) GetContract() token_types.Token {
+	return s.Contract
+}
+
+func (s StateVariable) GetPos() []byte {
+	return s.Pos
+}
+
+func (s StateVariable) GetField() []byte {
+	return s.Field
+}
+
 func (s StateVariable) Marshal(w io.Writer, err *error) {
 	if *err != nil {
 		return

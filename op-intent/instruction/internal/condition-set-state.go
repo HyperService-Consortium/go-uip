@@ -1,9 +1,9 @@
 package internal
 
 import (
-	"fmt"
 	"github.com/HyperService-Consortium/go-uip/const/instruction_type"
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
+	"github.com/HyperService-Consortium/go-uip/errorn"
 	"github.com/HyperService-Consortium/go-uip/internal/lexer_types"
 	"github.com/HyperService-Consortium/go-uip/lib/serial"
 	"github.com/HyperService-Consortium/go-uip/uip"
@@ -48,20 +48,20 @@ func (inst ConditionSetState) Unmarshal(r io.Reader, i *uip.Instruction, err *er
 func (inst ConditionSetState) Exec(g *gvm.ExecCtx) error {
 	v, err := inst.Condition.Eval(g)
 	if err != nil {
-		return err
+		return errorn.NewEvalError(err)
 	}
 	if v.GetGVMType() != gvm_type.RefBool {
-		return fmt.Errorf("type error: not bool value, is %v", v.GetGVMType())
+		return errorn.NewRuntimeTypeAssertionError(gvm_type.RefBool, v)
 	}
 
 	if v.Unwrap().(bool) {
 		k, err := inst.RightExpression.Eval(g)
 		if err != nil {
-			return err
+			return errorn.NewEvalError(err)
 		}
 		err = g.Save(inst.Target, k)
 		if err != nil {
-			return err
+			return errorn.NewSaveLocalStateVariableError(err)
 		}
 	}
 
