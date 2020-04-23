@@ -11,6 +11,11 @@ type RawAccountI interface {
 	GetAddress() []byte
 }
 
+type FullAccountI interface {
+	uip.Account
+	GetName() string
+}
+
 type NamespacedNameAccountI interface {
 	GetName() string
 	GetChainID() uip.ChainIDUnderlyingType
@@ -31,8 +36,6 @@ type stateVariableI interface {
 	GetField() []byte
 }
 
-// todo implement interface again
-
 type LocalStateVariableI interface {
 	Param
 	stateVariableI
@@ -45,7 +48,7 @@ type StateVariableI interface {
 
 type ConstantI interface {
 	Param
-	GetConstant() interface{}
+	Unwrap() interface{}
 }
 
 type UnaryExpressionI interface {

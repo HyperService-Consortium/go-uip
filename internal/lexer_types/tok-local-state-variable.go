@@ -16,6 +16,14 @@ type LocalStateVariable struct {
 	Field []byte          `json:"field"`
 }
 
+func (l LocalStateVariable) GetPos() []byte {
+	return l.Pos
+}
+
+func (l LocalStateVariable) GetField() []byte {
+	return l.Field
+}
+
 func (l LocalStateVariable) Marshal(w io.Writer, err *error) {
 	if *err != nil {
 		return

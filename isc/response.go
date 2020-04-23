@@ -54,19 +54,19 @@ type Response interface {
 	GetCode() Code
 }
 
-func reply() *ResponseData {
+func Reply() *ResponseData {
 	return &ResponseData{}
 }
 
-func report(code Code, err error) Response {
+func Report(code Code, err error) Response {
 	return &ResponseError{Code: code, Err: err.Error()}
 }
 
-func reportString(code Code, err string) Response {
+func ReportString(code Code, err string) Response {
 	return &ResponseError{Code: code, Err: err}
 }
 
-func reportCode(code Code) Response {
+func ReportCode(code Code) Response {
 	return &ResponseError{Code: code, Err: ""}
 }
 
@@ -74,6 +74,7 @@ func IsOK(r Response) bool {
 	return r.GetCode() == CodeOK
 }
 
+//noinspection GoUnusedExportedFunction
 func IsErr(r Response) bool {
 	return r.GetCode() != CodeOK
 }
@@ -107,7 +108,7 @@ func (r *ResponseData) Param(v interface{}) Response {
 	var err error
 	r.Data, err = json.Marshal(v)
 	if err != nil {
-		return report(CodeEncodeDataError, err)
+		return Report(CodeEncodeDataError, err)
 	}
 	return r
 }
@@ -145,13 +146,13 @@ func (r *nilResponse) GetCode() Code {
 
 func assertTrue(k bool, hintCode Code) {
 	if !k {
-		panic(reportCode(hintCode))
+		panic(ReportCode(hintCode))
 	}
 }
 
 func assertTrueH(k bool, hintCode Code, hint ...interface{}) {
 	if !k {
-		panic(reportString(hintCode, fmt.Sprint(hint...)))
+		panic(ReportString(hintCode, fmt.Sprint(hint...)))
 	}
 }
 

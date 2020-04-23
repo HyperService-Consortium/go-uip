@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"errors"
 	"github.com/HyperService-Consortium/go-uip/const/merkleproof_proposal_type"
 	"github.com/HyperService-Consortium/go-uip/const/token_type"
 	"github.com/HyperService-Consortium/go-uip/const/trans_type"
@@ -26,8 +25,7 @@ func (ier *Parser) parseContractInvocation(invokeIntent *lexer.InvokeIntent) (in
 	}
 
 	if srcInfo.GetChainId() != dstInfo.GetChainId() {
-		//todo: move error type
-		return nil, errorn.NewInvalidFieldError(errors.New("chain id not matched"))
+		return nil, errorn.NewChainIDNotEqual(srcInfo.GetChainId(), dstInfo.GetChainId())
 	}
 
 	var meta lexer.ContractInvokeMeta

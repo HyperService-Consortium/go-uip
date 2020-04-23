@@ -34,6 +34,10 @@ func (s *Storage) SetUserAckCount(u uint64) {
 	s.storage.SetUint64("UserAckCount", u)
 }
 
+func (s *Storage) GetUserAcknowledged(b []byte) []byte {
+	return s.storage.NewMappingBytesToBytes("UserAcknowledged").Get(b)
+}
+
 func (s *Storage) GetPC() uint64 {
 	return s.storage.GetUint64("_PC")
 }

@@ -1,10 +1,10 @@
 package lexer_types
 
 import (
-	"errors"
 	"github.com/HyperService-Consortium/go-uip/const/sign_type"
 	"github.com/HyperService-Consortium/go-uip/const/token_type"
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
+	"github.com/HyperService-Consortium/go-uip/errorn"
 	"github.com/HyperService-Consortium/go-uip/internal/token_types"
 	"github.com/HyperService-Consortium/go-uip/lib/serial"
 	"github.com/HyperService-Consortium/go-uip/uip"
@@ -48,6 +48,26 @@ type DeterminedBinaryExpression struct {
 	Right token_types.Param `json:"right"`
 }
 
+func (b DeterminedBinaryExpression) GetSign() sign_type.Type {
+	return b.Sign
+}
+
+func (b DeterminedBinaryExpression) GetLeft() token_types.Param {
+	return b.Left
+}
+
+func (b DeterminedBinaryExpression) GetRight() token_types.Param {
+	return b.Right
+}
+
+func (b DeterminedBinaryExpression) GetGVMTok() gvm.TokType {
+	return token_type.BinaryExpression
+}
+
+func (b DeterminedBinaryExpression) GetGVMType() gvm.RefType {
+	return gvm.RefType(b.Type)
+}
+
 func (b DeterminedBinaryExpression) Marshal(w io.Writer, err *error) {
 	if *err != nil {
 		return
@@ -78,21 +98,15 @@ func (b DeterminedBinaryExpression) Eval(g *gvm.ExecCtx) (gvm.Ref, error) {
 	return BiCalc(l, r, gvm_type.SignType(b.Sign))
 }
 
-func (b DeterminedBinaryExpression) GetGVMTok() gvm.TokType {
-	return token_type.BinaryExpression
-}
-
-func (b DeterminedBinaryExpression) GetGVMType() gvm.RefType {
-	return gvm.RefType(b.Type)
-}
-
 func BiCalc(l gvm.Ref, r gvm.Ref, signType gvm_type.SignType) (gvm.Ref, error) {
 	if IsGVMNative(l) && IsGVMNative(r) {
+		//todo: impl bitOp
 		return gvm_type.BiCalc(l, r, signType)
 	}
-	return nil, errors.New("todo")
+	return nil, errorn.NewRuntimeBiCalcError(l.GetGVMType(), r.GetGVMType(), signType)
 }
 
 func IsGVMNative(l gvm.Ref) bool {
+	//todo upstream
 	return gvm_type.IsStandardRefType(l.GetGVMType()) || l.GetGVMType() == gvm_type.RefUnknown
 }

@@ -3,7 +3,6 @@ package parser
 import (
 	"encoding/hex"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/HyperService-Consortium/go-uip/const/instruction_type"
 	"github.com/HyperService-Consortium/go-uip/errorn"
@@ -57,16 +56,14 @@ func (ier *Parser) fillIndex(intents TxIntentsImpl) (TxIntentsImpl, error) {
 			}
 			index := nameMap[ri.IndexName] + ri.Offset
 			if index < 0 {
-				//todo
-				return nil, errorn.NewInvalidFieldError(errors.New("index negative"))
+				return nil, errorn.NewInvalidFieldError(errorn.ErrNegativeIndex)
 			}
 			intents[i].SetInstruction(instruction.NewConditionGoto(uint64(index), cond))
 		case instruction_type.RawGoto:
 			ri := inst.(*instruction.RawGoto)
 			index := nameMap[ri.IndexName] + ri.Offset
 			if index < 0 {
-				//todo
-				return nil, errorn.NewInvalidFieldError(errors.New("index negative"))
+				return nil, errorn.NewInvalidFieldError(errorn.ErrNegativeIndex)
 			}
 			intents[i].SetInstruction(instruction.NewGoto(uint64(index)))
 		case instruction_type.RawConditionSetState:
