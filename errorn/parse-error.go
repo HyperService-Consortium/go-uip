@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/HyperService-Consortium/go-uip/uip"
+	"github.com/Myriad-Dreamin/catcher"
 )
 
 type ParseError struct {
@@ -20,7 +21,7 @@ type JSONParseError struct {
 }
 
 func _newParseError(err error, errType string) *ParseError {
-	return &ParseError{Err: err, ErrType: errType}
+	return &ParseError{Err: catcher.WrapN(catcher.BaseSkip+2, 1, err), ErrType: errType}
 }
 
 func NewSortError(err error) *ParseError {
@@ -73,6 +74,10 @@ func NewParseTransactionIntentError(err error) *ParseError {
 	return _newParseError(err, "translator parse transaction intent error")
 }
 
+func NewChainIDNotEqual(u, v uip.ChainIDUnderlyingType) *ParseError {
+	return _newParseError(ChainIDNotEqual{u, v}, "chain id not equal")
+}
+
 type AccountIndexConflict struct {
 	Name    string
 	ChainID uip.ChainIDUnderlyingType
@@ -94,6 +99,18 @@ const ErrorTypeValueTypeNotFound = "value type not found"
 
 func NewValueTypeNotFound(valueType string) *ParseError {
 	return _newParseError(ValueTypeNotFound{ValueType: valueType}, ErrorTypeValueTypeNotFound)
+}
+
+const ErrorTypeTokenTypeNotFound = "token type not found"
+
+func NewTokenTypeNotFound(tokenType int) *ParseError {
+	return _newParseError(TokenTypeNotFound{TokenType: tokenType}, ErrorTypeTokenTypeNotFound)
+}
+
+const ErrorTypeGVMTypeNotFound = "gvm type not found"
+
+func NewGVMTypeNotFound(gvmType int) *ParseError {
+	return _newParseError(GVMTypeNotFound{GVMType: gvmType}, ErrorTypeGVMTypeNotFound)
 }
 
 const ErrorTypeAccountTypeNotFound = "account type not found"
@@ -202,6 +219,12 @@ type AtOpIntentParameterPos struct{ Pos int }
 
 func (a AtOpIntentParameterPos) String() string {
 	return fmt.Sprintf("at parameter pos %d", a.Pos)
+}
+
+type WithAccountName struct{ Acc string }
+
+func (a WithAccountName) String() string {
+	return fmt.Sprintf("with account name %s", a.Acc)
 }
 
 //func (a AtOpIntentsPos) String() string {

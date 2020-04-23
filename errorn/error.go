@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/HyperService-Consortium/go-uip/uip"
+	"github.com/Myriad-Dreamin/gvm"
+	gvm_type "github.com/Myriad-Dreamin/gvm/libgvm/gvm-type"
 )
 
 var (
@@ -17,6 +19,8 @@ var (
 	ErrNotEnoughParamInformation  = errors.New("not enough param information")
 	ErrTypeError                  = errors.New("unexpected field type")
 	ErrNoDeterminedChainID        = errors.New("no determined chain id")
+	ErrNotTranslated              = errors.New("not translated")
+	ErrNegativeIndex              = errors.New("index negative")
 )
 
 type ValueTypeNotFound struct {
@@ -25,6 +29,22 @@ type ValueTypeNotFound struct {
 
 func (e ValueTypeNotFound) Error() string {
 	return fmt.Sprintf("value type %v not found", e.ValueType)
+}
+
+type TokenTypeNotFound struct {
+	TokenType int
+}
+
+func (e TokenTypeNotFound) Error() string {
+	return fmt.Sprintf("token type %v not found", e.TokenType)
+}
+
+type GVMTypeNotFound struct {
+	GVMType int
+}
+
+func (e GVMTypeNotFound) Error() string {
+	return fmt.Sprintf("gvm type %v not found", e.GVMType)
 }
 
 type AccountTypeNotFound struct {
@@ -66,4 +86,48 @@ type OpNameNotFound struct {
 
 func (e OpNameNotFound) Error() string {
 	return fmt.Sprintf("op name %v not found", e.OpName)
+}
+
+type BiCalcError struct {
+	L    gvm.RefType
+	R    gvm.RefType
+	Sign gvm_type.SignType
+}
+
+func (e BiCalcError) Error() string {
+	return fmt.Sprintf("<L:%v,R:%v,Sign:%v>", e.L, e.R, e.Sign)
+}
+
+type UnCalcError struct {
+	L    gvm.RefType
+	Sign gvm_type.SignType
+}
+
+func (e UnCalcError) Error() string {
+	return fmt.Sprintf("<L:%v,Sign:%v>", e.L, e.Sign)
+}
+
+type FunctionNotFound struct {
+	FuncName string
+}
+
+func (e FunctionNotFound) Error() string {
+	return fmt.Sprintf("function not found: %v", e.FuncName)
+}
+
+type TypeAssertionError struct {
+	Expected gvm.RefType
+	Actual   gvm.Ref
+}
+
+func (e TypeAssertionError) Error() string {
+	return fmt.Sprintf("runtime type assertion error: expected %v, actual %v", e.Expected, e.Actual.GetGVMType())
+}
+
+type ChainIDNotEqual struct {
+	U, V uip.ChainIDUnderlyingType
+}
+
+func (c ChainIDNotEqual) Error() string {
+	return fmt.Sprintf("chain id not equal: %v and %v", c.U, c.V)
 }
