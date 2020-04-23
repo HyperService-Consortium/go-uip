@@ -1,6 +1,6 @@
 package TxState
 
-import "golang.org/x/tools/go/ssa/interp/testdata/src/fmt"
+import "fmt"
 
 type Type = uint64
 

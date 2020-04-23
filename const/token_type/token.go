@@ -23,6 +23,7 @@ const (
 	NameAccount
 	NamespacedRawAccount
 	RawAccount
+	FullAccount
 
 	Length
 )
