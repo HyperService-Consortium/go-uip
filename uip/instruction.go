@@ -28,10 +28,13 @@ type VTok interface {
 	Unmarshal(r io.Reader, i *VTok, err *error)
 }
 
-//todo
 type TransactionIntent interface {
 	GetTxType() trans_type.Type
 	GetChainID() ChainIDUnderlyingType
+	GetSrc() []byte
+	GetDst() []byte
+	GetMeta() []byte
+	GetAmt() string
 }
 
 type MerkleProofProposal interface {
