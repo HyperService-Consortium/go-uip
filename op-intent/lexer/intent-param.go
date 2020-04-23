@@ -1,6 +1,7 @@
 package lexer
 
 import (
+	"encoding/base64"
 	"github.com/HyperService-Consortium/go-uip/const/sign_type"
 	"github.com/HyperService-Consortium/go-uip/const/value_type"
 	"github.com/HyperService-Consortium/go-uip/errorn"
@@ -18,18 +19,71 @@ func ParamUnmarshalJSON(b []byte) (r lexer_types.Param, err error) {
 	return ParamUnmarshalResult(c)
 }
 
-func CreateConstantFromJSON(t value_type.Type, v document.Document) lexer_types.DeterminedParam {
+func CreateConstantFromJSON(t value_type.Type, v document.Document) (lexer_types.DeterminedParam, error) {
+	v.String()
 	switch t {
+	case value_type.String:
+		return lexer_types.String(v.String()), nil
+	case value_type.Bytes:
+		b, err := base64.StdEncoding.DecodeString(v.String())
+		if err != nil {
+			return nil, err
+		}
+		return lexer_types.Bytes(b), nil
+	case value_type.Bool:
+		return lexer_types.Bool(v.Bool()), nil
+	case value_type.Uint8:
+		return lexer_types.Uint8(v.Uint()), nil
+	case value_type.Uint16:
+		return lexer_types.Uint16(v.Uint()), nil
+	case value_type.Uint32:
+		return lexer_types.Uint32(v.Uint()), nil
+	case value_type.Uint64:
+		return lexer_types.Uint64(v.Uint()), nil
+	case value_type.Int8:
+		return lexer_types.Int8(v.Int()), nil
+	case value_type.Int16:
+		return lexer_types.Int16(v.Int()), nil
+	case value_type.Int32:
+		return lexer_types.Int32(v.Int()), nil
+	case value_type.Int64:
+		return lexer_types.Int64(v.Int()), nil
+	case value_type.Int128:
+		i := big.NewInt(0)
+		i.SetString(v.String(), 0)
+		return (*lexer_types.Int128)(i), nil
+	case value_type.Int256:
+		i := big.NewInt(0)
+		i.SetString(v.String(), 0)
+		return (*lexer_types.Int256)(i), nil
+	case value_type.Uint128:
+		i := big.NewInt(0)
+		i.SetString(v.String(), 0)
+		return (*lexer_types.Uint128)(i), nil
 	case value_type.Uint256:
-		return (*lexer_types.Uint256)(big.NewInt(v.Int()))
+		i := big.NewInt(0)
+		i.SetString(v.String(), 0)
+		return (*lexer_types.Uint256)(i), nil
 	}
-	panic("implement me")
+	return nil, errorn.NewGVMTypeNotFound(int(t))
 }
 
-//Greater
-
 var SignTable = map[string]sign_type.Type{
-	"Greater": sign_type.GT,
+	"Greater":      sign_type.GT,
+	"Less":         sign_type.LT,
+	"GreaterEqual": sign_type.GE,
+	"LessEqual":    sign_type.LE,
+	"Equal":        sign_type.EQ,
+	"NotEqual":     sign_type.NEQ,
+	"LogicAnd":     sign_type.LAnd,
+	"LogicOr":      sign_type.LOr,
+	"LogicNot":     sign_type.LNot,
+	"Add":          sign_type.ADD,
+	"Sub":          sign_type.SUB,
+	"Mul":          sign_type.MUL,
+	"Quo":          sign_type.QUO,
+	"Rem":          sign_type.REM,
+	//todo: bit op
 }
 
 func ParamUnmarshalResult(content document.Document) (p lexer_types.Param, err error) {
@@ -87,7 +141,7 @@ func ParamUnmarshalResult(content document.Document) (p lexer_types.Param, err e
 
 	v = content.Get(FieldValueConstant)
 	if v.Exists() {
-		return CreateConstantFromJSON(intDesc, v), nil
+		return CreateConstantFromJSON(intDesc, v)
 	} else if content.Get(FieldContractPos).Exists() &&
 		content.Get(FieldContractField).Exists() {
 		//if err != nil {
