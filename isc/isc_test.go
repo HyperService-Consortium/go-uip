@@ -127,25 +127,25 @@ func TestISC_NewContract(t *testing.T) {
 		{name: Description[CodeFirstOwnerNotBeSender], fields: fields{mock.NewLocalStorage(), ctx}, args: args{
 			iscOwners: [][]byte{append(ctx.s, 1)},
 			funds:     []uint64{0},
-		}, want: reportCode(CodeFirstOwnerNotBeSender), wantCode: CodeFirstOwnerNotBeSender},
+		}, want: ReportCode(CodeFirstOwnerNotBeSender), wantCode: CodeFirstOwnerNotBeSender},
 		{name: Description[CodeNotEqualLengthOfOwnersAndFunds], fields: fields{mock.NewLocalStorage(), ctx}, args: args{
 			iscOwners: [][]byte{ctx.s},
 			funds:     []uint64{},
-		}, want: reportCode(CodeNotEqualLengthOfOwnersAndFunds), wantCode: CodeNotEqualLengthOfOwnersAndFunds},
+		}, want: ReportCode(CodeNotEqualLengthOfOwnersAndFunds), wantCode: CodeNotEqualLengthOfOwnersAndFunds},
 		{name: Description[CodeDuplicateOwner], fields: fields{mock.NewLocalStorage(), ctx}, args: args{
 			iscOwners: [][]byte{ctx.s, ctx.s},
 			funds:     []uint64{0, 0},
-		}, want: reportString(CodeDuplicateOwner, fmt.Sprint(hex.EncodeToString(ctx.s))), wantCode: CodeDuplicateOwner},
+		}, want: ReportString(CodeDuplicateOwner, fmt.Sprint(hex.EncodeToString(ctx.s))), wantCode: CodeDuplicateOwner},
 		{name: "good pure", fields: fields{mock.NewLocalStorage(), ctx}, args: args{
 			iscOwners: [][]byte{ctx.s},
 			funds:     []uint64{0},
-		}, want: reply().Param(NewContractReply{Address: ctx.a})},
+		}, want: Reply().Param(NewContractReply{Address: ctx.a})},
 		{name: "good with instruction", fields: fields{mock.NewLocalStorage(), ctx}, args: args{
 			iscOwners:       [][]byte{ctx.s},
 			funds:           []uint64{0},
 			instructions:    funcSetA(),
 			rawInstructions: encodeInstructions(funcSetA()),
-		}, want: reply().Param(NewContractReply{Address: ctx.a}), callback: func(t *testing.T, tt testCase) {
+		}, want: Reply().Param(NewContractReply{Address: ctx.a}), callback: func(t *testing.T, tt testCase) {
 			isc := NewISC(tt.fields.msg, storage.NewVM(tt.fields.Storage))
 
 			assert.EqualValues(t, encodeInstructions(funcSetA())[0], isc.Storage.Instructions().Get(0))

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/hex"
 	TxState "github.com/HyperService-Consortium/go-uip/const/transaction_state_type"
+	"github.com/HyperService-Consortium/go-uip/errorn"
 	"github.com/HyperService-Consortium/go-uip/op-intent/instruction"
 	"github.com/HyperService-Consortium/go-uip/op-intent/trap"
 	"github.com/HyperService-Consortium/go-uip/storage"
@@ -55,7 +56,7 @@ func (isc *ISC) GetFunction(function string) (gvm.Function, error) {
 	if function == "main" {
 		return &NSBFunctionImpl{storage: isc.Storage.Instructions()}, nil
 	} else {
-		panic("todo")
+		return nil, errorn.NewFunctionNotFound(function)
 	}
 }
 
@@ -72,9 +73,9 @@ func (isc *ISC) checkRunException(err error) (uint64, error) {
 		err = nil
 	}
 	if err != nil {
-		return 0, err
+		return 0, errorn.NewGVMExecuteError(err)
 	}
-	// todo
+	// todo: upstream
 	return libgvm.GetPC(isc, sugar.HandlerError(libgvm.GetCurrentDepth(isc)).(uint64))
 }
 
@@ -109,10 +110,11 @@ func (isc *ISC) IsSettling() bool {
 }
 
 func (isc *ISC) maybeSwitchToStateSettling(pc uint64) Response {
+	//todo ok?
 	if pc >= isc.Storage.Instructions().Length() {
 		isc.Storage.SetISCState(StateSettling)
 	} else if pc < 0 {
-		return reportCode(CodePCUnderflow)
+		return ReportCode(CodePCUnderflow)
 	}
 	return nil
 }
@@ -167,7 +169,7 @@ func (isc *ISC) NewContract(iscOwners [][]byte,
 		is.Append(rawInstructions[idx])
 		AidMap.Set(uint64(idx), TxState.Initing)
 	}
-	return reply().Param(NewContractReply{Address: isc.Ctx.Address()})
+	return Reply().Param(NewContractReply{Address: isc.Ctx.Address()})
 }
 
 func (isc *ISC) FreezeInfo(tid uint64) Response {
@@ -194,7 +196,7 @@ func (isc *ISC) UserAck(fr, signature []byte) Response {
 		if uac == isc.Storage.Owners().Length() {
 			pc, err := isc.initPC()
 			if err != nil {
-				return report(CodeIteratePCError, err)
+				return Report(CodeIteratePCError, err)
 			}
 			isc.Storage.SetPC(pc)
 			isc.Storage.SetMuPC(TxState.Inited)
@@ -208,6 +210,7 @@ func (isc *ISC) UserAck(fr, signature []byte) Response {
 	return OK
 }
 
+//todo: test user refuse
 //noinspection GoUnusedParameter
 func (isc *ISC) UserRefuse(signature []byte) Response {
 	assertTrue(isc.IsInitialized(), CodeIsNotInitialized)
@@ -226,7 +229,7 @@ func (isc *ISC) InsuranceClaim(tid, aid uint64) Response {
 		var err error
 		pc, err = isc.nextPC()
 		if err != nil {
-			return report(CodeIteratePCError, err)
+			return Report(CodeIteratePCError, err)
 		}
 		isc.Storage.SetPC(pc)
 		isc.Storage.SetMuPC(TxState.Inited)
@@ -270,7 +273,7 @@ type NSBInstructionImpl struct {
 func (N *NSBInstructionImpl) Exec(g *gvm.ExecCtx) error {
 	i, err := instruction.DecodeInstruction(bytes.NewReader(N.storage))
 	if err != nil {
-		return err
+		return errorn.NewDeserializeError(err)
 	}
 	return i.Exec(g)
 }
