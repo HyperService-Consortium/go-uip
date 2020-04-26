@@ -1,10 +1,12 @@
 package parser
 
 import (
+	"bytes"
 	"github.com/HyperService-Consortium/go-uip/const/merkleproof_proposal_type"
 	"github.com/HyperService-Consortium/go-uip/const/token_type"
 	"github.com/HyperService-Consortium/go-uip/const/trans_type"
 	"github.com/HyperService-Consortium/go-uip/errorn"
+	"github.com/HyperService-Consortium/go-uip/internal/lexer_types"
 	"github.com/HyperService-Consortium/go-uip/internal/token_types"
 	"github.com/HyperService-Consortium/go-uip/op-intent/instruction"
 	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
@@ -43,7 +45,7 @@ func (ier *Parser) parseContractInvocation(invokeIntent *lexer.InvokeIntent) (in
 			return nil, err
 		}
 	}
-	b, err := ier.marshal(meta)
+	b, err := lexer.MarshalContractInvokeMeta(&meta)
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +129,8 @@ func (ier *Parser) addProposal(param token_types.Param, proposal uip.MerkleProof
 			if err != nil {
 				return nil, errorn.NewGetTransactionProofType(err).Desc(errorn.AtChainID{ChainID: u.GetChainId()})
 			}
-			v, err := ier.marshal(param)
+			var b = bytes.NewBuffer(nil)
+			lexer_types.EncodeVTok(b, param, &err)
 			if err != nil {
 				return nil, err
 			}
@@ -135,7 +138,7 @@ func (ier *Parser) addProposal(param token_types.Param, proposal uip.MerkleProof
 				DescriptionType:   merkleproof_proposal_type.DataProof,
 				MerkleProofType:   mpt,
 				ValueType:         uip.TypeIDUnderlyingType(param.GetGVMType()),
-				SourceDescription: v,
+				SourceDescription: b.Bytes(),
 			})
 		}
 	}

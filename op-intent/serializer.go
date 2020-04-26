@@ -1,11 +1,9 @@
 package opintent
 
 import (
-	"bytes"
 	"encoding/json"
 	"github.com/HyperService-Consortium/go-uip/const/instruction_type"
 	"github.com/HyperService-Consortium/go-uip/internal/lexer_types"
-	"github.com/HyperService-Consortium/go-uip/lib/serial"
 	"github.com/HyperService-Consortium/go-uip/op-intent/instruction"
 	"github.com/HyperService-Consortium/go-uip/op-intent/lexer"
 	"github.com/HyperService-Consortium/go-uip/uip"
@@ -104,32 +102,11 @@ type _serializer struct {
 var Serializer = _serializer{}
 
 func (mcs) Unmarshal(b []byte, meta *lexer.ContractInvokeMeta) (err error) {
-	var r = bytes.NewReader(b)
-	serial.Read(r, &meta.Code, &err)
-	serial.Read(r, &meta.Meta, &err)
-	serial.Read(r, &meta.FuncName, &err)
-	var paramsLength uint64
-	serial.Read(r, &paramsLength, &err)
-	if err != nil {
-		return
-	}
-	meta.Params = make([]uip.VTok, paramsLength)
-	for i := range meta.Params {
-		DecodeVTok(r, &meta.Params[i], &err)
-	}
-	return
+	return lexer.UnmarshalContractInvokeMeta(b, meta)
 }
 
 func (mcs) Marshal(meta *lexer.ContractInvokeMeta) (_ []byte, err error) {
-	var w = bytes.NewBuffer(nil)
-	serial.Write(w, meta.Code, &err)
-	serial.Write(w, meta.Meta, &err)
-	serial.Write(w, meta.FuncName, &err)
-	serial.Write(w, uint64(len(meta.Params)), &err)
-	for i := range meta.Params {
-		EncodeVTok(w, meta.Params[i], &err)
-	}
-	return w.Bytes(), err
+	return lexer.MarshalContractInvokeMeta(meta)
 }
 
 func (ts) Unmarshal(b []byte, meta *TransactionIntent) error {
